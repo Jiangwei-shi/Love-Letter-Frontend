@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-// @ts-ignore
-// import { useSelector, useDispatch } from 'react-redux';
 import {
     Container,
     Paper,
@@ -11,13 +9,11 @@ import {
     Button,
     Alert,
     Text,
-    Image,
+    Image, useMantineColorScheme,
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { useDispatch, useSelector } from 'react-redux';
-// @ts-ignore
 import { loginThunk } from '@/thunks/authorize-thunk';
-// import Logo from '../../icons/logo.jpg';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 
 function Login() {
     // State hooks for managing user inputs and error messages
@@ -26,12 +22,14 @@ function Login() {
     const [error, setError] = useState(null);
 
     // Hooks for dispatching actions and navigating routes
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     // Selector to access current user data from Redux store
-    const user = useSelector((state: { currentUser: any; }) => state.currentUser);
+    const user = useAppSelector(state => state.currentUser.user);
     // Derived state to determine if the form is valid for submission
     const isFormValid = username.trim() !== '' && password.trim() !== '';
+
+    const { setColorScheme } = useMantineColorScheme();
 
     useEffect(() => {
         if (user && user._id) {
@@ -52,11 +50,10 @@ function Login() {
         event.preventDefault();
         if (!isFormValid) return;
         setError(null);
-
         try {
             await dispatch(loginThunk({ username, password }));
             // eslint-disable-next-line no-console
-            console.log(user);
+            console.log("here is user's information", user);
             // eslint-disable-next-line @typescript-eslint/no-shadow
         } catch (error) {
             // @ts-ignore
@@ -108,6 +105,8 @@ function Login() {
                     </Button>
                 </form>
             </Paper>
+            <Button onClick={() => setColorScheme('light')}>Light</Button>
+            <Button onClick={() => setColorScheme('dark')}>Dark</Button>
 
             <Text size="sm" mt={5}>
                 Do not have an account yet?{' '}
