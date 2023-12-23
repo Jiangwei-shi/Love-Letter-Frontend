@@ -1,4 +1,7 @@
+'use client';
+
 import { Grid, Card, Group, Button, Image, Text, Container } from '@mantine/core';
+import { useAppSelector } from '@/lib/hooks';
 
 export function StyleSelect() {
     return (

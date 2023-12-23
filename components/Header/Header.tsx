@@ -18,7 +18,7 @@ import { deleteUserThunk, logoutThunk } from '@/thunks/authorize-thunk';
 export function Header() {
     const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
     const dispatch = useAppDispatch();
-    const user = useAppSelector(state => state.currentUser.user);
+    const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
     const handleLogoutClick = () => {
         dispatch(logoutThunk())
@@ -27,8 +27,7 @@ export function Header() {
             });
     };
     const handleDeleteAccountClick = () => {
-        const confirmation = window.confirm('Are you sure you want to delete your account?');
-        if (confirmation && user) {
+        if (user) {
             // @ts-ignore
             dispatch(deleteUserThunk(user._id))
                 .then(() => {

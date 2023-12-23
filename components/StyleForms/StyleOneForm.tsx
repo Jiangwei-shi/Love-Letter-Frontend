@@ -16,7 +16,7 @@ export default function StyleOneForm() {
     const [SelfViewerOpen, setSelfViewerOpen] = useState(false);
     const [CoupleViewerOpen, setCoupleViewerOpen] = useState(false);
     // const [isLoading, setIsLoading] = useState(false);
-    const user = useAppSelector(state => state.currentUser.user);
+    const user = useAppSelector(state => state.currentUser);
     const dispatch = useAppDispatch();
     // const router = useRouter();
     const form = useForm({

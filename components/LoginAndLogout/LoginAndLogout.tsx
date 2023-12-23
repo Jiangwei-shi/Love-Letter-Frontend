@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './LoginAndLogout.module.css';
 import { loginThunk, registerThunk } from '@/thunks/authorize-thunk';
@@ -16,8 +16,15 @@ export function LoginAndLogout() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const dispatch = useAppDispatch();
-    const user = useAppSelector(state => state.currentUser.user);
+    const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
+
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            router.push('/styleSelect');
+        }
+    }, [user]);
     const changeForm = () => {
         setIsGx(true);
         setTimeout(() => setIsGx(false), 1500);
@@ -32,10 +39,10 @@ export function LoginAndLogout() {
         event.preventDefault();
         try {
             await dispatch(loginThunk({ username, password }));
-            router.push('/styleSelect');
+            // router.push('/styleSelect');
         } catch (error) {
             // @ts-ignore
-            setError('User does not exist');
+            // setError('User does not exist');
         }
     };
 
@@ -72,7 +79,7 @@ export function LoginAndLogout() {
                        value={username}
                        onChange={handleUsernameChange}
                      />
-                     <input type="text" className={styles.form_input} placeholder="Password" value={password} onChange={handlePasswordChange} />
+                     <input type="password" className={styles.form_input} placeholder="Password" value={password} onChange={handlePasswordChange} />
                      <button type="button" className={`${styles.formButton} ${styles.button} ${styles.submit}`} onClick={login}>
                          SIGN IN
                      </button>
