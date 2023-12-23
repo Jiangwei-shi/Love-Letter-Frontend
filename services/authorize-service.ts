@@ -1,16 +1,18 @@
 import axios from 'axios';
 
 const API_BASE = process.env.REACT_APP_APIENDPOINT || 'http://localhost:4000/api/users';
-interface RegisterUserData {
+interface UserData {
     username: string;
     password: string;
 }
-
+interface UserId {
+    _id: string;
+}
 const api = axios.create({
     withCredentials: true,
 });
 
-export const registerUser = async (userData: RegisterUserData) => {
+export const registerUser = async (userData: UserData) => {
     try {
         const response = await api.post(`${API_BASE}/register`, userData);
         return response.data;
@@ -27,7 +29,7 @@ export const registerUser = async (userData: RegisterUserData) => {
     }
 };
 
-export const loginUser = async (userData: RegisterUserData) => {
+export const loginUser = async (userData: UserData) => {
     const response = await api.post(`${API_BASE}/login`, userData);
     return response.data;
 };
@@ -37,7 +39,7 @@ export const logout = async () => {
     return response.data;
 };
 
-export const deleteUser = async (uid: String) => {
+export const deleteUser = async (uid: UserId) => {
     const response = await api.delete(`${API_BASE}/${uid}`);
     return response.data;
 };
