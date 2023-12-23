@@ -45,9 +45,6 @@ export function LoginAndLogout() {
         // setError(null);
         try {
             await dispatch(registerThunk({ username, password }));
-            // eslint-disable-next-line no-console
-            console.log("here is user's information", user);
-            // eslint-disable-next-line @typescript-eslint/no-shadow
         } catch (error) {
             // @ts-ignore
             setError('User does not exist');

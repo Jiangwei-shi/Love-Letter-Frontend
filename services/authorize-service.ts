@@ -45,6 +45,7 @@ export const deleteUser = async (uid: UserId) => {
 };
 
 export const updateUser = async (uid: String, userData: any) => {
+    console.log('this is updated userData', userData);
    const response = await api.put(`${API_BASE}/${uid}`, userData);
    return response.data;
 };

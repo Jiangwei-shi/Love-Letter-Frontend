@@ -1,10 +1,12 @@
 'use client';
 
-import { Modal, Group, Button, Container, Title, Grid, TextInput, Avatar, FileInput, Textarea, Flex } from '@mantine/core';
+import { Modal, Group, Button, Container, Title, Grid, Text, TextInput, Avatar, FileInput, Flex } from '@mantine/core';
 import React, { useState } from 'react';
 import { useForm } from '@mantine/form';
-// import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/lib/hooks';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import firebase from '../../firebaseConfig';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { updateUserThunk } from '@/thunks/authorize-thunk';
 
 export default function StyleOneForm() {
     const [firstPicture, setFirstPicture] = useState(null);
@@ -15,7 +17,7 @@ export default function StyleOneForm() {
     const [CoupleViewerOpen, setCoupleViewerOpen] = useState(false);
     // const [isLoading, setIsLoading] = useState(false);
     const user = useAppSelector(state => state.currentUser.user);
-    // const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch();
     // const router = useRouter();
     const form = useForm({
         initialValues: {
@@ -23,33 +25,29 @@ export default function StyleOneForm() {
             // eslint-disable-next-line max-len
             styleOneData: (user?.styleOneData && user.styleOneData.length > 0) ? user?.styleOneData :
                 { firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    firstSentence: '111',
-                    secondSentence: '222',
-                    secondPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    thirdSentence: '333',
-                    fourthSentence: '444',
-                    thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    fifthSentence: '555',
-                    sixthSentence: '666',
-                    fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    seventhSentence: '777' },
+                  firstSentence: '111',
+                  secondSentence: '222',
+                  secondPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                  thirdSentence: '333',
+                  fourthSentence: '444',
+                  thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                  fifthSentence: '555',
+                  sixthSentence: '666',
+                  fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                  seventhSentence: '777' },
         },
     });
 
-    const handleFirstPictureChange = (e: any) => {
-            const file = e.target.files[0];
-            setFirstPicture(file);
+    const handleFirstPictureChange = (file: any) => {
+        setFirstPicture(file);
     };
-    const handleSecondPictureChange = (e: any) => {
-        const file = e.target.files[0];
+    const handleSecondPictureChange = (file: any) => {
         setSecondPicture(file);
     };
-    const handleThirdPictureChange = (e: any) => {
-        const file = e.target.files[0];
+    const handleThirdPictureChange = (file: any) => {
         setThirdPicture(file);
     };
-    const handleFourthPictureChange = (e: any) => {
-        const file = e.target.files[0];
+    const handleFourthPictureChange = (file: any) => {
         setFourthPicture(file);
     };
 
@@ -60,21 +58,41 @@ export default function StyleOneForm() {
     //     setCoupleViewerOpen(true);
     // };
 
-    const uploadSelfAvatar = async () => {
+    const uploadFirstPicture = async () => {
         if (!firstPicture) return form.values.styleOneData.firstPicture;
         const storage = getStorage(firebase);
-        const storageRef = ref(storage, `avatars/${selfAvatar.name}`);
-        await uploadBytes(storageRef, selfAvatar);
+        // @ts-ignore
+        const storageRef = ref(storage, `avatars/${firstPicture.name}`);
+        await uploadBytes(storageRef, firstPicture);
         return getDownloadURL(storageRef);
     };
-    //
-    // const uploadCoupleAvatar = async () => {
-    //     if (!coupleAvatar) return form.values.coupleAvatarUrl;
-    //     const storage = getStorage(firebase);
-    //     const storageRef = ref(storage, `avatars/${coupleAvatar.name}`);
-    //     await uploadBytes(storageRef, coupleAvatar);
-    //     return getDownloadURL(storageRef);
-    // };
+
+    const uploadSecondPicture = async () => {
+        if (!secondPicture) return form.values.styleOneData.secondPicture;
+        const storage = getStorage(firebase);
+        // @ts-ignore
+        const storageRef = ref(storage, `avatars/${secondPicture.name}`);
+        await uploadBytes(storageRef, secondPicture);
+        return getDownloadURL(storageRef);
+    };
+
+    const uploadThirdPicture = async () => {
+        if (!thirdPicture) return form.values.styleOneData.thirdPicture;
+        const storage = getStorage(firebase);
+        // @ts-ignore
+        const storageRef = ref(storage, `avatars/${thirdPicture.name}`);
+        await uploadBytes(storageRef, thirdPicture);
+        return getDownloadURL(storageRef);
+    };
+
+    const uploadFourthPicture = async () => {
+        if (!fourthPicture) return form.values.styleOneData.fourthPicture;
+        const storage = getStorage(firebase);
+        // @ts-ignore
+        const storageRef = ref(storage, `avatars/${fourthPicture.name}`);
+        await uploadBytes(storageRef, fourthPicture);
+        return getDownloadURL(storageRef);
+    };
 
     // if (!user) {
     //     return (
@@ -93,25 +111,28 @@ export default function StyleOneForm() {
     // }
 
     const handleSubmit = async () => {
-        // setIsLoading(true);
-        // try {
-        //     const selfAvatarUrl = await uploadSelfAvatar();
-        //     const coupleAvatarUrl = await uploadCoupleAvatar();
-        //     const userData = {
+        try {
+            const firstPictureUrl = await uploadFirstPicture();
+            const secondPictureUrl = await uploadSecondPicture();
+            const thirdPictureUrl = await uploadThirdPicture();
+            const fourthPictureUrl = await uploadFourthPicture();
 
-        //     };
-        //     // Dispatch an update action - replace with the actual thunk if different
-        //     const action = updateUserThunk({ uid: user._id, userData });
-        //     const resultAction = await dispatch(action);
-        //     const updatedUser = resultAction.payload;
-        //     console.log('Update successful: ', updatedUser);
-        //     navigate('/dashboard/picture');
-        //     // alert('You already successfully saved!');
-        // } catch (error) {
-        //     console.error('Update failed: ', error);
-        // } finally {
-        //     setIsLoading(false);
-        // }
+            const userData = {
+                styleOneData: {
+                    ...form.values.styleOneData,
+                    firstPicture: firstPictureUrl,
+                    secondPicture: secondPictureUrl,
+                    thirdPicture: thirdPictureUrl,
+                    fourthPicture: fourthPictureUrl,
+                },
+            };
+            const action = updateUserThunk({ uid: '65866cee4341036a377c71ea', userData });
+            const resultAction = await dispatch(action);
+            const updatedUser = resultAction.payload;
+            console.log('Update successful: ', updatedUser);
+        } catch (error) {
+            console.error('Update failed: ', error);
+        }
     };
 
     return (
@@ -295,7 +316,7 @@ export default function StyleOneForm() {
                     {/*{isLoading ? (*/}
                     {/*    <Button loading loaderProps={{ type: 'dots' }}>Loading...</Button>*/}
                     {/*) : (*/}
-                    {/*    <Button type="submit" size="md">Next</Button>*/}
+                        <Button type="submit" size="md">Next</Button>
                     {/*)}*/}
                 </Group>
             </form>
