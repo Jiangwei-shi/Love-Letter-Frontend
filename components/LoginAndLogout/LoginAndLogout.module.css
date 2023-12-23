@@ -231,19 +231,19 @@
     transition: 0.25s;
 }
 
-.is-txr {
+.isTxr {
     left: calc(100% - 400px);
     transition: 1.25s;
     transform-origin: left;
 }
 
-.is-txl {
+.isTxl {
     left: 0;
     transition: 1.25s;
     transform-origin: right;
 }
 
-.is-z {
+.isZ {
     z-index: 200;
     transition: 1.25s;
 }
@@ -255,7 +255,7 @@
     transition: 1.25s;
 }
 
-.is-gx {
+.isGx {
     animation: is-gx 1.25s;
 }
 
