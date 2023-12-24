@@ -22,6 +22,7 @@ export function LoginAndLogout() {
     useEffect(() => {
         if (user) {
             localStorage.setItem('currentUser', JSON.stringify(user));
+            console.log('here is login page and is is user', user);
             router.push('/styleSelect');
         }
     }, [user]);
@@ -37,25 +38,16 @@ export function LoginAndLogout() {
     };
     const login = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-        try {
-            await dispatch(loginThunk({ username, password }));
-            // router.push('/styleSelect');
-        } catch (error) {
-            // @ts-ignore
-            // setError('User does not exist');
-        }
+        const loginInformation = { username, password };
+        const action = loginThunk(loginInformation);
+        await dispatch(action);
     };
 
     const register = async (event: { preventDefault: () => void; }) => {
         event.preventDefault();
-        // if (!isFormValid) return;
-        // setError(null);
-        try {
-            await dispatch(registerThunk({ username, password }));
-        } catch (error) {
-            // @ts-ignore
-            setError('User does not exist');
-        }
+        const signupInformation = { username, password };
+        const action = registerThunk(signupInformation);
+        await dispatch(action);
     };
     const handleUsernameChange = (event: { target: { value:
                 React.SetStateAction<string>; }; }) => setUsername(event.target.value);
