@@ -26,7 +26,7 @@ export default function StyleOneForm() {
         initialValues: {
             // @ts-ignore
             // eslint-disable-next-line max-len
-            styleOneData: user?.styleOneData ? user?.styleOneData :
+            styleOneData: user?.styleOneData ||
                 { firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
                   firstSentence: '111',
                   secondSentence: '222',
@@ -40,6 +40,7 @@ export default function StyleOneForm() {
                   seventhSentence: '777' },
         },
     });
+
     const handleFirstPictureChange = (file: any) => {
         setFirstPicture(file);
     };
@@ -98,31 +99,6 @@ export default function StyleOneForm() {
         return getDownloadURL(storageRef);
     };
 
-    useEffect(() => {
-        if (!user) {
-            router.push('/welcome');
-        } else {
-            // @ts-ignore
-            form.setValues({ styleOneData: user.styleOneData });
-        }
-    }, [user]);
-
-    if (!user) {
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-            }}
-            >
-                <Text size="xl">
-                    Welcome, Guest!
-                </Text>
-            </div>
-        );
-    }
-
     const handleSubmit = async () => {
             const firstPictureUrl = await uploadFirstPicture();
             const secondPictureUrl = await uploadSecondPicture();
@@ -142,6 +118,21 @@ export default function StyleOneForm() {
             const resultAction = await dispatch(action);
             resultAction.payload;
     };
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+            }}
+            >
+                <Text size="xl">
+                    Welcome, Guest!
+                </Text>
+            </div>
+        );
+    }
 
     return (
         <Container size="md" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
@@ -150,7 +141,7 @@ export default function StyleOneForm() {
               onClose={() => setFirstPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData.firstPicture}
+                  src={form.values.styleOneData?.firstPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -160,7 +151,7 @@ export default function StyleOneForm() {
               onClose={() => setSecondPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData.secondPicture}
+                  src={form.values.styleOneData?.secondPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -170,7 +161,7 @@ export default function StyleOneForm() {
               onClose={() => setThirdPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData.thirdPicture}
+                  src={form.values.styleOneData?.thirdPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -180,7 +171,7 @@ export default function StyleOneForm() {
               onClose={() => setFourthPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData.fourthPicture}
+                  src={form.values.styleOneData?.fourthPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -348,7 +339,6 @@ export default function StyleOneForm() {
                     {/*)}*/}
                 </Group>
             </form>
-
         </Container>
     );
 }
