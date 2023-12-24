@@ -1,9 +1,10 @@
 'use client';
 
-import { Modal, Group, Button, Container, Title, Grid, Text, TextInput, Avatar, FileInput, Flex } from '@mantine/core';
-import React, { useState } from 'react';
+import { Modal, Group, Button, Container, Title, Grid, TextInput, Avatar, FileInput, Flex, Text, Image } from '@mantine/core';
+import React, { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useRouter } from 'next/navigation';
 import firebase from '../../firebaseConfig';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { updateUserThunk } from '@/thunks/authorize-thunk';
@@ -13,17 +14,19 @@ export default function StyleOneForm() {
     const [secondPicture, setSecondPicture] = useState(null);
     const [thirdPicture, setThirdPicture] = useState(null);
     const [fourthPicture, setFourthPicture] = useState(null);
-    const [SelfViewerOpen, setSelfViewerOpen] = useState(false);
-    const [CoupleViewerOpen, setCoupleViewerOpen] = useState(false);
-    // const [isLoading, setIsLoading] = useState(false);
+    const [firstPictureViewerOpen, setFirstPictureViewerOpen] = useState(false);
+    const [secondPictureViewerOpen, setSecondPictureViewerOpen] = useState(false);
+    const [thirdPictureViewerOpen, setThirdPictureViewerOpen] = useState(false);
+    const [fourthPictureViewerOpen, setFourthPictureViewerOpen] = useState(false);
     const user = useAppSelector(state => state.currentUser);
     const dispatch = useAppDispatch();
-    // const router = useRouter();
+    const router = useRouter();
+
     const form = useForm({
         initialValues: {
             // @ts-ignore
             // eslint-disable-next-line max-len
-            styleOneData: (user?.styleOneData && user.styleOneData.length > 0) ? user?.styleOneData :
+            styleOneData: user?.styleOneData ? user?.styleOneData :
                 { firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
                   firstSentence: '111',
                   secondSentence: '222',
@@ -37,7 +40,6 @@ export default function StyleOneForm() {
                   seventhSentence: '777' },
         },
     });
-
     const handleFirstPictureChange = (file: any) => {
         setFirstPicture(file);
     };
@@ -50,23 +52,27 @@ export default function StyleOneForm() {
     const handleFourthPictureChange = (file: any) => {
         setFourthPicture(file);
     };
-
-    const handleSelfAvatarClick = () => {
-        setSelfViewerOpen(true);
+    const handleFirstPictureClick = () => {
+        setFirstPictureViewerOpen(true);
     };
-    // const handleCoupleAvatarClick = () => {
-    //     setCoupleViewerOpen(true);
-    // };
-
+    const handleSecondPictureClick = () => {
+        setSecondPictureViewerOpen(true);
+    };
+    const handleThirdPictureClick = () => {
+        setThirdPictureViewerOpen(true);
+    };
+    const handleFourthPictureClick = () => {
+        setFourthPictureViewerOpen(true);
+    };
     const uploadFirstPicture = async () => {
         if (!firstPicture) return form.values.styleOneData.firstPicture;
         const storage = getStorage(firebase);
         // @ts-ignore
         const storageRef = ref(storage, `avatars/${firstPicture.name}`);
-        await uploadBytes(storageRef, firstPicture);
-        return getDownloadURL(storageRef);
+        const url = await getDownloadURL(storageRef);
+        form.setFieldValue('styleOneData.firstPicture', url);
+        return url;
     };
-
     const uploadSecondPicture = async () => {
         if (!secondPicture) return form.values.styleOneData.secondPicture;
         const storage = getStorage(firebase);
@@ -75,7 +81,6 @@ export default function StyleOneForm() {
         await uploadBytes(storageRef, secondPicture);
         return getDownloadURL(storageRef);
     };
-
     const uploadThirdPicture = async () => {
         if (!thirdPicture) return form.values.styleOneData.thirdPicture;
         const storage = getStorage(firebase);
@@ -84,7 +89,6 @@ export default function StyleOneForm() {
         await uploadBytes(storageRef, thirdPicture);
         return getDownloadURL(storageRef);
     };
-
     const uploadFourthPicture = async () => {
         if (!fourthPicture) return form.values.styleOneData.fourthPicture;
         const storage = getStorage(firebase);
@@ -94,65 +98,89 @@ export default function StyleOneForm() {
         return getDownloadURL(storageRef);
     };
 
-    // if (!user) {
-    //     return (
-    //         <div style={{
-    //             display: 'flex',
-    //             justifyContent: 'center',
-    //             alignItems: 'center',
-    //             height: '100vh',
-    //         }}
-    //         >
-    //             <Text size="xl">
-    //                 Welcome, Guest!
-    //             </Text>
-    //         </div>
-    //     );
-    // }
+    useEffect(() => {
+        if (!user) {
+            router.push('/welcome');
+        } else {
+            // @ts-ignore
+            form.setValues({ styleOneData: user.styleOneData });
+        }
+    }, [user]);
+
+    if (!user) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+            }}
+            >
+                <Text size="xl">
+                    Welcome, Guest!
+                </Text>
+            </div>
+        );
+    }
 
     const handleSubmit = async () => {
-        try {
             const firstPictureUrl = await uploadFirstPicture();
             const secondPictureUrl = await uploadSecondPicture();
             const thirdPictureUrl = await uploadThirdPicture();
             const fourthPictureUrl = await uploadFourthPicture();
-
             const userData = {
-                styleOneData: {
-                    ...form.values.styleOneData,
-                    firstPicture: firstPictureUrl,
-                    secondPicture: secondPictureUrl,
-                    thirdPicture: thirdPictureUrl,
-                    fourthPicture: fourthPictureUrl,
-                },
-            };
-            const action = updateUserThunk({ uid: '65866cee4341036a377c71ea', userData });
+              styleOneData: {
+              ...form.values.styleOneData,
+              firstPicture: firstPictureUrl,
+              secondPicture: secondPictureUrl,
+              thirdPicture: thirdPictureUrl,
+              fourthPicture: fourthPictureUrl,
+              },
+              };
+            // @ts-ignore
+            const action = updateUserThunk({ uid: user._id, userData });
             const resultAction = await dispatch(action);
-            const updatedUser = resultAction.payload;
-            console.log('Update successful: ', updatedUser);
-        } catch (error) {
-            console.error('Update failed: ', error);
-        }
+            resultAction.payload;
     };
 
     return (
         <Container size="md" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
             <Modal
-              opened={SelfViewerOpen}
-              onClose={() => setSelfViewerOpen(false)}
+              opened={firstPictureViewerOpen}
+              onClose={() => setFirstPictureViewerOpen(false)}
             >
-                <img
-                  src={form.values.styleOneData[0]}
+                <Image
+                  src={form.values.styleOneData.firstPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
             </Modal>
             <Modal
-              opened={CoupleViewerOpen}
-              onClose={() => setCoupleViewerOpen(false)}
+              opened={secondPictureViewerOpen}
+              onClose={() => setSecondPictureViewerOpen(false)}
             >
-                <img
-                  src={form.values.styleOneData[1]}
+                <Image
+                  src={form.values.styleOneData.secondPicture}
+                  alt="Avatar"
+                  style={{ width: '100%' }}
+                />
+            </Modal>
+            <Modal
+              opened={thirdPictureViewerOpen}
+              onClose={() => setThirdPictureViewerOpen(false)}
+            >
+                <Image
+                  src={form.values.styleOneData.thirdPicture}
+                  alt="Avatar"
+                  style={{ width: '100%' }}
+                />
+            </Modal>
+            <Modal
+              opened={fourthPictureViewerOpen}
+              onClose={() => setFourthPictureViewerOpen(false)}
+            >
+                <Image
+                  src={form.values.styleOneData.fourthPicture}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -175,12 +203,12 @@ export default function StyleOneForm() {
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
-                              onClick={handleSelfAvatarClick}
+                              onClick={handleFirstPictureClick}
                             />
                             <FileInput
                               clearable
                               variant="filled"
-                              label="upload first photo"
+                              label="上传第一张照片"
                               placeholder=".jpg .Png are acceptable"
                               accept="image/*"
                               onChange={handleFirstPictureChange}
@@ -213,7 +241,7 @@ export default function StyleOneForm() {
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
-                              onClick={handleSelfAvatarClick}
+                              onClick={handleSecondPictureClick}
                             />
                             <FileInput
                               clearable
@@ -251,7 +279,7 @@ export default function StyleOneForm() {
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
-                              onClick={handleSelfAvatarClick}
+                              onClick={handleThirdPictureClick}
                             />
                             <FileInput
                               clearable
@@ -289,7 +317,7 @@ export default function StyleOneForm() {
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
-                              onClick={handleSelfAvatarClick}
+                              onClick={handleFourthPictureClick}
                             />
                             <FileInput
                               clearable

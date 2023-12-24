@@ -1,9 +1,18 @@
 'use client';
 
 import { Grid, Card, Group, Button, Image, Text, Container } from '@mantine/core';
+import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/lib/hooks';
 
 export function StyleSelect() {
+    const user = useAppSelector(state => state.currentUser);
+    const router = useRouter();
+    const selectStyleOne = () => {
+        if (user) {
+            router.push('/styleSelect/styleOne');
+        }
+    };
+
     return (
         <Container>
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
@@ -25,7 +34,7 @@ export function StyleSelect() {
                         点击图片可以查看样例
                     </Text>
 
-                    <Button color="blue" fullWidth mt="md" radius="md">
+                    <Button color="blue" fullWidth mt="md" radius="md" onClick={selectStyleOne}>
                         使用模板
                     </Button>
                     </Card>
