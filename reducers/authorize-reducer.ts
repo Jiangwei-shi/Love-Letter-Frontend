@@ -11,9 +11,9 @@ const authorizeSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(registerThunk.fulfilled, (state, action) => {
-            })
+            .addCase(registerThunk.fulfilled, () => null)
             .addCase(registerThunk.rejected, (state, action) => {
+                console.log('this is registerThunk.rejected actio', action);
             })
             .addCase(registerThunk.pending, (state) => {
             })
