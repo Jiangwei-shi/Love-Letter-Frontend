@@ -6,9 +6,9 @@ const api = axios.create({
     withCredentials: true,
 });
 
-export const findUserById = async (uid) => {
+export const findUserById = async (userId) => {
     try {
-        const response = await api.get(`${API_BASE}/${uid}`);
+        const response = await api.get(`${API_BASE}/${userId}`);
         return response.data;
     } catch (error) {
         console.error('Update failed:', error);
