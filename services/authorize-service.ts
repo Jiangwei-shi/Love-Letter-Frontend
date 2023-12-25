@@ -13,20 +13,8 @@ const api = axios.create({
 });
 
 export const registerUser = async (userData: UserData) => {
-    try {
-        const response = await api.post(`${API_BASE}/register`, userData);
-        return response.data;
-    } catch (error: any) { // 这里使用 any 仅为了解释；在实际代码中应避免使用 any
-        if (error.response && error.response.status === 400) {
-            throw new Error('User already exist');
-        }
-        // 更严格的错误处理
-        if (error instanceof Error) {
-            throw new Error(error.message);
-        } else {
-            throw new Error('An unknown error occurred');
-        }
-    }
+    const response = await api.post(`${API_BASE}/register`, userData);
+    return response.data;
 };
 
 export const loginUser = async (userData: UserData) => {
@@ -45,7 +33,6 @@ export const deleteUser = async (uid: UserId) => {
 };
 
 export const updateUser = async (uid: String, userData: any) => {
-    console.log('this is updated userData', userData);
    const response = await api.put(`${API_BASE}/${uid}`, userData);
    return response.data;
 };

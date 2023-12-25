@@ -19,6 +19,7 @@
     padding: 25px;
     background:transparent;
     backdrop-filter: blur(10px);
+
     //box-shadow: 10px 10px 10px #d1d9e6, -10px -10px 10px #f9f9f9;
     border-radius: 12px;
     overflow: hidden;
@@ -47,6 +48,24 @@
     .shell {
         transform: scale(0.4);
     }
+}
+
+@keyframes fadeOut {
+    0% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.75;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.notificationFadeOut {
+    animation: fadeOut 6s forwards;
 }
 
 .container {
@@ -150,8 +169,10 @@
     padding: 50px;
     z-index: 200;
     transition: 1.25s;
+
     //background-color: #ecf0f3;
     overflow: hidden;
+
     //box-shadow: 4px 4px 10px #d1d9e6, -4px -4px 10px #d1d9e6;
 }
 

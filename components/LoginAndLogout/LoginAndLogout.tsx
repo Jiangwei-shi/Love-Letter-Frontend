@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Container } from '@mantine/core';
+import { Button, Container, Notification, rem } from '@mantine/core';
+import { IconX, IconCheck } from '@tabler/icons-react';
 import styles from './LoginAndLogout.module.css';
 import { loginThunk, registerThunk } from '@/thunks/authorize-thunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
@@ -16,17 +17,31 @@ export function LoginAndLogout() {
     const [isZ, setIsZ] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [finishedSignUp, setFinishedSignUp] = useState(false);
+    const [alreadySignUp, setAlreadySignUp] = useState(false);
+    const [occurError, setOccurError] = useState(false);
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
+    const xIcon = <IconX style={{ width: rem(20), height: rem(20) }} />;
+    const checkIcon = <IconCheck style={{ width: rem(20), height: rem(20) }} />;
 
+    // eslint-disable-next-line consistent-return
     useEffect(() => {
         if (user) {
             localStorage.setItem('currentUser', JSON.stringify(user));
-            console.log('here is login page and is is user', user);
             router.push('/styleSelect');
         }
-    }, [user]);
+        if (finishedSignUp || alreadySignUp || occurError) {
+            const timer = setTimeout(() => {
+                setFinishedSignUp(false);
+                setAlreadySignUp(false);
+                setOccurError(false);
+            }, 5000);
+            return () => clearTimeout(timer); // Clean up the timer
+        }
+    }, [user, finishedSignUp, alreadySignUp, occurError]);
+
     const changeForm = () => {
         setIsGx(true);
         setTimeout(() => setIsGx(false), 1500);
@@ -51,9 +66,13 @@ export function LoginAndLogout() {
         const resultAction = await dispatch(action);
         if (registerThunk.rejected.match(resultAction)) {
             const errorMessage = resultAction.error.message;
-            if (errorMessage === 'User already exist') {
-                console.log('have been register');
+            if (errorMessage === 'Request failed with status code 400') {
+                setAlreadySignUp(true);
+            } else {
+                setOccurError(true);
             }
+        } else {
+            setFinishedSignUp(true);
         }
     };
     const handleUsernameChange = (event: { target: { value:
@@ -93,6 +112,21 @@ export function LoginAndLogout() {
                      <h2 className={`${styles.form_title} ${styles.title}`}>创建账号</h2>
                      <input type="text" className={styles.form_input} placeholder="Email" value={username} onChange={handleUsernameChange} />
                      <input type="text" className={styles.form_input} placeholder="Password" value={password} onChange={handlePasswordChange} />
+                     {finishedSignUp && (
+                     <Notification icon={checkIcon} color="teal" title="All good!" mt="md" onClose={() => setFinishedSignUp(false)} className={styles.notificationFadeOut}>
+                         Everything is fine
+                     </Notification>
+                     )}
+                     {alreadySignUp && (
+                         <Notification icon={xIcon} color="red" title="Bummer!" mt="md" onClose={() => setAlreadySignUp(false)} className={styles.notificationFadeOut}>
+                             This account has been registered
+                         </Notification>
+                     )}
+                     {occurError && (
+                         <Notification icon={xIcon} color="red" title="Ooops!" mt="md" onClose={() => setOccurError(false)} className={styles.notificationFadeOut}>
+                             service seems have some issue
+                         </Notification>
+                     )}
                      <Button type="button" className={`${styles.form_button} ${styles.button} ${styles.submit}`} onClick={register}>
                          SIGN UP
                      </Button>
