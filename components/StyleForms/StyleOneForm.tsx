@@ -22,6 +22,8 @@ export default function StyleOneForm() {
     const [SecondPictureView, setSecondPictureView] = useState(null);
     const [ThirdPictureView, setThirdPictureView] = useState(null);
     const [FourthPictureView, setFourthPictureView] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isButtonVisible, setIsButtonVisible] = useState(false);
     const user = useAppSelector(state => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -30,27 +32,29 @@ export default function StyleOneForm() {
         initialValues: {
             // @ts-ignore
             // eslint-disable-next-line max-len
-            styleOneData: user?.styleOneData ||
-                { firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                  firstSentence: '111',
-                  secondSentence: '222',
-                  secondPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                  thirdSentence: '333',
-                  fourthSentence: '444',
-                  thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                  fifthSentence: '555',
-                  sixthSentence: '666',
-                  fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                  seventhSentence: '777' },
+            styleOneData: user?.styleOneData ? { ...user.styleOneData } :
+                {
+                    firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                    firstSentence: '111',
+                    secondSentence: '222',
+                    secondPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                    thirdSentence: '333',
+                    fourthSentence: '444',
+                    thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                    fifthSentence: '555',
+                    sixthSentence: '666',
+                    fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
+                    seventhSentence: '777',
+                },
         },
     });
+
     useEffect(() => {
         setFirstPictureView(form.values.styleOneData.firstPicture);
         setSecondPictureView(form.values.styleOneData.secondPicture);
         setThirdPictureView(form.values.styleOneData.thirdPicture);
         setFourthPictureView(form.values.styleOneData.fourthPicture);
     }, [user]);
-    console.log('here is user information', user);
     const handleFirstPictureChange = (file: any) => {
         setFirstPicture(file);
     };
@@ -74,6 +78,10 @@ export default function StyleOneForm() {
     };
     const handleFourthPictureClick = () => {
         setFourthPictureViewerOpen(true);
+    };
+    const lookWebsite = () => {
+        // @ts-ignore
+        router.push(`/styleSelect/styleOne/${user._id}`);
     };
     const uploadFirstPicture = async () => {
         if (!firstPicture) return form.values.styleOneData.firstPicture;
@@ -110,23 +118,26 @@ export default function StyleOneForm() {
     };
 
     const handleSubmit = async () => {
-            const firstPictureUrl = await uploadFirstPicture();
-            const secondPictureUrl = await uploadSecondPicture();
-            const thirdPictureUrl = await uploadThirdPicture();
-            const fourthPictureUrl = await uploadFourthPicture();
-            const userData = {
-              styleOneData: {
-              ...form.values.styleOneData,
-              firstPicture: firstPictureUrl,
-              secondPicture: secondPictureUrl,
-              thirdPicture: thirdPictureUrl,
-              fourthPicture: fourthPictureUrl,
-              },
-              };
-            // @ts-ignore
-            const action = updateUserThunk({ uid: user._id, userData });
-            const resultAction = await dispatch(action);
-            resultAction.payload;
+        setIsLoading(true);
+        const firstPictureUrl = await uploadFirstPicture();
+        const secondPictureUrl = await uploadSecondPicture();
+        const thirdPictureUrl = await uploadThirdPicture();
+        const fourthPictureUrl = await uploadFourthPicture();
+        const userData = {
+        styleOneData: {
+        ...form.values.styleOneData,
+        firstPicture: firstPictureUrl,
+        secondPicture: secondPictureUrl,
+        thirdPicture: thirdPictureUrl,
+        fourthPicture: fourthPictureUrl,
+        },
+        };
+        // @ts-ignore
+        const action = updateUserThunk({ uid: user._id, userData });
+        const resultAction = await dispatch(action);
+        resultAction.payload;
+        setIsLoading(false);
+        setIsButtonVisible(true);
     };
 
     return (
@@ -327,11 +338,16 @@ export default function StyleOneForm() {
                     </Grid.Col>
                 </Grid>
                 <Group justify="center" mt="xl">
-                    {/*{isLoading ? (*/}
-                    {/*    <Button loading loaderProps={{ type: 'dots' }}>Loading...</Button>*/}
-                    {/*) : (*/}
+                    {isLoading ? (
+                        <Button loading loaderProps={{ type: 'dots' }}>Loading...</Button>
+                    ) : (
                         <Button type="submit" size="md">Next</Button>
-                    {/*)}*/}
+                    )}
+                    {isButtonVisible && (
+                        <Button size="md" onClick={lookWebsite}>
+                            Look at my website
+                        </Button>
+                    )}
                 </Group>
             </form>
         </Container>
