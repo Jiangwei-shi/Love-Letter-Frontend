@@ -1,49 +1,63 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect } from 'react';
 import { Container } from '@mantine/core';
 import { useParams } from 'next/navigation';
 import styles from './StyleOneWebsite.module.css';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { findUserByIdThunk } from '@/thunks/website-thunk';
 
 export function StyleOneWebsite() {
     const params = useParams<{ tag: string; item: string }>();
+    const dispatch = useAppDispatch();
     // @ts-ignore
     const { userId } = params;
-    console.log(userId);
+    const user = useAppSelector((state) => state.userById.user);
+    useEffect(() => {
+        if (userId) {
+            dispatch(findUserByIdThunk(userId));
+        }
+    }, [userId, dispatch]);
+    if (!user || !user.styleOneData) {
+        // Render a loading indicator, placeholder, or some fallback UI
+        return <div>Loading...</div>; // or any other fallback UI
+    }
+    const backgroundOneImageUrl = user && user.styleOneData.firstPicture ? `url('${user.styleOneData.firstPicture}')` : 'none';
+    const backgroundTwoImageUrl = user && user.styleOneData.secondPicture ? `url('${user.styleOneData.secondPicture}')` : 'none';
+    const backgroundThirdImageUrl = user && user.styleOneData.thirdPicture ? `url('${user.styleOneData.thirdPicture}')` : 'none';
+    const backgroundFourthImageUrl = user && user.styleOneData.fourthPicture ? `url('${user.styleOneData.fourthPicture}')` : 'none';
     return (
         <Container size="auto" className={styles.containerStyle}>
-            <h1>this is </h1>
         <div className={styles.shell}>
-            <div className={styles.image} style={{ backgroundImage: "url('./1.jpg')" }}>
-                <div className={styles.heading}>
-                    <h1>When you are confused</h1>
-                </div>
-                <div className={styles.text}>
-                    <h1>Set goals in your mind</h1>
-                </div>
+            <div className={styles.image} style={{ backgroundImage: backgroundOneImageUrl }} />
+            <div className={styles.heading}>
+                <h1>{user.styleOneData.firstSentence}</h1>
+            </div>
+            <div className={styles.text}>
+                <h1>{user.styleOneData.secondSentence}</h1>
             </div>
 
-            <div className={styles.image} style={{ backgroundImage: "url('./2.jpg')" }}>
+            <div className={styles.image} style={{ backgroundImage: backgroundTwoImageUrl }} />
                 <div className={styles.heading}>
-                    <h1>When you are down</h1>
+                    <h1>{user.styleOneData.thirdSentence}</h1>
                 </div>
                 <div className={styles.text}>
-                    <h1>Try to wake up the beast in your heart</h1>
+                    <h1>{user.styleOneData.fourthSentence}</h1>
                 </div>
-            </div>
 
-            <div className={styles.image} style={{ backgroundImage: "url('./3.jpg')" }}>
+            <div className={styles.image} style={{ backgroundImage: backgroundThirdImageUrl }} />
+
                 <div className={styles.heading}>
-                    <h1>When people leave you</h1>
+                    <h1>{user.styleOneData.fifthSentence}</h1>
                 </div>
                 <div className={styles.text}>
-                    <h1>It is time to start your season</h1>
+                    <h1>{user.styleOneData.sixthSentence}</h1>
                 </div>
-            </div>
 
-            <div className={styles.image} style={{ backgroundImage: "url('./4.jpg')" }}>
+            <div className={styles.image} style={{ backgroundImage: backgroundFourthImageUrl }} />
                 <div className={styles.heading}>
-                    <h1>Come on, stranger.</h1>
+                    <h1>{user.styleOneData.seventhSentence}</h1>
                 </div>
-            </div>
         </div>
         </Container>
     );

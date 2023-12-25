@@ -3,6 +3,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authorizeReducer from '../reducers/authorize-reducer';
 import localStorageMiddleware from './localStorageMiddleware';
+import userByIdReducer from '../reducers/website-reducer';
 
 let savedCurrentUser;
 if (typeof window !== 'undefined') {
@@ -14,6 +15,7 @@ const preloadedState = {
 export const makeStore = () => configureStore({
         reducer: {
             currentUser: authorizeReducer,
+            userById: userByIdReducer,
         },
     preloadedState,
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(localStorageMiddleware),
