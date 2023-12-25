@@ -34,17 +34,17 @@ export default function StyleOneForm() {
             // eslint-disable-next-line max-len
             styleOneData: user?.styleOneData ? { ...user.styleOneData } :
                 {
-                    firstPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    firstSentence: '111',
-                    secondSentence: '222',
-                    secondPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    thirdSentence: '333',
-                    fourthSentence: '444',
-                    thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    fifthSentence: '555',
-                    sixthSentence: '666',
-                    fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/portfolio-generator-394004.appspot.com/o/avatars%2Fcxk.jpg?alt=media&token=29c9ba5e-ea2a-4c76-9e15-4ba58ff13c69',
-                    seventhSentence: '777',
+                    firstPicture: 'https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FOriginal%20Xayah.jpg?alt=media&token=f2d151c6-b028-4077-8c24-4133c0fcc611',
+                    firstSentence: 'How do you like me today？',
+                    secondSentence: 'More than yesterday, less than tomorrow.',
+                    secondPicture: 'https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FStar%20Guardian%20Xayah.jpg?alt=media&token=1456588f-6fba-4a4a-beba-14d5edd7ed70',
+                    thirdSentence: 'Do I make you happy, Rakan?',
+                    fourthSentence: 'Every day of my life.',
+                    thirdPicture: 'https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FSweetheart%20Xayah.jpg?alt=media&token=f330abcf-ffb8-4895-b158-2f03689f3764',
+                    fifthSentence: 'I am lucky to have you.',
+                    sixthSentence: 'No. I am the lucky one.',
+                    fourthPicture: 'https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FBroken%20Covenant%20Xayah.jpg?alt=media&token=4cc5b15d-5244-4820-bc41-80a8c4440cce',
+                    seventhSentence: 'I love you',
                 },
         },
     });
