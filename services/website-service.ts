@@ -6,7 +6,7 @@ const api = axios.create({
     withCredentials: true,
 });
 
-export const findUserById = async (userId) => {
+export const findUserById = async (userId:String) => {
     try {
         const response = await api.get(`${API_BASE}/${userId}`);
         return response.data;
