@@ -18,7 +18,7 @@ export function StyleSelect() {
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
                 <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
-                    <Card.Section component="a" href="https://loveletter.netlify.app/styleSelect/styleOne/65897151ac405a553442b631">
+                    <Card.Section component="a" href="http://localhost:3000/styleSelect/styleOne/6589a279ac405a553442b6bb">
                         <Image
                           src="https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FOriginal%20Xayah.jpg?alt=media&token=f2d151c6-b028-4077-8c24-4133c0fcc611"
                           height={200}
