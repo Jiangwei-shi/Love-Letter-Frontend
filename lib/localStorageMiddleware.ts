@@ -1,6 +1,8 @@
 'use client';
 
-const localStorageMiddleware = (store) => (next) => (action) => {
+import { Middleware } from 'redux';
+
+const localStorageMiddleware:Middleware = (store) => (next) => (action) => {
     const result = next(action);
 
     const nextState = store.getState();
