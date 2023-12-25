@@ -18,6 +18,10 @@ export default function StyleOneForm() {
     const [secondPictureViewerOpen, setSecondPictureViewerOpen] = useState(false);
     const [thirdPictureViewerOpen, setThirdPictureViewerOpen] = useState(false);
     const [fourthPictureViewerOpen, setFourthPictureViewerOpen] = useState(false);
+    const [FirstPictureView, setFirstPictureView] = useState(null);
+    const [SecondPictureView, setSecondPictureView] = useState(null);
+    const [ThirdPictureView, setThirdPictureView] = useState(null);
+    const [FourthPictureView, setFourthPictureView] = useState(null);
     const user = useAppSelector(state => state.currentUser);
     const dispatch = useAppDispatch();
     const router = useRouter();
@@ -40,7 +44,13 @@ export default function StyleOneForm() {
                   seventhSentence: '777' },
         },
     });
-
+    useEffect(() => {
+        setFirstPictureView(form.values.styleOneData.firstPicture);
+        setSecondPictureView(form.values.styleOneData.secondPicture);
+        setThirdPictureView(form.values.styleOneData.thirdPicture);
+        setFourthPictureView(form.values.styleOneData.fourthPicture);
+    }, [user]);
+    console.log('here is user information', user);
     const handleFirstPictureChange = (file: any) => {
         setFirstPicture(file);
     };
@@ -118,21 +128,6 @@ export default function StyleOneForm() {
             const resultAction = await dispatch(action);
             resultAction.payload;
     };
-    if (!user) {
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
-            }}
-            >
-                <Text size="xl">
-                    Welcome, Guest!
-                </Text>
-            </div>
-        );
-    }
 
     return (
         <Container size="md" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
@@ -141,7 +136,7 @@ export default function StyleOneForm() {
               onClose={() => setFirstPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData?.firstPicture}
+                  src={FirstPictureView}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -151,7 +146,7 @@ export default function StyleOneForm() {
               onClose={() => setSecondPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData?.secondPicture}
+                  src={SecondPictureView}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -161,7 +156,7 @@ export default function StyleOneForm() {
               onClose={() => setThirdPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData?.thirdPicture}
+                  src={ThirdPictureView}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -171,7 +166,7 @@ export default function StyleOneForm() {
               onClose={() => setFourthPictureViewerOpen(false)}
             >
                 <Image
-                  src={form.values.styleOneData?.fourthPicture}
+                  src={FourthPictureView}
                   alt="Avatar"
                   style={{ width: '100%' }}
                 />
@@ -190,7 +185,7 @@ export default function StyleOneForm() {
                     <Grid.Col span={{ base: 12, md: 12, lg: 12 }}>
                         <Flex style={{ flex: 1, alignItems: 'center', gap: '1rem' }}>
                             <Avatar
-                              src={form.values.styleOneData.firstPicture}
+                              src={FirstPictureView}
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
@@ -228,7 +223,7 @@ export default function StyleOneForm() {
                     <Grid.Col span={{ base: 12, md: 12, lg: 12 }}>
                         <Flex style={{ flex: 1, alignItems: 'center', gap: '1rem' }}>
                             <Avatar
-                              src={form.values.styleOneData.secondPicture}
+                              src={SecondPictureView}
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
@@ -266,7 +261,7 @@ export default function StyleOneForm() {
                     <Grid.Col span={{ base: 12, md: 12, lg: 12 }}>
                         <Flex style={{ flex: 1, alignItems: 'center', gap: '1rem' }}>
                             <Avatar
-                              src={form.values.styleOneData.thirdPicture}
+                              src={ThirdPictureView}
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
@@ -304,7 +299,7 @@ export default function StyleOneForm() {
                     <Grid.Col span={{ base: 12, md: 12, lg: 12 }}>
                         <Flex style={{ flex: 1, alignItems: 'center', gap: '1rem' }}>
                             <Avatar
-                              src={form.values.styleOneData.fourthPicture}
+                              src={FourthPictureView}
                               size="lg"
                               radius="sm"
                               style={{ cursor: 'pointer', height: '100%' }}
