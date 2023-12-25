@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Container, Notification, rem } from '@mantine/core';
+import { Button, Container, Loader, Notification, rem } from '@mantine/core';
 import { IconX, IconCheck } from '@tabler/icons-react';
 import styles from './LoginAndLogout.module.css';
 import { loginThunk, registerThunk } from '@/thunks/authorize-thunk';
@@ -20,6 +20,7 @@ export function LoginAndLogout() {
     const [finishedSignUp, setFinishedSignUp] = useState(false);
     const [alreadySignUp, setAlreadySignUp] = useState(false);
     const [occurError, setOccurError] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
@@ -60,10 +61,12 @@ export function LoginAndLogout() {
     };
 
     const register = async (event: { preventDefault: () => void; }) => {
+        setIsLoading(true);
         event.preventDefault();
         const signupInformation = { username, password };
         const action = registerThunk(signupInformation);
         const resultAction = await dispatch(action);
+        setIsLoading(false);
         if (registerThunk.rejected.match(resultAction)) {
             const errorMessage = resultAction.error.message;
             if (errorMessage === 'Request failed with status code 400') {
@@ -128,7 +131,11 @@ export function LoginAndLogout() {
                          </Notification>
                      )}
                      <Button type="button" className={`${styles.form_button} ${styles.button} ${styles.submit}`} onClick={register}>
-                         SIGN UP
+                         {isLoading ? (
+                             <Loader color="blue" />
+                         ) : (
+                             'SIGN UP'
+                         )}
                      </Button>
                  </form>
              </div>
