@@ -88,9 +88,8 @@ export default function StyleOneForm() {
         const storage = getStorage(firebase);
         // @ts-ignore
         const storageRef = ref(storage, `avatars/${firstPicture.name}`);
-        const url = await getDownloadURL(storageRef);
-        form.setFieldValue('styleOneData.firstPicture', url);
-        return url;
+        await uploadBytes(storageRef, firstPicture);
+        return getDownloadURL(storageRef);
     };
     const uploadSecondPicture = async () => {
         if (!secondPicture) return form.values.styleOneData.secondPicture;

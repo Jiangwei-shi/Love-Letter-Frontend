@@ -49,7 +49,10 @@ export function StyleOneWebsite() {
     return (
         <Container size="auto" className={styles.containerStyle}>
         <div className={styles.shell}>
-            <div className={styles.image} style={{ backgroundImage: backgroundOneImageUrl }} />
+            <div
+              className={styles.image}
+              style={{ backgroundImage: backgroundOneImageUrl, backgroundPosition: 'center', backgroundSize: 'cover' }}
+            />
             <div className={styles.heading}>
                 <h1>{user.styleOneData.firstSentence}</h1>
             </div>
@@ -57,7 +60,7 @@ export function StyleOneWebsite() {
                 <h1>{user.styleOneData.secondSentence}</h1>
             </div>
 
-            <div className={styles.image} style={{ backgroundImage: backgroundTwoImageUrl }} />
+            <div className={styles.image} style={{ backgroundImage: backgroundTwoImageUrl, backgroundPosition: 'center', backgroundSize: 'cover' }} />
                 <div className={styles.heading}>
                     <h1>{user.styleOneData.thirdSentence}</h1>
                 </div>
@@ -65,7 +68,7 @@ export function StyleOneWebsite() {
                     <h1>{user.styleOneData.fourthSentence}</h1>
                 </div>
 
-            <div className={styles.image} style={{ backgroundImage: backgroundThirdImageUrl }} />
+            <div className={styles.image} style={{ backgroundImage: backgroundThirdImageUrl, backgroundPosition: 'center', backgroundSize: 'cover' }} />
 
                 <div className={styles.heading}>
                     <h1>{user.styleOneData.fifthSentence}</h1>
@@ -74,7 +77,7 @@ export function StyleOneWebsite() {
                     <h1>{user.styleOneData.sixthSentence}</h1>
                 </div>
 
-            <div className={styles.image} style={{ backgroundImage: backgroundFourthImageUrl }} />
+            <div className={styles.image} style={{ backgroundImage: backgroundFourthImageUrl, backgroundPosition: 'center', backgroundSize: 'cover' }} />
                 <div className={styles.heading}>
                     <h1>{user.styleOneData.seventhSentence}</h1>
                 </div>
