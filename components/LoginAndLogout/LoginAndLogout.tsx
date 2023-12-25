@@ -54,10 +54,12 @@ export function LoginAndLogout() {
         setPassword('');
     };
     const login = async (event: { preventDefault: () => void; }) => {
+        setIsLoading(true);
         event.preventDefault();
         const loginInformation = { username, password };
         const action = loginThunk(loginInformation);
         await dispatch(action);
+        setIsLoading(false);
     };
 
     const register = async (event: { preventDefault: () => void; }) => {
@@ -66,7 +68,6 @@ export function LoginAndLogout() {
         const signupInformation = { username, password };
         const action = registerThunk(signupInformation);
         const resultAction = await dispatch(action);
-        setIsLoading(false);
         if (registerThunk.rejected.match(resultAction)) {
             const errorMessage = resultAction.error.message;
             if (errorMessage === 'Request failed with status code 400') {
@@ -77,6 +78,7 @@ export function LoginAndLogout() {
         } else {
             setFinishedSignUp(true);
         }
+        setIsLoading(false);
     };
     const handleUsernameChange = (event: { target: { value:
                 React.SetStateAction<string>; }; }) => setUsername(event.target.value);
@@ -105,7 +107,11 @@ export function LoginAndLogout() {
                        className={`${styles.button} ${styles.submit}`}
                        onClick={login}
                      >
-                         SIGN IN
+                         {isLoading ? (
+                             <Loader color="blue" />
+                         ) : (
+                             'SIGN IN'
+                         )}
                      </Button>
                  </form>
              </div>
