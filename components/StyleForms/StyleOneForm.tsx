@@ -1,6 +1,6 @@
 'use client';
 
-import { Modal, Group, Button, Container, Title, Grid, TextInput, Avatar, FileInput, Flex, Text, Image } from '@mantine/core';
+import { Modal, Group, Button, Container, Title, Grid, TextInput, Avatar, FileInput, Flex, Image } from '@mantine/core';
 import React, { useEffect, useState } from 'react';
 import { useForm } from '@mantine/form';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';

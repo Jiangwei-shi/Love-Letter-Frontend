@@ -10,22 +10,42 @@ import { findUserByIdThunk } from '@/thunks/website-thunk';
 export function StyleOneWebsite() {
     const params = useParams<{ tag: string; item: string }>();
     const dispatch = useAppDispatch();
+    type StyleOneData = {
+        fifthSentence : string
+        firstPicture : string
+        firstSentence : string
+        fourthPicture : string
+        fourthSentence : string
+        secondPicture : string
+        secondSentence : string
+        seventhSentence: string
+        sixthSentence : string
+        thirdPicture : string
+        thirdSentence : string
+    };
+
+    type User = {
+        username : string
+        password : string
+        role : string
+        styleOneData: StyleOneData;
+    };
     // @ts-ignore
     const { userId } = params;
-    const user = useAppSelector((state) => state.userById.user);
+    const user = useAppSelector((state): User | undefined | null => state.userById.user);
     useEffect(() => {
         if (userId) {
             dispatch(findUserByIdThunk(userId));
         }
     }, [userId, dispatch]);
-    if (!user || !user.styleOneData) {
+    if (!user || !user?.styleOneData) {
         // Render a loading indicator, placeholder, or some fallback UI
         return <div>Loading...</div>; // or any other fallback UI
     }
-    const backgroundOneImageUrl = user && user.styleOneData.firstPicture ? `url('${user.styleOneData.firstPicture}')` : 'none';
-    const backgroundTwoImageUrl = user && user.styleOneData.secondPicture ? `url('${user.styleOneData.secondPicture}')` : 'none';
-    const backgroundThirdImageUrl = user && user.styleOneData.thirdPicture ? `url('${user.styleOneData.thirdPicture}')` : 'none';
-    const backgroundFourthImageUrl = user && user.styleOneData.fourthPicture ? `url('${user.styleOneData.fourthPicture}')` : 'none';
+    const backgroundOneImageUrl = user && user?.styleOneData.firstPicture ? `url('${user.styleOneData.firstPicture}')` : 'none';
+    const backgroundTwoImageUrl = user && user?.styleOneData.secondPicture ? `url('${user.styleOneData.secondPicture}')` : 'none';
+    const backgroundThirdImageUrl = user && user?.styleOneData.thirdPicture ? `url('${user.styleOneData.thirdPicture}')` : 'none';
+    const backgroundFourthImageUrl = user && user?.styleOneData.fourthPicture ? `url('${user.styleOneData.fourthPicture}')` : 'none';
     return (
         <Container size="auto" className={styles.containerStyle}>
         <div className={styles.shell}>
