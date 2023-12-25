@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_APIENDPOINT || 'http://localhost:4000/api/users';
+const API_BASE = 'https://create-your-own-website.onrender.com/api/users';
 interface UserData {
     username: string;
     password: string;
