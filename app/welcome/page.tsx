@@ -1,11 +1,11 @@
 import React from 'react';
 // @ts-ignore
-import { LoginAndLogout } from '@/components/LoginAndLogout/LoginAndLogout'
+import { LoginAndRegister } from '@/components/LoginAndRegister/LoginAndRegister';
 
 export default function HomePage() {
     return (
         <>
-            <LoginAndLogout />
+            <LoginAndRegister />
         </>
     );
 }

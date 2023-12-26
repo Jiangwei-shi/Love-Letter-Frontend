@@ -4,11 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button, Container, Loader, Notification, rem } from '@mantine/core';
 import { IconX, IconCheck } from '@tabler/icons-react';
-import styles from './LoginAndLogout.module.css';
+import styles from './LoginAndRegister.module.css';
 import { loginThunk, registerThunk } from '@/thunks/authorize-thunk';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 
-export function LoginAndLogout() {
+export function LoginAndRegister() {
     // State Hooks
     const [isGx, setIsGx] = useState(false);
     const [isTxr, setIsTxr] = useState(false);
@@ -20,7 +20,10 @@ export function LoginAndLogout() {
     const [finishedSignUp, setFinishedSignUp] = useState(false);
     const [alreadySignUp, setAlreadySignUp] = useState(false);
     const [occurError, setOccurError] = useState(false);
+    const [passwordWrong, setPasswordWrong] = useState(false);
+    const [notRegisterYet, setNotRegisterYet] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [noInputError, setNoInputError] = useState(false);
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
@@ -33,15 +36,20 @@ export function LoginAndLogout() {
             localStorage.setItem('currentUser', JSON.stringify(user));
             router.push('/styleSelect');
         }
-        if (finishedSignUp || alreadySignUp || occurError) {
+        if (finishedSignUp || alreadySignUp || occurError
+            || passwordWrong || notRegisterYet || noInputError) {
             const timer = setTimeout(() => {
                 setFinishedSignUp(false);
                 setAlreadySignUp(false);
                 setOccurError(false);
-            }, 5000);
+                setPasswordWrong(false);
+                setNotRegisterYet(false);
+                setNoInputError(false);
+            }, 4000);
             return () => clearTimeout(timer); // Clean up the timer
         }
-    }, [user, finishedSignUp, alreadySignUp, occurError]);
+    }, [user, finishedSignUp, alreadySignUp, occurError,
+        passwordWrong, notRegisterYet, noInputError]);
 
     const changeForm = () => {
         setIsGx(true);
@@ -56,9 +64,23 @@ export function LoginAndLogout() {
     const login = async (event: { preventDefault: () => void; }) => {
         setIsLoading(true);
         event.preventDefault();
+        if (!username || !password) {
+            // 可以设置一个错误状态或者返回错误信息
+            setNoInputError(true);
+            setIsLoading(false);
+            return; // 直接返回，不执行下面的代码
+        }
         const loginInformation = { username, password };
         const action = loginThunk(loginInformation);
-        await dispatch(action);
+        const resultAction = await dispatch(action);
+        if (loginThunk.rejected.match(resultAction)) {
+            const errorMessage = resultAction.error.message;
+            if (errorMessage === 'Request failed with status code 400') {
+                setPasswordWrong(true);
+            } else {
+                setNotRegisterYet(true);
+            }
+        }
         setIsLoading(false);
     };
 
@@ -102,6 +124,21 @@ export function LoginAndLogout() {
                        onChange={handleUsernameChange}
                      />
                      <input type="password" className={styles.form_input} placeholder="Password" value={password} onChange={handlePasswordChange} />
+                     {passwordWrong && (
+                         <Notification icon={xIcon} color="red" title="Sorry!" mt="md" onClose={() => setPasswordWrong(false)} className={styles.notificationFadeOut}>
+                             password is wrong
+                         </Notification>
+                     )}
+                     {notRegisterYet && (
+                         <Notification icon={xIcon} color="red" title="Sorry!" mt="md" onClose={() => setNotRegisterYet(false)} className={styles.notificationFadeOut}>
+                             No such user, please Register.
+                         </Notification>
+                     )}
+                     {noInputError && (
+                         <Notification icon={xIcon} color="red" title="Sorry!" mt="md" onClose={() => setNoInputError(false)} className={styles.notificationFadeOut}>
+                             please filling your username and password.
+                         </Notification>
+                     )}
                      <Button
                        type="button"
                        className={`${styles.button} ${styles.submit}`}
