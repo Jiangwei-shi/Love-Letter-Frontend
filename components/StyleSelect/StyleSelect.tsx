@@ -14,7 +14,7 @@ export function StyleSelect() {
     };
 
     return (
-        <Container>
+        <Container id="selectTemplate">
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
                 <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>

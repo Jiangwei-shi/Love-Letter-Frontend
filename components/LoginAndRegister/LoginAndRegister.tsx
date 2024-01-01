@@ -115,7 +115,7 @@ export function LoginAndRegister() {
          <div className={styles.shell}>
              <div className={`${styles.container} ${isHidden ? styles.isHidden : ''}  ${styles.aContainer} ${isTxl ? styles.isTxl : ''}`}>
                  <form action="" method="" className={styles.form} id="b-form">
-                     <h2 className={`${styles.title}`}>登入账号</h2>
+                     <h2 className={`${styles.title}`}>Login In Account</h2>
                      <input
                        type="text"
                        className={styles.form_input}
@@ -155,7 +155,7 @@ export function LoginAndRegister() {
 
              <div className={`${styles.container} ${isHidden ? '' : styles.isHidden} ${styles.bContainer} ${isTxl ? styles.isTxl : ''} ${isZ ? styles.isZ : ''}  `}>
                  <form action="" method="" className={styles.form} id="a-form">
-                     <h2 className={`${styles.form_title} ${styles.title}`}>创建账号</h2>
+                     <h2 className={`${styles.title}`}>Sign Up Account</h2>
                      <input type="text" className={styles.form_input} placeholder="Email" value={username} onChange={handleUsernameChange} />
                      <input type="text" className={styles.form_input} placeholder="Password" value={password} onChange={handlePasswordChange} />
                      {finishedSignUp && (
@@ -190,7 +190,7 @@ export function LoginAndRegister() {
                      <h2 className={`${styles.switch_title} ${styles.title}`} style={{ letterSpacing: 0 }}>Hello
                          Friend！
                      </h2>
-                     <p className={`${styles.switch_description} ${styles.description}`}>去注册一个账号，成为尊贵的粉丝会员，让我们踏入奇妙的旅途！</p>
+                     <p className={`${styles.switch_description} ${styles.description}`}>Don&apos;t have account? Go to register one. And build your own website!</p>
                      <Button type="button" className={`${styles.switch_button} ${styles.button}`} onClick={changeForm}>
                          SIGN UP
                      </Button>
@@ -202,7 +202,7 @@ export function LoginAndRegister() {
                          Welcome Back！
                      </h2>
                      <p className={`${styles.switch_description} ${styles.description}`}>
-                         已经有账号了嘛，去登入账号来进入奇妙世界吧！！！
+                         Already registered? Login and select your website！！！
                      </p>
                      <Button type="button" className={`${styles.switch_button} ${styles.button} `} onClick={changeForm}>
                          SIGN IN

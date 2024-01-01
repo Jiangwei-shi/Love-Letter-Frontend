@@ -11,7 +11,6 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import classes from './Header.module.css';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { deleteUserThunk, logoutThunk } from '@/thunks/authorize-thunk';
@@ -46,7 +45,7 @@ export function Header() {
         }
     };
     return (
-        <Box pb={50}>
+        <Box>
             <header className={classes.header}>
                 <Group justify="flex-end" h="100%">
                     <Group visibleFrom="xs">
