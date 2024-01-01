@@ -10,20 +10,17 @@ export function MainPicture() {
     return (
         <Container size="auto" className={styles.containerStyle}>
             <Paper shadow="sm" p={40} radius="md" className={styles.paperStyle}>
-                <Title order={1} size="40" style={{ color: 'white', marginBottom: '30px' }}>
-                    build your own website
+                <Title order={1} size="50" style={{ color: 'white', marginBottom: '30px' }}>
+                    Build yourself website
                 </Title>
-                <Text fw={700} style={{ color: 'white' }}>
-                    Hi, I&apos;m Jiangwei, the creator of this website. My goal is to build
-                    websites for those who don&apos;t know how to create one for themselves.
-                    It can be a gift for your friends, family, loved ones, children, or anyone
-                    you wish to share a website with. You can scroll down to choose a template
-                    you like. Clicking on the images in the template will show you the live
-                    style of the website. Once you select a template, you can start building
-                    your own website. If you don&apos;t want to use a template and instead wish
-                    to create a website with a new style, you can reach out to me via email
-                    for an in-depth discussion. I look forward to hearing from you. My email
-                    is Jiangweishi8@gmail.com.
+                <Text fw={700} fz="lg" lh="xl" style={{ color: 'white' }}>
+                    Hi, I&apos;m Jiangwei, the owner of this website.
+                    You can scroll down to choose a template you like.<br />
+                    Clicking on the images in the template to check the live website.<br />
+                    Once you select a template, you can start building your own website. <br />
+                    If you would like to build website with a new style,
+                    you can reach out to me via email for an in-depth discussion. <br />
+                    I look forward to hearing from you. My email is Jiangweishi8@gmail.com.
                 </Text>
             </Paper>
             <div className={styles.ChevronDownIcon} style={{ position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)' }}>

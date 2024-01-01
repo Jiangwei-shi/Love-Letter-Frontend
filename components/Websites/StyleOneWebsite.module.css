@@ -23,6 +23,7 @@
     background-size: cover;
     height: 100vh;
     z-index: -1;
+    user-select: none;
 }
 
 .text {

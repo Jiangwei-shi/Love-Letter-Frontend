@@ -5,7 +5,7 @@
     height: rem(60px);
     padding-left: var(--mantine-spacing-md);
     padding-right: var(--mantine-spacing-md);
-    //background-color: rgba(71, 85, 105, 0.5);
+    background:transparent;
     backdrop-filter: blur(4px);
 }
 
