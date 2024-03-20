@@ -13,6 +13,12 @@ export function StyleSelect() {
         }
     };
 
+    const selectStyleTwo = () => {
+        if (user) {
+            router.push('/styleSelect/styleTwo');
+        }
+    };
+
     return (
         <Container id="selectTemplate">
             <Grid gutter={{ base: 5, xs: 'md', md: 'xl', xl: 50 }}>
@@ -27,38 +33,38 @@ export function StyleSelect() {
                     </Card.Section>
 
                     <Group justify="space-between" mt="md" mb="xs">
-                        <Text fw={500}>模板一</Text>
+                        <Text fw={500}>template one</Text>
                     </Group>
 
                     <Text size="sm" c="dimmed">
-                        点击图片可以查看样例
+                        four photos with 7 sentences
                     </Text>
 
                     <Button color="blue" fullWidth mt="md" radius="md" onClick={selectStyleOne}>
-                        使用模板
+                        start use template
                     </Button>
                     </Card>
                 </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 6, lg: 4 }}>
                     <Card shadow="sm" padding="lg" radius="md" withBorder>
-                        <Card.Section>
+                        <Card.Section component="a" href="https://loveletter.netlify.app/styleSelect/styleOne/6589a279ac405a553442b6bb">
                             <Image
-                              src="https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/images/bg-8.png"
+                              src="https://firebasestorage.googleapis.com/v0/b/create-your-own-website-ebf54.appspot.com/o/avatars%2FOriginal%20Xayah.jpg?alt=media&token=f2d151c6-b028-4077-8c24-4133c0fcc611"
                               height={200}
                               alt="Norway"
                             />
                         </Card.Section>
 
                         <Group justify="space-between" mt="md" mb="xs">
-                            <Text fw={500}>模板一</Text>
+                            <Text fw={500}>template two</Text>
                         </Group>
 
                         <Text size="sm" c="dimmed">
-                            点击图片可以查看样例
+                            3 photos
                         </Text>
 
-                        <Button color="blue" fullWidth mt="md" radius="md">
-                            使用模板
+                        <Button color="blue" fullWidth mt="md" radius="md" onClick={selectStyleTwo}>
+                            start use template
                         </Button>
                     </Card>
                 </Grid.Col>

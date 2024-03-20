@@ -11,6 +11,7 @@ import {
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import classes from './Header.module.css';
 import { useAppDispatch, useAppSelector } from '@/lib/hooks';
 import { deleteUserThunk, logoutThunk } from '@/thunks/authorize-thunk';
@@ -20,6 +21,14 @@ export function Header() {
     const dispatch = useAppDispatch();
     const user = useAppSelector(state => state.currentUser);
     const router = useRouter();
+
+    useEffect(() => {
+        // Check if user is null on component mount
+        if (!user) {
+            // Redirect to /welcome if user is null
+            router.push('/welcome');
+        }
+    }, [user, router]);
 
     const handleLogoutClick = () => {
         dispatch(logoutThunk())

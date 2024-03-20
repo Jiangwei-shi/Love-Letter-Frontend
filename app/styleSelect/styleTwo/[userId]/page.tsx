@@ -1,12 +1,12 @@
 'use client';
 
 import React from 'react';
-import StyleTwoForm from '@/components/StyleForms/StyleTwoForm';
+import StyleTwoWebsite from '../../../../components/Websites/StyleTwoWebsite';
 
 export default function HomePage() {
     return (
         <>
-            <StyleTwoForm />
+            <StyleTwoWebsite />
         </>
     );
 }
