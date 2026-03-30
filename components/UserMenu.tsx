@@ -27,14 +27,41 @@ export default function UserMenu() {
 
   if (!email) {
     return (
-      <Button component={Link} href="/login" variant="light" size="xs" radius="xl">
+      <Button
+        component={Link}
+        href="/login"
+        size="sm"
+        radius="xl"
+        styles={{
+          root: {
+            background: '#9c4050',
+            border: 'none',
+            color: '#fff',
+            fontFamily: "var(--font-inter), Inter, 'Segoe UI', sans-serif",
+            boxShadow: '0 6px 18px rgba(156, 64, 80, 0.2)',
+          },
+        }}
+      >
         登录
       </Button>
     );
   }
 
   return (
-    <Button component={Link} href="/admin" variant="light" size="xs" radius="xl">
+    <Button
+      component={Link}
+      href="/admin"
+      variant="default"
+      size="sm"
+      radius="xl"
+      styles={{
+        root: {
+          borderColor: '#dac0c2',
+          color: '#9c4050',
+          fontFamily: "var(--font-inter), Inter, 'Segoe UI', sans-serif",
+        },
+      }}
+    >
       {displayName?.trim() || email}
     </Button>
   );

@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Alert, Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core';
+import Link from 'next/link';
+import { Box, Button, Paper, Stack, Text } from '@mantine/core';
+import { IconPlus } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Post, PostComment } from '@/lib/types/mvp';
-
-function formatRecordTime(recordTime: string) {
-  return recordTime.replace('T', ' ').slice(0, 16);
-}
+import EtherealPostCard from '@/components/posts/EtherealPostCard';
+import { ARCHIVE, sans } from '@/components/home/constants';
 
 export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
@@ -34,11 +34,13 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
     if (error) return;
     const nextCount = Number(data ?? 0);
 
-    setPosts((prev) => prev.map((post) => (
-      post.id === postId
-        ? { ...post, like_count: nextCount || (post.like_count ?? 0) + 1 }
-        : post
-    )));
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, like_count: nextCount || (post.like_count ?? 0) + 1 }
+          : post,
+      ),
+    );
   };
 
   const onComment = async (postId: string) => {
@@ -59,16 +61,21 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
       .select('*')
       .single();
     if (error || !data) {
-      setCommentErrors((prev) => ({ ...prev, [postId]: error?.message || '评论失败，请稍后重试。' }));
+      setCommentErrors((prev) => ({
+        ...prev,
+        [postId]: error?.message || '评论失败，请稍后重试。',
+      }));
       setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
       return;
     }
 
-    setPosts((prev) => prev.map((post) => (
-      post.id === postId
-        ? { ...post, post_comments: [...(post.post_comments ?? []), data as PostComment] }
-        : post
-    )));
+    setPosts((prev) =>
+      prev.map((post) =>
+        post.id === postId
+          ? { ...post, post_comments: [...(post.post_comments ?? []), data as PostComment] }
+          : post,
+      ),
+    );
 
     setCommentInputs((prev) => ({ ...prev, [postId]: { visitor_name: '', message: '' } }));
     setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
@@ -76,76 +83,86 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
 
   if (posts.length === 0) {
     return (
-      <Text c="dimmed" size="sm">
-        还没有生活记录，等第一条动态发布后，这里就会热闹起来。
-      </Text>
+      <Paper
+        p="xl"
+        radius="md"
+        style={{
+          background: ARCHIVE.surfaceContainerLowest,
+          border: `1px dashed ${ARCHIVE.outlineVariant}80`,
+        }}
+      >
+        <Text c="dimmed" size="sm" ta="center" style={{ fontFamily: sans }}>
+          还没有生活记录，等第一条动态发布后，这里就会热闹起来。
+        </Text>
+      </Paper>
     );
   }
 
   return (
-    <Stack gap="md">
-      {posts.map((post) => {
-        const likes = post.like_count ?? 0;
-        const comments = post.post_comments ?? [];
+    <>
+      <Stack gap={48}>
+        {posts.map((post, index) => {
+          const comments = post.post_comments ?? [];
+          return (
+            <EtherealPostCard
+              key={post.id}
+              post={post}
+              index={index}
+              journalNumber={posts.length - index}
+              comments={comments}
+              commentInput={commentInputs[post.id] ?? { visitor_name: '', message: '' }}
+              commentError={commentErrors[post.id]}
+              commentSubmitting={Boolean(commentSubmitting[post.id])}
+              onLike={() => onLike(post.id)}
+              onComment={() => onComment(post.id)}
+              onCommentFieldChange={(field, value) => setCommentField(post.id, field, value)}
+            />
+          );
+        })}
+      </Stack>
 
-        return (
-          <Card key={post.id}>
-            <Group justify="space-between">
-              <Badge color="pink" variant="light">
-                {post.author || '发布者'}
-              </Badge>
-              <Text size="xs" c="dimmed">{formatRecordTime(post.record_time)}</Text>
-            </Group>
-            <Title order={3} mt="xs">{post.title}</Title>
-            <Text mt={6}>{post.content}</Text>
+      <Box ta="center" mt={48}>
+        <Button
+          radius="xl"
+          size="md"
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
+          styles={{
+            root: {
+              background: `linear-gradient(90deg, ${ARCHIVE.primary}, ${ARCHIVE.primaryContainer})`,
+              border: 'none',
+              fontFamily: sans,
+              boxShadow: '0 8px 20px rgba(156, 64, 80, 0.2)',
+            },
+          }}
+        >
+          Trace Back Further
+        </Button>
+      </Box>
 
-            {(post.post_images ?? []).length > 0 && (
-              <SimpleGrid cols={{ base: 3, sm: 3, md: 3 }} mt="sm" spacing="xs">
-                {(post.post_images ?? []).slice(0, 9).map((img) => (
-                  <Image key={img.id} src={img.image_url} alt={post.title} h={110} radius="sm" fit="cover" />
-                ))}
-              </SimpleGrid>
-            )}
-
-            <Group mt="sm">
-              <Button variant="light" onClick={() => onLike(post.id)}>点赞</Button>
-              <Text size="sm" c="dimmed">共 {likes} 次点赞</Text>
-            </Group>
-
-            <Stack gap={6} mt="sm">
-              {comments.map((comment) => (
-                <Card key={comment.id} p="xs" bg="pink.0">
-                  <Text size="sm">
-                    <Text component="span" fw={600}>{comment.visitor_name}：</Text>
-                    {comment.message}
-                  </Text>
-                </Card>
-              ))}
-              {commentErrors[post.id] && (
-                <Alert color="red" py={6}>
-                  {commentErrors[post.id]}
-                </Alert>
-              )}
-              <Group grow>
-                <TextInput
-                  placeholder="访客昵称"
-                  value={commentInputs[post.id]?.visitor_name ?? ''}
-                  onChange={(event) => setCommentField(post.id, 'visitor_name', event.currentTarget?.value ?? '')}
-                />
-                <TextInput
-                  placeholder="写下留言..."
-                  value={commentInputs[post.id]?.message ?? ''}
-                  onChange={(event) => setCommentField(post.id, 'message', event.currentTarget?.value ?? '')}
-                />
-                <Button loading={Boolean(commentSubmitting[post.id])} onClick={() => onComment(post.id)}>
-                  发送
-                </Button>
-              </Group>
-            </Stack>
-          </Card>
-        );
-      })}
-    </Stack>
+      <Button
+        component={Link}
+        href="/admin/posts"
+        pos="fixed"
+        bottom={32}
+        right={32}
+        w={56}
+        h={56}
+        p={0}
+        radius="xl"
+        aria-label="新增记录"
+        style={{ zIndex: 40 }}
+        styles={{
+          root: {
+            background: ARCHIVE.primary,
+            border: 'none',
+            boxShadow: '0 12px 28px rgba(0,0,0,0.18)',
+          },
+        }}
+      >
+        <IconPlus size={26} stroke={2} color="#fff" />
+      </Button>
+    </>
   );
 }
-

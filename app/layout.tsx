@@ -1,10 +1,23 @@
 import React from 'react';
-import Link from 'next/link';
+import { Inter, Noto_Serif } from 'next/font/google';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import './globals.css';
-import UserMenu from '@/components/UserMenu';
+import SiteHeader from '@/components/SiteHeader';
 import MantineRootProvider from '@/components/MantineRootProvider';
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const notoSerif = Noto_Serif({
+  subsets: ['latin'],
+  style: ['italic', 'normal'],
+  variable: '--font-noto-serif',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'LoveLetter - 情侣纪念网站',
@@ -13,20 +26,10 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN">
+    <html lang="zh-CN" className={`${inter.variable} ${notoSerif.variable}`}>
       <body>
         <MantineRootProvider>
-          <header className="site-header">
-            <div className="container nav-row">
-              <Link href="/" className="brand">LoveLetter</Link>
-              <nav className="nav-links">
-                <Link href="/timeline">时间线</Link>
-                <Link href="/posts">生活记录</Link>
-                <Link href="/about">关于我们</Link>
-                <UserMenu />
-              </nav>
-            </div>
-          </header>
+          <SiteHeader />
           <main className="container page-content">{children}</main>
         </MantineRootProvider>
       </body>

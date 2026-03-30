@@ -5,7 +5,7 @@ import { createTheme } from '@mantine/core';
 export const theme = createTheme({
   primaryColor: 'pink',
   defaultRadius: 'md',
-  fontFamily: "'Segoe UI', sans-serif",
+  fontFamily: "var(--font-inter), Inter, 'Segoe UI', sans-serif",
   colors: {
     pink: [
       '#fff0f6',
