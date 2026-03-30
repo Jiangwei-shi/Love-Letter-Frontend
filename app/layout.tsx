@@ -22,7 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <nav className="nav-links">
                 <Link href="/timeline">时间线</Link>
                 <Link href="/posts">生活记录</Link>
-                <Link href="/albums">相册</Link>
+                <Link href="/about">关于我们</Link>
                 <UserMenu />
               </nav>
             </div>

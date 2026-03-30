@@ -46,8 +46,8 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
         <Pill component={Link} href="/admin/posts" withRemove={false}>
           生活记录
         </Pill>
-        <Pill component={Link} href="/admin/albums" withRemove={false}>
-          相册
+        <Pill component={Link} href="/admin/about" withRemove={false}>
+          情侣信息
         </Pill>
       </Group>
       {children}

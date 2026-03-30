@@ -10,12 +10,27 @@ export type Profile = {
   created_at: string;
 };
 
+export type CoupleProfile = {
+  id: string;
+  boy_name: string | null;
+  boy_avatar: string | null;
+  girl_name: string | null;
+  girl_avatar: string | null;
+  anniversary_date: string | null;
+  about_text: string | null;
+  love_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type TimelineEvent = {
   id: string;
   title: string;
-  description: string | null;
   event_date: string;
+  boy_message: string | null;
+  girl_message: string | null;
   created_at: string;
+  updated_at: string;
   created_by: string;
 };
 
@@ -23,10 +38,14 @@ export type Post = {
   id: string;
   title: string;
   content: string;
-  happened_on: string | null;
+  record_time: string;
+  author_type: 'boy' | 'girl';
   created_at: string;
+  updated_at: string;
   created_by: string;
   post_images?: PostImage[];
+  post_likes?: PostLike[];
+  post_comments?: PostComment[];
 };
 
 export type PostImage = {
@@ -34,22 +53,19 @@ export type PostImage = {
   post_id: string;
   image_url: string;
   sort_order: number;
-};
-
-export type Album = {
-  id: string;
-  title: string;
-  description: string | null;
-  cover_url: string | null;
   created_at: string;
-  created_by: string;
 };
 
-export type AlbumPhoto = {
+export type PostLike = {
   id: string;
-  album_id: string;
-  image_url: string;
-  caption: string | null;
-  sort_order: number;
+  post_id: string;
+  created_at: string;
+};
+
+export type PostComment = {
+  id: string;
+  post_id: string;
+  visitor_name: string;
+  message: string;
   created_at: string;
 };

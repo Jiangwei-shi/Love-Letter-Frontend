@@ -30,7 +30,7 @@ export default function AdminPage() {
           你已登录：{email || '—'}
         </Text>
         <Text size="sm">
-          从上面的导航进入时间线、生活记录、相册管理。
+          从上面的导航进入时间线、生活记录和情侣信息管理。
         </Text>
         <Button color="red" mt="md" onClick={onLogout}>
           退出登录

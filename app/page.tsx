@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { getSupabasePublicServerClient } from '@/lib/supabase/server';
-import { getTimelineEvents, getPosts, getLatestPhotos } from '@/lib/supabase/queries';
+import { getTimelineEvents, getPosts } from '@/lib/supabase/queries';
 import type { Profile } from '@/lib/types/mvp';
 
 function calcDaysFrom(dateStr?: string | null) {
@@ -27,10 +27,9 @@ export default async function HomePage() {
     .limit(1)
     .maybeSingle<Profile>();
 
-  const [events, posts, latestPhotos] = await Promise.all([
+  const [events, posts] = await Promise.all([
     getTimelineEvents(),
     getPosts(),
-    getLatestPhotos(6),
   ]);
 
   const anniversaryDays = calcDaysFrom(profile?.anniversary_date ?? null);
@@ -60,8 +59,8 @@ export default async function HomePage() {
               <Button component={Link} href="/timeline">
                 查看我们的故事
               </Button>
-              <Button component={Link} href="/albums" variant="light">
-                翻看相册
+              <Button component={Link} href="/posts" variant="light">
+                查看生活记录
               </Button>
             </Group>
           </div>
@@ -137,36 +136,6 @@ export default async function HomePage() {
       <section className="home-section">
         <Group className="section-header">
           <div>
-            <Title order={2} className="section-title">最近的瞬间</Title>
-            <Text className="section-subtitle">从最近的照片里，偷看几眼我们的日常。</Text>
-          </div>
-          <Button component={Link} href="/albums" variant="light">
-            打开全部相册
-          </Button>
-        </Group>
-        {latestPhotos.length === 0 ? (
-          <Text className="empty">
-            还没有上传照片。等有了第一张，我们的回忆墙就会慢慢亮起来。
-          </Text>
-        ) : (
-          <SimpleGrid cols={{ base: 2, sm: 3, md: 6 }} spacing="xs">
-            {latestPhotos.map((photo) => (
-              <Card component={Link} href={`/albums/${photo.album_id}`} key={photo.id} p={0}>
-                <Image
-                  src={photo.image_url}
-                  alt={photo.caption ?? '我们的照片'}
-                  h={120}
-                  fit="cover"
-                />
-              </Card>
-            ))}
-          </SimpleGrid>
-        )}
-      </section>
-
-      <section className="home-section">
-        <Group className="section-header">
-          <div>
             <Title order={2} className="section-title">最近发生的故事</Title>
             <Text className="section-subtitle">把重要的节点和日常的小碎片放在一起看。</Text>
           </div>
@@ -192,8 +161,8 @@ export default async function HomePage() {
               <div key={item.id} className="story-item">
                 <Badge color="pink" variant="light">{item.event_date}</Badge>
                 <Text fw={600} className="story-title">{item.title}</Text>
-                {item.description && (
-                  <Text className="story-text">{item.description}</Text>
+                {(item.boy_message || item.girl_message) && (
+                  <Text className="story-text">{item.boy_message ?? item.girl_message}</Text>
                 )}
                 <Text className="story-meta">记录于时间线</Text>
               </div>
@@ -210,7 +179,7 @@ export default async function HomePage() {
             {recentPosts.map((post) => (
               <Card key={post.id} component={Link} href={`/posts/${post.id}`} className="story-item story-link" withBorder>
                 <Badge color="pink" variant="light">
-                  {post.happened_on ?? post.created_at.slice(0, 10)}
+                  {(post.record_time || '').replace('T', ' ').slice(0, 10)}
                 </Badge>
                 <Text fw={600} className="story-title">{post.title}</Text>
                 <Text className="story-text">

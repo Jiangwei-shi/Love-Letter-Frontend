@@ -1,5 +1,5 @@
 import { getSupabasePublicServerClient } from '@/lib/supabase/server';
-import type { Album, AlbumPhoto, Post, TimelineEvent } from '@/lib/types/mvp';
+import type { CoupleProfile, Post, TimelineEvent } from '@/lib/types/mvp';
 
 export async function getTimelineEvents(): Promise<TimelineEvent[]> {
   const supabase = getSupabasePublicServerClient();
@@ -16,8 +16,8 @@ export async function getPosts(): Promise<Post[]> {
   const supabase = getSupabasePublicServerClient();
   const { data, error } = await supabase
     .from('posts')
-    .select('*, post_images(*)')
-    .order('happened_on', { ascending: false, nullsFirst: false })
+    .select('*, post_images(*), post_likes(id), post_comments(*)')
+    .order('record_time', { ascending: false })
     .order('created_at', { ascending: false });
 
   if (error) throw error;
@@ -28,7 +28,7 @@ export async function getPostById(id: string): Promise<Post | null> {
   const supabase = getSupabasePublicServerClient();
   const { data, error } = await supabase
     .from('posts')
-    .select('*, post_images(*)')
+    .select('*, post_images(*), post_likes(id), post_comments(*)')
     .eq('id', id)
     .maybeSingle();
 
@@ -36,38 +36,14 @@ export async function getPostById(id: string): Promise<Post | null> {
   return (data ?? null) as Post | null;
 }
 
-export async function getAlbums(): Promise<Album[]> {
+export async function getCoupleProfile(): Promise<CoupleProfile | null> {
   const supabase = getSupabasePublicServerClient();
   const { data, error } = await supabase
-    .from('albums')
+    .from('couple_profile')
     .select('*')
-    .order('created_at', { ascending: false });
+    .limit(1)
+    .maybeSingle();
 
   if (error) throw error;
-  return (data ?? []) as Album[];
-}
-
-export async function getAlbumPhotos(albumId: string): Promise<AlbumPhoto[]> {
-  const supabase = getSupabasePublicServerClient();
-  const { data, error } = await supabase
-    .from('album_photos')
-    .select('*')
-    .eq('album_id', albumId)
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: true });
-
-  if (error) throw error;
-  return (data ?? []) as AlbumPhoto[];
-}
-
-export async function getLatestPhotos(limit = 6): Promise<AlbumPhoto[]> {
-  const supabase = getSupabasePublicServerClient();
-  const { data, error } = await supabase
-    .from('album_photos')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(limit);
-
-  if (error) throw error;
-  return (data ?? []) as AlbumPhoto[];
+  return (data ?? null) as CoupleProfile | null;
 }

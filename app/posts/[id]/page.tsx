@@ -20,7 +20,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
     );
   }
 
-  const date = post.happened_on ?? post.created_at.slice(0, 10);
+  const date = (post.record_time || '').replace('T', ' ').slice(0, 16);
 
   return (
     <Card>
@@ -29,7 +29,12 @@ export default async function PostDetailPage({ params }: { params: { id: string 
           ← 回到生活记录
         </Button>
       </Group>
-      <Badge color="pink" variant="light" mt="sm">{date}</Badge>
+      <Group mt="sm">
+        <Badge color={post.author_type === 'boy' ? 'blue' : 'red'} variant="light">
+          {post.author_type === 'boy' ? '男生' : '女生'}
+        </Badge>
+        <Badge color="pink" variant="light">{date}</Badge>
+      </Group>
       <Title order={1} mt="xs">{post.title}</Title>
       <Text c="dimmed" mt={4}>这一小段记忆，被认真地写给以后看的我们。</Text>
 
