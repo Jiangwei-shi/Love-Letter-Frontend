@@ -327,6 +327,115 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
+/* —— Admin mobile (align with public Ethereal shell) —— */
+:root {
+  --admin-sidebar-w: 256px;
+  --admin-mobile-chrome-h: 52px;
+  --admin-inner-header-h: 72px;
+}
+.admin-inner-topbar {
+  position: fixed;
+  top: 0;
+  left: var(--admin-sidebar-w);
+  right: 0;
+  height: var(--admin-inner-header-h);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(12px, 3vw, 28px);
+  border-bottom: 1px solid rgba(218,192,194,0.2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(250, 249, 245, 0.82);
+}
+.admin-page-main-subheader {
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 28px;
+}
+@media (min-width: 480px) {
+  .admin-page-main-subheader {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 768px) {
+  .admin-page-main-subheader {
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-bottom: 40px;
+  }
+}
+@media (max-width: 767px) {
+  .admin-inner-topbar {
+    left: 0;
+    top: var(--admin-mobile-chrome-h);
+  }
+  .admin-page-main-subheader {
+    padding-top: calc(var(--admin-mobile-chrome-h) + var(--admin-inner-header-h) + 16px);
+  }
+}
+@media (min-width: 768px) {
+  .admin-page-main-subheader {
+    padding-top: calc(var(--admin-inner-header-h) + 20px);
+  }
+}
+.admin-dashboard-main {
+  padding-top: calc(var(--admin-mobile-chrome-h) + 12px);
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 28px;
+}
+@media (min-width: 480px) {
+  .admin-dashboard-main {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}
+@media (min-width: 768px) {
+  .admin-dashboard-main {
+    padding-top: 32px;
+    padding-left: 28px;
+    padding-right: 28px;
+    padding-bottom: 36px;
+  }
+}
+@media (max-width: 991px) {
+  .admin-posts-grid > .admin-col-form,
+  .admin-posts-grid > .admin-col-list {
+    grid-column: 1 / -1 !important;
+  }
+}
+/* Below Mantine lg (~75em): prevent span 8 / span 4 with cols=1 from shrinking cards */
+@media (max-width: 74.99em) {
+  .admin-about-grid {
+    width: 100%;
+  }
+  .admin-about-grid > * {
+    grid-column: 1 / -1 !important;
+    width: 100%;
+    min-width: 0;
+  }
+}
+@media (min-width: 992px) {
+  .admin-about-side-card {
+    min-height: 100%;
+  }
+  .admin-about-anniversary-stack {
+    min-height: 100%;
+  }
+}
+.admin-timeline-form-sticky {
+  position: sticky;
+  top: 112px;
+}
+@media (max-width: 767px) {
+  .admin-timeline-form-sticky {
+    top: 124px;
+  }
+}
+
 body:has(.admin-page-root) .site-root-header {
   display: none;
 }
@@ -336,4 +445,9 @@ body:has(.admin-page-root) .page-content {
   width: 100%;
   margin: 0;
   padding: 0;
+}
+body:has(.admin-page-root) main.container {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
 }

@@ -7,14 +7,14 @@ import { Box, Button, Stack, Text, Title } from '@mantine/core';
 /** 与侧栏固定宽度一致，主内容区 `ml` 请使用该值 */
 export const ADMIN_SIDEBAR_WIDTH = 256;
 
-const NAV_ITEMS = [
+export const ADMIN_NAV_ITEMS = [
   { href: '/admin', label: '控制台' },
   { href: '/admin/timeline', label: '时间线管理' },
   { href: '/admin/posts', label: '推文管理' },
   { href: '/admin/about', label: '伴侣信息' },
 ] as const;
 
-function navItemActive(pathname: string, href: string) {
+export function adminNavItemActive(pathname: string, href: string) {
   if (href === '/admin') {
     return pathname === '/admin' || pathname === '/admin/';
   }
@@ -44,7 +44,7 @@ export default function AdminSidebar() {
           <Title
             order={2}
             style={{
-              fontFamily: "'Noto Serif', Georgia, 'Times New Roman', serif",
+              fontFamily: "var(--font-noto-serif), 'Noto Serif', Georgia, 'Times New Roman', serif",
               fontStyle: 'italic',
               fontWeight: 400,
               color: '#9c4050',
@@ -68,8 +68,8 @@ export default function AdminSidebar() {
         </Stack>
 
         <Stack gap={6} mt="lg">
-          {NAV_ITEMS.map(({ href, label }) => {
-            const active = navItemActive(pathname, href);
+          {ADMIN_NAV_ITEMS.map(({ href, label }) => {
+            const active = adminNavItemActive(pathname, href);
             return (
               <Button
                 key={href}

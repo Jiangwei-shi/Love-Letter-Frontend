@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { ActionIcon, Box, Button, Card, FileInput, Group, Image, Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import AdminSidebar, { ADMIN_SIDEBAR_WIDTH } from '@/components/AdminSidebar';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post } from '@/lib/types/mvp';
 
@@ -54,7 +53,7 @@ function PostFormCard({
         <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9c4050' }}>
           New Life Record
         </Text>
-        <Title order={1} style={{ fontSize: 42, lineHeight: 1.15, fontStyle: 'italic', fontWeight: 500 }}>
+        <Title order={1} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', lineHeight: 1.15, fontStyle: 'italic', fontWeight: 500 }}>
           Preserve a new
           <br />
           moment in history
@@ -84,7 +83,7 @@ function PostFormCard({
                 input: { backgroundColor: '#e9e8e4', border: 'none', fontStyle: 'italic', fontSize: 17 },
               }}
             />
-            <SimpleGrid cols={2} spacing="md">
+            <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
               <DateInput
                 label="Date of Memory"
                 placeholder="选择记录时间"
@@ -473,45 +472,19 @@ export default function AdminPostsPage() {
   };
 
   return (
-    <Box
-      className="admin-page-root"
-      style={{
-        minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top left, rgba(255, 142, 158, 0.12) 0%, transparent 38%), radial-gradient(circle at bottom right, rgba(142, 202, 255, 0.12) 0%, transparent 40%), #faf9f5',
-      }}
-    >
-      <AdminSidebar />
-
-      <Box ml={ADMIN_SIDEBAR_WIDTH} style={{ paddingTop: 92, paddingLeft: 28, paddingRight: 28, paddingBottom: 40 }}>
-        <Box
-          style={{
-            position: 'fixed',
-            left: ADMIN_SIDEBAR_WIDTH,
-            right: 0,
-            top: 0,
-            height: 72,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 28px',
-            borderBottom: '1px solid rgba(218,192,194,0.2)',
-            backdropFilter: 'blur(12px)',
-            background: 'rgba(250, 249, 245, 0.82)',
-            zIndex: 40,
-          }}
-        >
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }}>
+    <Box className="admin-page-main-subheader">
+        <Box className="admin-inner-topbar">
+          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
             Memorial Management
           </Title>
-          <Group gap="xs">
+          <Group gap="xs" visibleFrom="sm">
             <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
             <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
           </Group>
         </Box>
 
-        <SimpleGrid cols={{ base: 1, lg: 12 }} spacing="xl">
-          <Box style={{ gridColumn: 'span 5' }}>
+        <SimpleGrid cols={{ base: 1, lg: 12 }} spacing="xl" className="admin-posts-grid">
+          <Box className="admin-col-form" style={{ gridColumn: 'span 5' }}>
             <PostFormCard
               title={title}
               content={content}
@@ -542,7 +515,7 @@ export default function AdminPostsPage() {
               onCancelEdit={resetForm}
             />
           </Box>
-          <Box style={{ gridColumn: 'span 7' }}>
+          <Box className="admin-col-list" style={{ gridColumn: 'span 7' }}>
             <PostList
               posts={posts}
               loading={loading}
@@ -552,7 +525,6 @@ export default function AdminPostsPage() {
             />
           </Box>
         </SimpleGrid>
-      </Box>
     </Box>
   );
 }

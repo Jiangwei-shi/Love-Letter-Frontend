@@ -21,7 +21,6 @@ import {
   ThemeIcon,
   Title,
 } from '@mantine/core';
-import AdminSidebar, { ADMIN_SIDEBAR_WIDTH } from '@/components/AdminSidebar';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TimelineEvent } from '@/lib/types/mvp';
 
@@ -59,9 +58,8 @@ function TimelineFormCard({
       p="xl"
       radius="lg"
       withBorder
+      className="admin-timeline-form-sticky"
       style={{
-        position: 'sticky',
-        top: 112,
         background: '#ffffff',
         borderColor: 'rgba(218,192,194,0.28)',
         boxShadow: '0 12px 40px rgba(156,64,80,0.04)',
@@ -352,46 +350,12 @@ export default function AdminTimelinePage() {
   };
 
   return (
-    <Box
-      className="admin-page-root"
-      style={{
-        minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top left, rgba(255, 142, 158, 0.12) 0%, transparent 38%), radial-gradient(circle at bottom right, rgba(142, 202, 255, 0.12) 0%, transparent 40%), #faf9f5',
-      }}
-    >
-      <AdminSidebar />
-
-      <Box
-        ml={ADMIN_SIDEBAR_WIDTH}
-        style={{
-          paddingTop: 92,
-          paddingLeft: 28,
-          paddingRight: 28,
-          paddingBottom: 40,
-        }}
-      >
-        <Box
-          style={{
-            position: 'fixed',
-            left: ADMIN_SIDEBAR_WIDTH,
-            right: 0,
-            top: 0,
-            height: 72,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 28px',
-            borderBottom: '1px solid rgba(218,192,194,0.2)',
-            backdropFilter: 'blur(12px)',
-            background: 'rgba(250, 249, 245, 0.82)',
-            zIndex: 40,
-          }}
-        >
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }}>
+    <Box className="admin-page-main-subheader">
+        <Box className="admin-inner-topbar">
+          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
             Memorial Management
           </Title>
-          <Group gap="xs">
+          <Group gap="xs" visibleFrom="sm">
             <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
             <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
           </Group>
@@ -407,7 +371,7 @@ export default function AdminTimelinePage() {
               >
                 Chronology
               </Text>
-              <Title order={1} mt={4} style={{ fontSize: 42, fontStyle: 'italic', fontWeight: 500 }}>
+              <Title order={1} mt={4} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', fontStyle: 'italic', fontWeight: 500 }}>
                 Timeline Management
               </Title>
               <Text c="#6d5c5e" mt={8} maw={760}>
@@ -443,7 +407,6 @@ export default function AdminTimelinePage() {
             </Grid>
           </Stack>
         </Container>
-      </Box>
     </Box>
   );
 }

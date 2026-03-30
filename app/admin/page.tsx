@@ -18,7 +18,6 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import AdminSidebar, { ADMIN_SIDEBAR_WIDTH } from '@/components/AdminSidebar';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 type EntryCardProps = {
@@ -144,18 +143,8 @@ export default function AdminPage() {
   } as const;
 
   return (
-    <Box
-      className="admin-page-root"
-      style={{
-        minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top left, rgba(255, 142, 158, 0.12) 0%, transparent 38%), radial-gradient(circle at bottom right, rgba(142, 202, 255, 0.12) 0%, transparent 40%), #faf9f5',
-      }}
-    >
-      <AdminSidebar />
-
-      <Box ml={ADMIN_SIDEBAR_WIDTH} pt={32} pb={36} px={28}>
-        <Container fluid maw={1180}>
+    <Box className="admin-dashboard-main">
+        <Container fluid maw={1180} px={0}>
           <Stack gap="xl">
             <Box>
               <Title order={2} mb={8}>
@@ -262,7 +251,7 @@ export default function AdminPage() {
                   onChange={(e) => setPhone(e.currentTarget.value)}
                   placeholder="例如 +8613800000000"
                 />
-                <Group grow>
+                <Stack gap="sm">
                   <TextInput
                     label="创建时间（只读）"
                     value={createdAt}
@@ -275,7 +264,7 @@ export default function AdminPage() {
                     readOnly
                     styles={readonlyInputStyles}
                   />
-                </Group>
+                </Stack>
                 <Group
                   justify="space-between"
                   align="center"
@@ -333,7 +322,6 @@ export default function AdminPage() {
             </Flex>
           </Stack>
         </Container>
-      </Box>
     </Box>
   );
 }

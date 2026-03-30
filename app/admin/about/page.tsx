@@ -1,10 +1,9 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Avatar, Box, Button, Card, FileButton, Group, Loader, SimpleGrid, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
+import { Avatar, Box, Button, Card, FileButton, Group, Loader, SimpleGrid, Stack, Text, TextInput, Textarea, Title, useMantineTheme } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
-import AdminSidebar, { ADMIN_SIDEBAR_WIDTH } from '@/components/AdminSidebar';
+import { useMediaQuery } from '@mantine/hooks';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile } from '@/lib/types/mvp';
 
@@ -23,10 +22,15 @@ function CoupleProfilesCard({
   onProfileChange,
   onUploadAvatar,
 }: CoupleCardProps) {
+  const theme = useMantineTheme();
+  const isComfortable = useMediaQuery(`(min-width: ${theme.breakpoints.md})`, false, { getInitialValueInEffect: true });
+  const avatarSize = isComfortable ? 126 : 112;
+
   return (
     <Card
       radius="lg"
-      p="xl"
+      w="100%"
+      p={{ base: 'md', sm: 'lg', md: 'xl' }}
       withBorder
       style={{
         background: '#ffffff',
@@ -34,23 +38,23 @@ function CoupleProfilesCard({
         boxShadow: '0 12px 40px rgba(156,64,80,0.02)',
       }}
     >
-      <Group gap={8} mb="lg">
+      <Group gap={8} mb={{ base: 'md', md: 'lg' }}>
         <Text c="#9c4050">❤</Text>
-        <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
+        <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }} lineClamp={1}>
           The Couple
         </Title>
       </Group>
 
-      <SimpleGrid cols={{ base: 1, md: 2 }} spacing={48}>
-        <Stack gap="md" align="center">
+      <SimpleGrid cols={2} spacing={{ base: 'md', sm: 'xl', md: 48 }}>
+        <Stack gap="sm" align="center" miw={0}>
           <FileButton onChange={(file) => file && void onUploadAvatar(file, 'boy')} accept="image/png,image/jpeg,image/webp">
             {(props) => (
               <Avatar
                 {...props}
                 src={profile.boy_avatar}
-                size={126}
+                size={avatarSize}
                 radius={999}
-                style={{ cursor: 'pointer', border: '4px solid #e9e8e4' }}
+                style={{ cursor: 'pointer', border: '3px solid #e9e8e4', flexShrink: 0 }}
               >
                 男
               </Avatar>
@@ -61,6 +65,8 @@ function CoupleProfilesCard({
             variant="light"
             loading={uploadingBoyAvatar}
             onClick={() => onProfileChange({ ...profile, boy_avatar: null })}
+            px={8}
+            styles={{ root: { maxWidth: '100%' } }}
           >
             清除头像
           </Button>
@@ -76,15 +82,15 @@ function CoupleProfilesCard({
           />
         </Stack>
 
-        <Stack gap="md" align="center">
+        <Stack gap="sm" align="center" miw={0}>
           <FileButton onChange={(file) => file && void onUploadAvatar(file, 'girl')} accept="image/png,image/jpeg,image/webp">
             {(props) => (
               <Avatar
                 {...props}
                 src={profile.girl_avatar}
-                size={126}
+                size={avatarSize}
                 radius={999}
-                style={{ cursor: 'pointer', border: '4px solid #e9e8e4' }}
+                style={{ cursor: 'pointer', border: '3px solid #e9e8e4', flexShrink: 0 }}
               >
                 女
               </Avatar>
@@ -95,6 +101,8 @@ function CoupleProfilesCard({
             variant="light"
             loading={uploadingGirlAvatar}
             onClick={() => onProfileChange({ ...profile, girl_avatar: null })}
+            px={8}
+            styles={{ root: { maxWidth: '100%' } }}
           >
             清除头像
           </Button>
@@ -115,11 +123,14 @@ function CoupleProfilesCard({
 }
 
 export default function AdminAboutPage() {
+  const theme = useMantineTheme();
   const [profile, setProfile] = useState<CoupleProfile | null>(null);
   const [saving, setSaving] = useState(false);
   const [anniversaryDate, setAnniversaryDate] = useState<string | null>(null);
   const [uploadingBoyAvatar, setUploadingBoyAvatar] = useState(false);
   const [uploadingGirlAvatar, setUploadingGirlAvatar] = useState(false);
+  const useModalDatePicker = useMediaQuery(`(max-width: ${theme.breakpoints.md})`, false, { getInitialValueInEffect: true });
+  const isAboutLgGrid = useMediaQuery(`(min-width: ${theme.breakpoints.lg})`, false, { getInitialValueInEffect: true });
 
   const load = async () => {
     const supabase = getSupabaseBrowserClient();
@@ -186,44 +197,18 @@ export default function AdminAboutPage() {
   };
 
   return (
-    <Box
-      className="admin-page-root"
-      style={{
-        minHeight: '100vh',
-        background:
-          'radial-gradient(circle at top left, rgba(255, 142, 158, 0.12) 0%, transparent 38%), radial-gradient(circle at bottom right, rgba(142, 202, 255, 0.12) 0%, transparent 40%), #faf9f5',
-      }}
-    >
-      <AdminSidebar />
-
-      <Box ml={ADMIN_SIDEBAR_WIDTH} style={{ paddingTop: 92, paddingLeft: 28, paddingRight: 28, paddingBottom: 40 }}>
-        <Box
-          style={{
-            position: 'fixed',
-            left: ADMIN_SIDEBAR_WIDTH,
-            right: 0,
-            top: 0,
-            height: 72,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 28px',
-            borderBottom: '1px solid rgba(218,192,194,0.2)',
-            backdropFilter: 'blur(12px)',
-            background: 'rgba(250, 249, 245, 0.82)',
-            zIndex: 40,
-          }}
-        >
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }}>
+    <Box className="admin-page-main-subheader">
+        <Box className="admin-inner-topbar">
+          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
             Memorial Management
           </Title>
-          <Group gap="xs">
+          <Group gap="xs" visibleFrom="sm">
             <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
             <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
           </Group>
         </Box>
 
-        <Box maw={1180} mx="auto">
+        <Box maw={1180} mx="auto" w="100%">
           <Stack gap="xl">
             <Box>
               <Text
@@ -233,7 +218,7 @@ export default function AdminAboutPage() {
               >
                 Settings &amp; Identity
               </Text>
-              <Title order={1} mt={6} style={{ fontSize: 42, fontWeight: 500 }}>
+              <Title order={1} mt={6} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', fontWeight: 500 }}>
                 Couple Information
               </Title>
               <Text c="#6d5c5e" mt="sm" maw={780}>
@@ -256,9 +241,9 @@ export default function AdminAboutPage() {
                 </Stack>
               </Card>
             ) : (
-            <form onSubmit={onSave}>
-              <SimpleGrid cols={{ base: 1, lg: 12 }} spacing="lg">
-                <Box style={{ gridColumn: 'span 8' }}>
+            <form onSubmit={onSave} style={{ width: '100%' }}>
+              <SimpleGrid cols={isAboutLgGrid ? 12 : 1} spacing="lg" className="admin-about-grid" w="100%">
+                <Box className="admin-about-main" style={isAboutLgGrid ? { gridColumn: 'span 8' } : undefined}>
                   <CoupleProfilesCard
                     profile={profile}
                     uploadingBoyAvatar={uploadingBoyAvatar}
@@ -267,19 +252,21 @@ export default function AdminAboutPage() {
                     onUploadAvatar={uploadAvatar}
                   />
                 </Box>
-                <Box style={{ gridColumn: 'span 4' }}>
+                <Box className="admin-about-side" style={isAboutLgGrid ? { gridColumn: 'span 4' } : undefined}>
                   <Card
                     radius="lg"
-                    p="xl"
+                    w="100%"
+                    p={{ base: 'md', md: 'xl' }}
                     withBorder
-                    style={{ background: '#f4f4f0', borderColor: 'rgba(218,192,194,0.2)', minHeight: '100%' }}
+                    className="admin-about-side-card"
+                    style={{ background: '#f4f4f0', borderColor: 'rgba(218,192,194,0.2)' }}
                   >
-                    <Stack align="center" justify="center" h="100%" gap="md">
+                    <Stack align="center" justify="center" gap="md" className="admin-about-anniversary-stack">
                       <Text size="xl" c="#9c4050">📅</Text>
-                      <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
+                      <Title order={3} ta="center" style={{ fontStyle: 'italic', fontWeight: 500 }} lineClamp={2}>
                         Anniversary Date
                       </Title>
-                      <Card radius="md" p="md" w="100%" style={{ background: '#ffffff' }}>
+                      <Card radius="md" p={{ base: 'sm', sm: 'md' }} w="100%" maw={{ base: '100%', lg: 400 }} mx="auto" style={{ background: '#ffffff' }}>
                         <DatePickerInput
                           label="纪念日"
                           value={anniversaryDate}
@@ -287,6 +274,8 @@ export default function AdminAboutPage() {
                           valueFormat="YYYY-MM-DD"
                           placeholder="选择纪念日"
                           clearable
+                          dropdownType={useModalDatePicker ? 'modal' : 'popover'}
+                          modalProps={{ title: '选择纪念日', size: 'sm' }}
                           styles={{
                             label: { textAlign: 'center', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7d7071' },
                             input: { textAlign: 'center', border: 'none', backgroundColor: 'transparent', fontWeight: 600 },
@@ -300,10 +289,11 @@ export default function AdminAboutPage() {
                   </Card>
                 </Box>
 
-                <Box style={{ gridColumn: 'span 12' }}>
+                <Box style={isAboutLgGrid ? { gridColumn: 'span 12' } : undefined} w="100%">
                   <Card
                     radius="lg"
-                    p="xl"
+                    w="100%"
+                    p={{ base: 'md', md: 'xl' }}
                     withBorder
                     style={{
                       background: '#ffffff',
@@ -354,8 +344,8 @@ export default function AdminAboutPage() {
                   </Card>
                 </Box>
 
-                <Box style={{ gridColumn: 'span 12' }}>
-                  <Group justify="flex-end" gap="md">
+                <Box style={isAboutLgGrid ? { gridColumn: 'span 12' } : undefined} w="100%">
+                  <Group justify="flex-end" gap="md" wrap="wrap">
                     <Button
                       variant="subtle"
                       color="gray"
@@ -385,7 +375,6 @@ export default function AdminAboutPage() {
             )}
           </Stack>
         </Box>
-      </Box>
     </Box>
   );
 }
