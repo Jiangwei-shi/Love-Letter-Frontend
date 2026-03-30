@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button, Card, Group, Image, SimpleGrid, Stack, Text, Title, Badge } from '@mantine/core';
 import { getPostById } from '@/lib/supabase/queries';
 
 export default async function PostDetailPage({ params }: { params: { id: string } }) {
@@ -7,14 +8,14 @@ export default async function PostDetailPage({ params }: { params: { id: string 
   if (!post) {
     return (
       <section>
-        <p className="empty">
+        <Text c="dimmed" size="sm">
           这篇生活记录好像找不到了，也许被时光悄悄藏了起来。
-        </p>
-        <p style={{ marginTop: 12 }}>
-          <Link href="/posts" className="btn btn-soft">
+        </Text>
+        <Group mt="sm">
+          <Button component={Link} href="/posts" variant="light">
             回到生活记录
-          </Link>
-        </p>
+          </Button>
+        </Group>
       </section>
     );
   }
@@ -22,37 +23,39 @@ export default async function PostDetailPage({ params }: { params: { id: string 
   const date = post.happened_on ?? post.created_at.slice(0, 10);
 
   return (
-    <section className="card">
-      <p>
-        <Link href="/posts" className="btn btn-soft">
+    <Card>
+      <Group>
+        <Button component={Link} href="/posts" variant="light">
           ← 回到生活记录
-        </Link>
-      </p>
-      <p className="badge">{date}</p>
-      <h1 className="title">{post.title}</h1>
-      <p className="subtitle">这一小段记忆，被认真地写给以后看的我们。</p>
+        </Button>
+      </Group>
+      <Badge color="pink" variant="light" mt="sm">{date}</Badge>
+      <Title order={1} mt="xs">{post.title}</Title>
+      <Text c="dimmed" mt={4}>这一小段记忆，被认真地写给以后看的我们。</Text>
 
-      <article style={{ whiteSpace: 'pre-wrap', marginTop: 12, marginBottom: 16 }}>
+      <Text style={{ whiteSpace: 'pre-wrap' }} mt="md" mb="md">
         {post.content}
-      </article>
+      </Text>
 
       {(post.post_images ?? []).length > 0 && (
-        <div className="post-detail-photos">
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
           {(post.post_images ?? []).map((img) => (
-            <img
+            <Image
               key={img.id}
               src={img.image_url}
               alt={post.title}
-              className="post-detail-photo"
+              radius="md"
+              h={220}
+              fit="cover"
             />
           ))}
-        </div>
+        </SimpleGrid>
       )}
 
-      <p className="post-meta" style={{ marginTop: 16 }}>
+      <Text size="xs" c="dimmed" mt="md">
         这一天，就这样被温柔地收进了我们的故事里。
-      </p>
-    </section>
+      </Text>
+    </Card>
   );
 }
 

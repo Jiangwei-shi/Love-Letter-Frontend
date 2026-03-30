@@ -1,40 +1,42 @@
 import { getTimelineEvents } from '@/lib/supabase/queries';
+import { Badge, Card, Container, Stack, Text, Title } from '@mantine/core';
 
 export default async function TimelinePage() {
   const events = await getTimelineEvents();
 
   return (
-    <section>
-      <h1 className="title">我们的时间线</h1>
-      <p className="subtitle">
+    <Container px={0}>
+      <Title order={1}>我们的时间线</Title>
+      <Text c="dimmed" mt={6} mb="md">
         从怦然心动的那一刻开始，把重要的节点认真地放在这里。
-      </p>
+      </Text>
 
       {events.length === 0 ? (
-        <p className="empty">
+        <Text c="dimmed" size="sm">
           时间线上还空着，等第一段故事落笔，这里就会慢慢被填满。
-        </p>
+        </Text>
       ) : (
-        <div className="timeline">
+        <Stack gap="sm">
           {events.map((item, index) => (
-            <div key={item.id} className="timeline-item">
-              <div className="timeline-line" />
-              <div className="timeline-dot" />
-              <div className="timeline-content card">
-                <p className="badge">
-                  {item.event_date}
-                  {index === 0 && ' · 起点'}
-                </p>
-                <h3 className="timeline-title">{item.title}</h3>
-                {item.description && (
-                  <p className="timeline-text">{item.description}</p>
-                )}
-                <p className="timeline-meta">记录于时间线</p>
-              </div>
-            </div>
+            <Card key={item.id}>
+              <Badge color="pink" variant="light">
+                {index === 0 ? `${item.event_date} · 起点` : item.event_date}
+              </Badge>
+              <Title order={4} mt={8}>
+                {item.title}
+              </Title>
+              {item.description && (
+                <Text size="sm" mt={4}>
+                  {item.description}
+                </Text>
+              )}
+              <Text size="xs" c="dimmed" mt={8}>
+                记录于时间线
+              </Text>
+            </Card>
           ))}
-        </div>
+        </Stack>
       )}
-    </section>
+    </Container>
   );
 }

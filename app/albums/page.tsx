@@ -1,46 +1,51 @@
 import Link from 'next/link';
 import { getAlbums } from '@/lib/supabase/queries';
+import { Button, Card, Image, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 
 export default async function AlbumsPage() {
   const albums = await getAlbums();
 
   return (
     <section>
-      <h1 className="title">回忆相册</h1>
-      <p className="subtitle">
+      <Title order={1}>回忆相册</Title>
+      <Text c="dimmed" mt={6} mb="md">
         把照片装进相册里，以后翻开每一册，都是当时的心情在打招呼。
-      </p>
+      </Text>
       {albums.length === 0 ? (
-        <p className="empty">
+        <Text c="dimmed" size="sm">
           还没有创建任何相册。等有第一组想好好保存的照片时，就从这里开始吧。
-        </p>
+        </Text>
       ) : (
-        <div className="grid grid-2 album-grid">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
           {albums.map((album) => (
-            <article className="card album-card" key={album.id}>
+            <div key={album.id}>
+              <Card>
               {album.cover_url ? (
-                <img
+                <Image
                   src={album.cover_url}
                   alt={album.title}
-                  className="album-cover"
+                  radius="md"
+                  h={220}
+                  fit="cover"
                 />
               ) : (
-                <div className="album-cover album-cover-placeholder">
-                  还没有设置封面，但故事已经在路上了。
-                </div>
+                <Card withBorder bg="pink.0">
+                  <Text c="dimmed" size="sm">还没有设置封面，但故事已经在路上了。</Text>
+                </Card>
               )}
-              <div className="album-body">
-                <h3 className="album-title">{album.title}</h3>
+              <Stack gap={6} mt="sm">
+                <Title order={3}>{album.title}</Title>
                 {album.description && (
-                  <p className="album-desc">{album.description}</p>
+                  <Text c="dimmed" size="sm">{album.description}</Text>
                 )}
-                <Link href={`/albums/${album.id}`} className="btn btn-soft">
+                <Button component={Link} href={`/albums/${album.id}`} variant="light">
                   打开这一册
-                </Link>
-              </div>
-            </article>
+                </Button>
+              </Stack>
+              </Card>
+            </div>
           ))}
-        </div>
+        </SimpleGrid>
       )}
     </section>
   );

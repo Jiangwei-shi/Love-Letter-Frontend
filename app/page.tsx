@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { getSupabasePublicServerClient } from '@/lib/supabase/server';
 import { getTimelineEvents, getPosts, getLatestPhotos } from '@/lib/supabase/queries';
 import type { Profile } from '@/lib/types/mvp';
@@ -40,36 +41,37 @@ export default async function HomePage() {
   return (
     <section className="home-root">
       <section className="hero">
-        <div className="hero-main card">
+        <Card className="hero-main">
           <div className="hero-text">
-            <p className="badge">情侣纪念网站 · 我们的小宇宙</p>
-            <h1 className="hero-title">
+            <Badge color="pink" variant="light">情侣纪念网站 · 我们的小宇宙</Badge>
+            <Title order={1} className="hero-title">
               {profile?.nickname ?? '我们'} 与 {profile?.partner_nickname ?? 'TA'}
-            </h1>
-            <p className="hero-subtitle">
+            </Title>
+            <Text className="hero-subtitle">
               {profile?.bio
                 ?? '从相遇到现在，每一个普通的日子，都因为有你而变得值得被记住。'}
-            </p>
+            </Text>
             {profile?.anniversary_date && (
-              <p className="hero-meta">
+              <Text className="hero-meta">
                 相恋始于 <span>{profile.anniversary_date}</span>
-              </p>
+              </Text>
             )}
-            <div className="hero-actions">
-              <Link href="/timeline" className="btn">
+            <Group className="hero-actions">
+              <Button component={Link} href="/timeline">
                 查看我们的故事
-              </Link>
-              <Link href="/albums" className="btn btn-soft">
+              </Button>
+              <Button component={Link} href="/albums" variant="light">
                 翻看相册
-              </Link>
-            </div>
+              </Button>
+            </Group>
           </div>
           <div className="hero-photo">
             {profile?.hero_image_url ? (
-              <img
+              <Image
                 src={profile.hero_image_url}
                 alt="我们的合照"
                 className="hero-photo-img"
+                radius="lg"
               />
             ) : (
               <div className="hero-photo-placeholder">
@@ -77,29 +79,29 @@ export default async function HomePage() {
               </div>
             )}
           </div>
-        </div>
+        </Card>
 
-        <div className="hero-side card">
-          <h2 className="card-title">关于我们</h2>
-          <p className="card-line">
+        <Card className="hero-side">
+          <Title order={3} className="card-title">关于我们</Title>
+          <Text className="card-line">
             {profile?.nickname ?? '我'} ❤️ {profile?.partner_nickname ?? '你'}
-          </p>
+          </Text>
           {profile?.anniversary_date && (
-            <p className="card-line">
+            <Text className="card-line">
               纪念日：{formatDate(profile.anniversary_date)}
-            </p>
+            </Text>
           )}
-          <p className="card-muted">
+          <Text className="card-muted">
             {profile?.intro
               ?? '这是一个只想慢慢装满的小角落，写给现在和未来的我们看。'}
-          </p>
-        </div>
+          </Text>
+        </Card>
       </section>
 
       <section className="home-section grid">
-        <article className="card days-card">
-          <h2 className="card-title">我们已经在一起</h2>
-          <p className="days-number">
+        <Card className="days-card">
+          <Title order={3} className="card-title">我们已经在一起</Title>
+          <Text className="days-number">
             {anniversaryDays !== null ? (
               <>
                 <span>{anniversaryDays}</span> 天
@@ -107,131 +109,124 @@ export default async function HomePage() {
             ) : (
               <span>还没设置纪念日</span>
             )}
-          </p>
-          <p className="card-muted">
+          </Text>
+          <Text className="card-muted">
             无论今天过得怎样，它都在悄悄累加成“我们”的一部分。
-          </p>
-        </article>
+          </Text>
+        </Card>
 
-        <article className="card">
-          <h2 className="card-title">重要日子</h2>
+        <Card>
+          <Title order={3} className="card-title">重要日子</Title>
           {profile?.anniversary_date ? (
             <>
-              <p className="card-line">
+              <Text className="card-line">
                 初次相恋：{formatDate(profile.anniversary_date)}
-              </p>
-              <p className="card-muted">
+              </Text>
+              <Text className="card-muted">
                 每一个纪念日，其实都是在提醒我们——那天之后，你就住进了我的生活里。
-              </p>
+              </Text>
             </>
           ) : (
-            <p className="card-muted">
+            <Text className="card-muted">
               还没有设置纪念日，但没有被写下的日子，也在悄悄变成我们的故事。
-            </p>
+            </Text>
           )}
-        </article>
+        </Card>
       </section>
 
       <section className="home-section">
-        <div className="section-header">
+        <Group className="section-header">
           <div>
-            <h2 className="section-title">最近的瞬间</h2>
-            <p className="section-subtitle">从最近的照片里，偷看几眼我们的日常。</p>
+            <Title order={2} className="section-title">最近的瞬间</Title>
+            <Text className="section-subtitle">从最近的照片里，偷看几眼我们的日常。</Text>
           </div>
-          <Link href="/albums" className="btn btn-soft">
+          <Button component={Link} href="/albums" variant="light">
             打开全部相册
-          </Link>
-        </div>
+          </Button>
+        </Group>
         {latestPhotos.length === 0 ? (
-          <p className="empty">
+          <Text className="empty">
             还没有上传照片。等有了第一张，我们的回忆墙就会慢慢亮起来。
-          </p>
+          </Text>
         ) : (
-          <div className="recent-photos-grid">
+          <SimpleGrid cols={{ base: 2, sm: 3, md: 6 }} spacing="xs">
             {latestPhotos.map((photo) => (
-              <Link
-                href={`/albums/${photo.album_id}`}
-                key={photo.id}
-                className="recent-photo-item"
-              >
-                <img
+              <Card component={Link} href={`/albums/${photo.album_id}`} key={photo.id} p={0}>
+                <Image
                   src={photo.image_url}
                   alt={photo.caption ?? '我们的照片'}
-                  className="recent-photo-img"
+                  h={120}
+                  fit="cover"
                 />
-              </Link>
+              </Card>
             ))}
-          </div>
+          </SimpleGrid>
         )}
       </section>
 
       <section className="home-section">
-        <div className="section-header">
+        <Group className="section-header">
           <div>
-            <h2 className="section-title">最近发生的故事</h2>
-            <p className="section-subtitle">把重要的节点和日常的小碎片放在一起看。</p>
+            <Title order={2} className="section-title">最近发生的故事</Title>
+            <Text className="section-subtitle">把重要的节点和日常的小碎片放在一起看。</Text>
           </div>
-          <div className="row-wrap">
-            <Link href="/timeline" className="btn btn-soft">
+          <Group className="row-wrap">
+            <Button component={Link} href="/timeline" variant="light">
               打开时间线
-            </Link>
-            <Link href="/posts" className="btn btn-soft">
+            </Button>
+            <Button component={Link} href="/posts" variant="light">
               查看生活记录
-            </Link>
-          </div>
-        </div>
+            </Button>
+          </Group>
+        </Group>
 
-        <div className="stories-grid">
-          <article className="card">
-            <h3 className="card-title">时间线上的脚印</h3>
+        <SimpleGrid cols={{ base: 1, md: 2 }}>
+            <Card>
+            <Title order={3} className="card-title">时间线上的脚印</Title>
             {recentTimeline.length === 0 && (
-              <p className="empty">
+              <Text className="empty">
                 时间线上还空空的，等第一段故事落笔，这里就会慢慢被填满。
-              </p>
+              </Text>
             )}
             {recentTimeline.map((item) => (
               <div key={item.id} className="story-item">
-                <p className="badge">{item.event_date}</p>
-                <p className="story-title">{item.title}</p>
+                <Badge color="pink" variant="light">{item.event_date}</Badge>
+                <Text fw={600} className="story-title">{item.title}</Text>
                 {item.description && (
-                  <p className="story-text">{item.description}</p>
+                  <Text className="story-text">{item.description}</Text>
                 )}
-                <p className="story-meta">记录于时间线</p>
+                <Text className="story-meta">记录于时间线</Text>
               </div>
             ))}
-          </article>
+            </Card>
 
-          <article className="card">
-            <h3 className="card-title">生活里的小片段</h3>
+            <Card>
+            <Title order={3} className="card-title">生活里的小片段</Title>
             {recentPosts.length === 0 && (
-              <p className="empty">
+              <Text className="empty">
                 还没有写下哪怕一小段日常。没关系，从某一天的一个瞬间开始就好。
-              </p>
+              </Text>
             )}
             {recentPosts.map((post) => (
-              <Link
-                href={`/posts/${post.id}`}
-                key={post.id}
-                className="story-item story-link"
-              >
-                <p className="badge">
+              <Card key={post.id} component={Link} href={`/posts/${post.id}`} className="story-item story-link" withBorder>
+                <Badge color="pink" variant="light">
                   {post.happened_on ?? post.created_at.slice(0, 10)}
-                </p>
-                <p className="story-title">{post.title}</p>
-                <p className="story-text">
+                </Badge>
+                <Text fw={600} className="story-title">{post.title}</Text>
+                <Text className="story-text">
                   {post.content.length > 60
                     ? `${post.content.slice(0, 60)}...`
                     : post.content}
-                </p>
-                <p className="story-meta">生活记录</p>
-              </Link>
+                </Text>
+                <Text className="story-meta">生活记录</Text>
+              </Card>
             ))}
-          </article>
-        </div>
+            </Card>
+        </SimpleGrid>
       </section>
 
       <footer className="site-footer">
-        <p>我们的故事仍在继续，愿以后翻开这里时，都会觉得今天也很值得被记住。</p>
+        <Text size="sm" c="dimmed">我们的故事仍在继续，愿以后翻开这里时，都会觉得今天也很值得被记住。</Text>
       </footer>
     </section>
   );

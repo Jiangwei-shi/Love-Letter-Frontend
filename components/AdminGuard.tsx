@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
+import { Group, Loader, Pill } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -25,17 +26,30 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
   }, [pathname, router]);
 
   if (loading) {
-    return <p className="empty">正在校验登录状态...</p>;
+    return (
+      <Group justify="center" mt="md">
+        <Loader size="sm" />
+        <span>正在校验登录状态...</span>
+      </Group>
+    );
   }
 
   return (
     <div>
-      <div className="admin-nav">
-        <Link href="/admin" className="btn btn-soft">概览</Link>
-        <Link href="/admin/timeline" className="btn btn-soft">时间线</Link>
-        <Link href="/admin/posts" className="btn btn-soft">生活记录</Link>
-        <Link href="/admin/albums" className="btn btn-soft">相册</Link>
-      </div>
+      <Group gap="xs" mb="md">
+        <Pill component={Link} href="/admin" withRemove={false}>
+          概览
+        </Pill>
+        <Pill component={Link} href="/admin/timeline" withRemove={false}>
+          时间线
+        </Pill>
+        <Pill component={Link} href="/admin/posts" withRemove={false}>
+          生活记录
+        </Pill>
+        <Pill component={Link} href="/admin/albums" withRemove={false}>
+          相册
+        </Pill>
+      </Group>
       {children}
     </div>
   );

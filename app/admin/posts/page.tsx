@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { Button, Card, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Post } from '@/lib/types/mvp';
 
@@ -63,86 +64,93 @@ export default function AdminPostsPage() {
 
   return (
     <section className="grid">
-      <article className="card">
-        <h1 className="title">生活记录管理</h1>
-        <p className="subtitle">
+      <Card radius="lg" shadow="sm">
+        <Title order={3}>生活记录管理</Title>
+        <Text className="subtitle" size="sm" c="dimmed">
           在这里写下一些给“以后再看的我们”的小片段。
-        </p>
-        <form className="form-grid" onSubmit={onCreate}>
-          <input
-            className="input"
-            placeholder="标题（例如：第一次一起做饭）"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-          <input
-            className="input"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
-          <textarea
-            className="textarea"
-            placeholder="正文内容，可以写写当时的心情、对话、想对对方说的话..."
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-          />
-          <input
-            className="input"
-            placeholder="配图地址（可选，如果已经上传到图床或 Supabase Storage）"
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-          />
+        </Text>
+        <form onSubmit={onCreate}>
+          <Stack gap="sm" mt="md">
+            <TextInput
+              label="标题"
+              placeholder="例如：第一次一起做饭"
+              value={title}
+              onChange={(e) => setTitle(e.currentTarget.value)}
+              required
+            />
+            <TextInput
+              label="日期"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.currentTarget.value)}
+            />
+            <Textarea
+              label="正文"
+              placeholder="可以写写当时的心情、对话、想对对方说的话..."
+              value={content}
+              onChange={(e) => setContent(e.currentTarget.value)}
+              autosize
+              minRows={3}
+              required
+            />
+            <TextInput
+              label="配图地址"
+              placeholder="可选，如果已经上传到图床或 Supabase Storage"
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.currentTarget.value)}
+            />
 
-          {imageUrl.trim() && (
-            <div className="row">
+            {imageUrl.trim() && (
               <img
                 src={imageUrl}
                 alt="预览"
                 className="cover"
                 style={{ maxWidth: 200, height: 120, objectFit: 'cover' }}
               />
-            </div>
-          )}
+            )}
 
-          <button className="btn" type="submit" disabled={saving}>
-            {saving ? '保存中...' : '写下一条生活记录'}
-          </button>
+            <Button type="submit" disabled={saving}>
+              {saving ? '保存中...' : '写下一条生活记录'}
+            </Button>
+          </Stack>
         </form>
-      </article>
+      </Card>
 
-      <article className="card">
-        <h2 className="card-title">已写下的记录</h2>
-        {loading && <p className="empty">正在加载生活记录...</p>}
+      <Card radius="lg" shadow="sm">
+        <Title order={4}>已写下的记录</Title>
+        {loading && <Text size="sm" c="dimmed">正在加载生活记录...</Text>}
         {!loading && posts.length === 0 && (
-          <p className="empty">还没有任何记录，从左边的表单开始写下第一条吧。</p>
+          <Text size="sm" c="dimmed">还没有任何记录，从左边的表单开始写下第一条吧。</Text>
         )}
-        {!loading &&
-          posts.map((post) => (
-            <div key={post.id} style={{ marginBottom: 14 }}>
-              <div className="row" style={{ justifyContent: 'space-between' }}>
-                <strong>{post.title}</strong>
-                <button
-                  className="btn btn-danger"
-                  type="button"
-                  onClick={() => onDelete(post.id)}
-                >
-                  删除
-                </button>
+        {!loading && (
+          <Stack gap="sm" mt="sm">
+            {posts.map((post) => (
+              <div key={post.id}>
+                <div className="row" style={{ justifyContent: 'space-between' }}>
+                  <strong>{post.title}</strong>
+                  <Button
+                    color="red"
+                    variant="light"
+                    size="xs"
+                    type="button"
+                    onClick={() => onDelete(post.id)}
+                  >
+                    删除
+                  </Button>
+                </div>
+                <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 4px' }}>
+                  {post.happened_on ?? post.created_at.slice(0, 10)}
+                </p>
+                <p style={{ margin: 0, fontSize: 14 }}>
+                  {post.content.length > 60
+                    ? `${post.content.slice(0, 60)}...`
+                    : post.content}
+                </p>
               </div>
-              <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 4px' }}>
-                {post.happened_on ?? post.created_at.slice(0, 10)}
-              </p>
-              <p style={{ margin: 0, fontSize: 14 }}>
-                {post.content.length > 60
-                  ? `${post.content.slice(0, 60)}...`
-                  : post.content}
-              </p>
-            </div>
-          ))}
-      </article>
+            ))}
+          </Stack>
+        )}
+      </Card>
     </section>
   );
 }

@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { Button, Card, Group, PasswordInput, Stack, Text, TextInput, Title } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -41,18 +42,46 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="card" style={{ maxWidth: 480, margin: '0 auto' }}>
-      <h1 className="title">登录后台</h1>
-      <p className="subtitle">用 Supabase Auth 管理你们的纪念内容。</p>
-      <form className="form-grid" onSubmit={onLogin}>
-        <input className="input" type="email" placeholder="邮箱" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input className="input" type="password" placeholder="密码" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <div className="row-wrap">
-          <button className="btn" type="submit" disabled={loading}>登录</button>
-          <button className="btn btn-soft" type="button" onClick={onRegister} disabled={loading}>注册</button>
-        </div>
+    <Card radius="lg" shadow="sm" style={{ maxWidth: 480, margin: '0 auto' }}>
+      <Stack gap="xs">
+        <Title order={2}>登录后台</Title>
+        <Text size="sm" c="dimmed">
+          用 Supabase Auth 管理你们的纪念内容。
+        </Text>
+      </Stack>
+
+      <form onSubmit={onLogin}>
+        <Stack gap="sm" mt="md">
+          <TextInput
+            label="邮箱"
+            placeholder="请输入邮箱"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.currentTarget.value)}
+            required
+          />
+          <PasswordInput
+            label="密码"
+            placeholder="请输入密码"
+            value={password}
+            onChange={(e) => setPassword(e.currentTarget.value)}
+            required
+          />
+          <Group justify="space-between" mt="xs">
+            <Button type="submit" loading={loading}>
+              登录
+            </Button>
+            <Button variant="light" type="button" onClick={onRegister} loading={loading}>
+              注册
+            </Button>
+          </Group>
+          {message && (
+            <Text size="sm" mt="xs">
+              {message}
+            </Text>
+          )}
+        </Stack>
       </form>
-      {message && <p style={{ marginTop: 10 }}>{message}</p>}
-    </section>
+    </Card>
   );
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getPosts } from '@/lib/supabase/queries';
+import { Badge, Button, Card, Group, Image, Stack, Text, Title } from '@mantine/core';
 
 function getFirstImage(post: Awaited<ReturnType<typeof getPosts>>[number]) {
   return (post.post_images ?? [])[0]?.image_url ?? null;
@@ -10,17 +11,17 @@ export default async function PostsPage() {
 
   return (
     <section>
-      <h1 className="title">生活记录</h1>
-      <p className="subtitle">
+      <Title order={1}>生活记录</Title>
+      <Text c="dimmed" mt={6} mb="md">
         这里不是宏大的故事，只是一些普通又特别的小日子。
-      </p>
+      </Text>
 
       {posts.length === 0 ? (
-        <p className="empty">
+        <Text c="dimmed" size="sm">
           还没有写下一篇生活记录。等想起某个想分享给未来自己的瞬间，就可以从这里开始写啦。
-        </p>
+        </Text>
       ) : (
-        <div className="posts-list">
+        <Stack gap="sm">
           {posts.map((post) => {
             const imageUrl = getFirstImage(post);
             const date = post.happened_on ?? post.created_at.slice(0, 10);
@@ -30,37 +31,29 @@ export default async function PostsPage() {
                 : post.content;
 
             return (
-              <Link
-                href={`/posts/${post.id}`}
-                key={post.id}
-                className="card post-item"
-              >
+              <Card key={post.id} component={Link} href={`/posts/${post.id}`}>
                 {imageUrl && (
-                  <div className="post-thumb">
-                    <img
-                      src={imageUrl}
-                      alt={post.title}
-                      className="post-thumb-img"
-                    />
-                  </div>
+                  <Image src={imageUrl} alt={post.title} radius="md" h={180} fit="cover" />
                 )}
-                <div className="post-body">
-                  <p className="badge">{date}</p>
-                  <h2 className="post-title">{post.title}</h2>
-                  <p className="post-summary">{summary}</p>
-                  <p className="post-meta">小小的生活札记</p>
-                </div>
-              </Link>
+                <Stack gap={6} mt={imageUrl ? 'sm' : 0}>
+                  <Group>
+                    <Badge color="pink" variant="light">{date}</Badge>
+                  </Group>
+                  <Title order={3}>{post.title}</Title>
+                  <Text size="sm">{summary}</Text>
+                  <Text size="xs" c="dimmed">小小的生活札记</Text>
+                </Stack>
+              </Card>
             );
           })}
-        </div>
+        </Stack>
       )}
 
-      <p style={{ marginTop: 24 }}>
-        <Link href="/albums" className="btn btn-soft">
+      <Group mt="md">
+        <Button component={Link} href="/albums" variant="light">
           去相册里看看这些日子被拍下来的样子
-        </Link>
-      </p>
+        </Button>
+      </Group>
     </section>
   );
 }

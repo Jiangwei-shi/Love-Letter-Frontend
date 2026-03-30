@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { Button, Card, Stack, Text, Title } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function AdminPage() {
@@ -22,11 +23,19 @@ export default function AdminPage() {
   };
 
   return (
-    <section className="card">
-      <h1 className="title">后台管理</h1>
-      <p className="subtitle">你已登录：{email}</p>
-      <p>从上面的导航进入时间线、生活记录、相册管理。</p>
-      <button className="btn btn-danger" onClick={onLogout}>退出登录</button>
-    </section>
+    <Card radius="lg" shadow="sm">
+      <Stack gap="xs">
+        <Title order={2}>后台管理</Title>
+        <Text c="dimmed" size="sm">
+          你已登录：{email || '—'}
+        </Text>
+        <Text size="sm">
+          从上面的导航进入时间线、生活记录、相册管理。
+        </Text>
+        <Button color="red" mt="md" onClick={onLogout}>
+          退出登录
+        </Button>
+      </Stack>
+    </Card>
   );
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Button, Card, Group, Text, Title } from '@mantine/core';
 import { getAlbumPhotos, getAlbums } from '@/lib/supabase/queries';
 import AlbumPhotoGrid from '@/components/AlbumPhotoGrid';
 
@@ -10,42 +11,44 @@ export default async function AlbumDetailPage({ params }: { params: { id: string
   if (!album) {
     return (
       <section>
-        <p className="empty">这本相册好像不见了，或者从来还没有被创建过。</p>
-        <p style={{ marginTop: 12 }}>
-          <Link href="/albums" className="btn btn-soft">
+        <Text c="dimmed" size="sm">这本相册好像不见了，或者从来还没有被创建过。</Text>
+        <Group mt="sm">
+          <Button component={Link} href="/albums" variant="light">
             回到相册列表
-          </Link>
-        </p>
+          </Button>
+        </Group>
       </section>
     );
   }
 
   return (
     <section>
-      <p>
-        <Link href="/albums" className="btn btn-soft">
+      <Group>
+        <Button component={Link} href="/albums" variant="light">
           ← 回到相册列表
-        </Link>
-      </p>
+        </Button>
+      </Group>
 
-      <header className="album-header card">
-        <div className="album-header-main">
-          <h1 className="title">{album.title}</h1>
+      <Card mt="sm">
+        <Group justify="space-between" align="flex-end">
+          <div>
+            <Title order={1}>{album.title}</Title>
           {album.description && (
-            <p className="subtitle">{album.description}</p>
+              <Text c="dimmed" mt={4}>{album.description}</Text>
           )}
-        </div>
-        <p className="album-header-meta">
-          共 {photos.length} 张照片
-        </p>
-      </header>
+          </div>
+          <Text size="sm" c="dimmed">共 {photos.length} 张照片</Text>
+        </Group>
+      </Card>
 
       {photos.length === 0 ? (
-        <p className="empty">
+        <Text c="dimmed" size="sm" mt="md">
           这一册还没有照片。等我们准备好第一张的时候，再一张一张慢慢装进来。
-        </p>
+        </Text>
       ) : (
-        <AlbumPhotoGrid photos={photos} albumTitle={album.title} />
+        <div style={{ marginTop: 12 }}>
+          <AlbumPhotoGrid photos={photos} albumTitle={album.title} />
+        </div>
       )}
     </section>
   );

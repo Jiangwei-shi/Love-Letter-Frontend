@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { Button, Card, Group, Select, Stack, Text, TextInput, Textarea, Title } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import { uploadAlbumPhoto } from '@/lib/supabase/upload';
 import type { Album, AlbumPhoto } from '@/lib/types/mvp';
@@ -75,45 +76,110 @@ export default function AdminAlbumsPage() {
 
   return (
     <section className="grid">
-      <article className="card">
-        <h1 className="title">相册管理</h1>
-        <form className="form-grid" onSubmit={onCreateAlbum}>
-          <input className="input" placeholder="相册标题" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <textarea className="textarea" placeholder="相册描述" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <button className="btn" type="submit">创建相册</button>
+      <Card radius="lg" shadow="sm">
+        <Title order={3}>相册管理</Title>
+        <Text size="sm" c="dimmed" mt={4}>
+          创建不同主题的相册，把照片分门别类地装进去。
+        </Text>
+        <form onSubmit={onCreateAlbum}>
+          <Stack gap="sm" mt="md">
+            <TextInput
+              label="相册标题"
+              placeholder="例如：第一次旅行"
+              value={title}
+              onChange={(e) => setTitle(e.currentTarget.value)}
+              required
+            />
+            <Textarea
+              label="相册描述"
+              placeholder="简单写写这本相册大概会放些什么（可选）"
+              value={description}
+              onChange={(e) => setDescription(e.currentTarget.value)}
+              autosize
+              minRows={2}
+            />
+            <Button type="submit">
+              创建相册
+            </Button>
+          </Stack>
         </form>
-        <div style={{ marginTop: 12 }}>
-          {albums.map((album) => (
-            <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }} key={album.id}>
-              <button className="btn btn-soft" type="button" onClick={() => setAlbumId(album.id)}>{album.title}</button>
-              <button className="btn btn-danger" type="button" onClick={() => onDeleteAlbum(album.id)}>删除</button>
-            </div>
-          ))}
-        </div>
-      </article>
 
-      <article className="card">
-        <h2>上传相册照片</h2>
-        <form className="form-grid" onSubmit={onUpload}>
-          <select className="select" value={albumId} onChange={(e) => setAlbumId(e.target.value)} required>
-            <option value="">请选择相册</option>
-            {albums.map((album) => <option key={album.id} value={album.id}>{album.title}</option>)}
-          </select>
-          <input className="input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} required />
-          <input className="input" placeholder="照片说明（可选）" value={caption} onChange={(e) => setCaption(e.target.value)} />
-          <button className="btn" type="submit">上传照片</button>
+        <Stack gap="xs" mt="md">
+          {albums.map((album) => (
+            <Group key={album.id} justify="space-between">
+              <Button
+                variant={albumId === album.id ? 'filled' : 'light'}
+                size="xs"
+                onClick={() => setAlbumId(album.id)}
+              >
+                {album.title}
+              </Button>
+              <Button
+                color="red"
+                variant="light"
+                size="xs"
+                onClick={() => onDeleteAlbum(album.id)}
+              >
+                删除
+              </Button>
+            </Group>
+          ))}
+          {albums.length === 0 && (
+            <Text size="sm" c="dimmed">
+              还没有任何相册，先创建一册吧。
+            </Text>
+          )}
+        </Stack>
+      </Card>
+
+      <Card radius="lg" shadow="sm">
+        <Title order={4}>上传相册照片</Title>
+        <form onSubmit={onUpload}>
+          <Stack gap="sm" mt="md">
+            <Select
+              label="选择相册"
+              placeholder="请选择相册"
+              data={albums.map((album) => ({ value: album.id, label: album.title }))}
+              value={albumId}
+              onChange={(value) => setAlbumId(value ?? '')}
+              required
+            />
+            <TextInput
+              type="file"
+              component="input"
+              onChange={(e) => setFile((e.target as HTMLInputElement).files?.[0] ?? null)}
+              required
+            />
+            <TextInput
+              label="照片说明"
+              placeholder="可以写一句话记录这个画面（可选）"
+              value={caption}
+              onChange={(e) => setCaption(e.currentTarget.value)}
+            />
+            <Button type="submit">
+              上传照片
+            </Button>
+          </Stack>
         </form>
 
         <div className="grid grid-2" style={{ marginTop: 12 }}>
           {photos.map((photo) => (
-            <article className="card" key={photo.id}>
+            <Card key={photo.id} radius="md" shadow="xs">
               <img className="cover" src={photo.image_url} alt={photo.caption ?? 'photo'} />
-              <p>{photo.caption}</p>
-              <button className="btn btn-danger" type="button" onClick={() => onDeletePhoto(photo.id)}>删除照片</button>
-            </article>
+              <Text size="sm" mt={4}>{photo.caption}</Text>
+              <Button
+                color="red"
+                variant="light"
+                size="xs"
+                mt="xs"
+                onClick={() => onDeletePhoto(photo.id)}
+              >
+                删除照片
+              </Button>
+            </Card>
           ))}
         </div>
-      </article>
+      </Card>
     </section>
   );
 }

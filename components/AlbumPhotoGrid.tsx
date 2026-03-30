@@ -1,5 +1,6 @@
 'use client';
 
+import { Card, Image, SimpleGrid, Text, UnstyledButton } from '@mantine/core';
 import type { AlbumPhoto } from '@/lib/types/mvp';
 
 export default function AlbumPhotoGrid({
@@ -10,25 +11,30 @@ export default function AlbumPhotoGrid({
   albumTitle: string;
 }) {
   return (
-    <div className="album-photos-grid">
+    <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}>
       {photos.map((photo) => (
-        <button
+        <UnstyledButton
           type="button"
           key={photo.id}
-          className="album-photo-item"
           onClick={() => window.open(photo.image_url, '_blank')}
         >
-          <img
+          <Card>
+            <Image
             src={photo.image_url}
             alt={photo.caption ?? albumTitle}
-            className="album-photo-img"
-          />
-          {photo.caption && (
-            <p className="album-photo-caption">{photo.caption}</p>
-          )}
-        </button>
+              radius="md"
+              h={180}
+              fit="cover"
+            />
+            {photo.caption && (
+              <Text size="xs" c="dimmed" mt={4}>
+                {photo.caption}
+              </Text>
+            )}
+          </Card>
+        </UnstyledButton>
       ))}
-    </div>
+    </SimpleGrid>
   );
 }
 
