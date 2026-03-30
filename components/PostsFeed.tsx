@@ -65,8 +65,8 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
         return (
           <Card key={post.id}>
             <Group justify="space-between">
-              <Badge color={post.author_type === 'boy' ? 'blue' : 'red'} variant="light">
-                {post.author_type === 'boy' ? '男生' : '女生'}
+              <Badge color="pink" variant="light">
+                {post.author || '发布者'}
               </Badge>
               <Text size="xs" c="dimmed">{formatRecordTime(post.record_time)}</Text>
             </Group>

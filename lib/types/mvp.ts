@@ -28,7 +28,7 @@ export type Post = {
   title: string;
   content: string;
   record_time: string;
-  author_type: 'boy' | 'girl';
+  author: string;
   created_at: string;
   updated_at: string;
   created_by: string;

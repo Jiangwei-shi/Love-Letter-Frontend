@@ -30,8 +30,8 @@ export default async function PostDetailPage({ params }: { params: { id: string 
         </Button>
       </Group>
       <Group mt="sm">
-        <Badge color={post.author_type === 'boy' ? 'blue' : 'red'} variant="light">
-          {post.author_type === 'boy' ? '男生' : '女生'}
+        <Badge color="pink" variant="light">
+          {post.author || '发布者'}
         </Badge>
         <Badge color="pink" variant="light">{date}</Badge>
       </Group>
