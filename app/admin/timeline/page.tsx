@@ -1,10 +1,9 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
-import { DateInput } from '@mantine/dates';
-import dayjs from 'dayjs';
+import { DatePickerInput } from '@mantine/dates';
 import 'dayjs/locale/zh-cn';
-import { Button, Card, Group, Stack, Text, Textarea, TextInput } from '@mantine/core';
+import { Box, Button, Card, Group, SimpleGrid, Stack, Text, Textarea, TextInput } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TimelineEvent } from '@/lib/types/mvp';
 
@@ -13,11 +12,14 @@ export default function AdminTimelinePage() {
   const [title, setTitle] = useState('');
   const [boyMessage, setBoyMessage] = useState('');
   const [girlMessage, setGirlMessage] = useState('');
-  const [eventDate, setEventDate] = useState<Date | null>(null);
+  const [eventDate, setEventDate] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const load = async () => {
     const supabase = getSupabaseBrowserClient();
+    const { data: userData } = await supabase.auth.getUser();
+    setCurrentUserId(userData.user?.id ?? null);
     const { data } = await supabase.from('timeline_events').select('*').order('event_date', { ascending: true });
     setItems((data ?? []) as TimelineEvent[]);
   };
@@ -32,10 +34,16 @@ export default function AdminTimelinePage() {
       title,
       boy_message: boyMessage || null,
       girl_message: girlMessage || null,
-      event_date: dayjs(eventDate).format('YYYY-MM-DD'),
+      event_date: eventDate,
+      created_by: currentUserId,
     };
     if (editingId) {
-      await supabase.from('timeline_events').update(payload).eq('id', editingId);
+      await supabase.from('timeline_events').update({
+        title: payload.title,
+        boy_message: payload.boy_message,
+        girl_message: payload.girl_message,
+        event_date: payload.event_date,
+      }).eq('id', editingId);
     } else {
       await supabase.from('timeline_events').insert(payload);
     }
@@ -58,15 +66,18 @@ export default function AdminTimelinePage() {
     setTitle(item.title);
     setBoyMessage(item.boy_message ?? '');
     setGirlMessage(item.girl_message ?? '');
-    setEventDate(item.event_date ? new Date(item.event_date) : null);
+    setEventDate(item.event_date ?? null);
   };
 
   return (
-    <section className="grid">
+    <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
       <Card radius="lg" shadow="sm">
         <Text fw={600} fz="lg">时间线管理</Text>
         <Text size="sm" c="dimmed" mt={4}>
           新增、编辑、删除时间线，按日期从早到晚展示。
+        </Text>
+        <Text size="xs" c="dimmed" mt={4}>
+          当前登录用户：{currentUserId ?? '未获取到（请重新登录）'}
         </Text>
         <form onSubmit={onCreate}>
           <Stack gap="sm" mt="md">
@@ -77,13 +88,12 @@ export default function AdminTimelinePage() {
               onChange={(e) => setTitle(e.currentTarget.value)}
               required
             />
-            <DateInput
+            <DatePickerInput
               label="日期"
               value={eventDate}
               onChange={setEventDate}
               valueFormat="YYYY-MM-DD"
               placeholder="选择事件日期"
-              locale="zh-cn"
               clearable
               required
             />
@@ -125,11 +135,14 @@ export default function AdminTimelinePage() {
         <Stack gap="sm">
           {items.map((item) => (
             <Group key={item.id} justify="space-between" align="flex-start">
-              <div>
+              <Box>
                 <Text fw={500}>{item.event_date} · {item.title}</Text>
                 {item.boy_message && <Text size="sm" c="blue">{item.boy_message}</Text>}
                 {item.girl_message && <Text size="sm" c="red">{item.girl_message}</Text>}
-              </div>
+                <Text size="xs" c="dimmed" mt={4}>
+                  created_by: {item.created_by ?? 'null'}
+                </Text>
+              </Box>
               <Group gap={6}>
                 <Button variant="light" size="xs" onClick={() => onEdit(item)}>编辑</Button>
                 <Button color="red" variant="light" size="xs" onClick={() => onDelete(item.id)}>
@@ -145,6 +158,6 @@ export default function AdminTimelinePage() {
           )}
         </Stack>
       </Card>
-    </section>
+    </SimpleGrid>
   );
 }

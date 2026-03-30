@@ -18,7 +18,8 @@ export type CoupleProfile = {
   girl_avatar: string | null;
   anniversary_date: string | null;
   about_text: string | null;
-  love_message: string | null;
+  boy_message_for_girl: string | null;
+  girl_message_for_boy: string | null;
   created_at: string;
   updated_at: string;
 };
