@@ -2362,6 +2362,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@mantine/dates@npm:8.3.18":
+  version: 8.3.18
+  resolution: "@mantine/dates@npm:8.3.18"
+  dependencies:
+    clsx: "npm:^2.1.1"
+  peerDependencies:
+    "@mantine/core": 8.3.18
+    "@mantine/hooks": 8.3.18
+    dayjs: ">=1.0.0"
+    react: ^18.x || ^19.x
+    react-dom: ^18.x || ^19.x
+  checksum: 13926abde2b03415eef661897bbb4a3d14ef2ca31598e11c11d0c683af76399910bdc2d9c531fd63b3a115d7e594bbdd9b5b9f88770742584643842456a1801e
+  languageName: node
+  linkType: hard
+
 "@mantine/form@npm:8.3.18":
   version: 8.3.18
   resolution: "@mantine/form@npm:8.3.18"
@@ -7408,6 +7423,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dayjs@npm:^1.11.20":
+  version: 1.11.20
+  resolution: "dayjs@npm:1.11.20"
+  checksum: 8af525e2aa100c8db9923d706c42b2b2d30579faf89456619413a5c10916efc92c2b166e193c27c02eb3174b30aa440ee1e7b72b0a2876b3da651d204db848a0
+  languageName: node
+  linkType: hard
+
 "debug@npm:2.6.9, debug@npm:^2.6.9":
   version: 2.6.9
   resolution: "debug@npm:2.6.9"
@@ -11529,6 +11551,7 @@ __metadata:
   dependencies:
     "@babel/core": "npm:^7.23.2"
     "@mantine/core": "npm:8.3.18"
+    "@mantine/dates": "npm:8.3.18"
     "@mantine/form": "npm:8.3.18"
     "@mantine/hooks": "npm:8.3.18"
     "@next/bundle-analyzer": "npm:^14.0.1"
@@ -11552,6 +11575,7 @@ __metadata:
     "@typescript-eslint/eslint-plugin": "npm:^6.9.1"
     "@typescript-eslint/parser": "npm:^6.9.1"
     babel-loader: "npm:^9.1.3"
+    dayjs: "npm:^1.11.20"
     eslint: "npm:^8.53.0"
     eslint-config-airbnb: "npm:19.0.4"
     eslint-config-airbnb-typescript: "npm:^17.1.0"

@@ -1,6 +1,9 @@
 'use client';
 
 import { FormEvent, useEffect, useState } from 'react';
+import { DateInput } from '@mantine/dates';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TimelineEvent } from '@/lib/types/mvp';
 
@@ -8,7 +11,7 @@ export default function AdminTimelinePage() {
   const [items, setItems] = useState<TimelineEvent[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  const [eventDate, setEventDate] = useState<Date | null>(null);
 
   const load = async () => {
     const supabase = getSupabaseBrowserClient();
@@ -20,11 +23,14 @@ export default function AdminTimelinePage() {
 
   const onCreate = async (e: FormEvent) => {
     e.preventDefault();
+    if (!eventDate) return;
     const supabase = getSupabaseBrowserClient();
-    await supabase.from('timeline_events').insert({ title, description, event_date: eventDate });
+    await supabase
+      .from('timeline_events')
+      .insert({ title, description, event_date: dayjs(eventDate).format('YYYY-MM-DD') });
     setTitle('');
     setDescription('');
-    setEventDate('');
+    setEventDate(null);
     await load();
   };
 
@@ -37,12 +43,20 @@ export default function AdminTimelinePage() {
   return (
     <section className="grid">
       <article className="card">
-        <h1 className="title">ʱ���߹���</h1>
+        <h1 className="title">时间线管理</h1>
         <form className="form-grid" onSubmit={onCreate}>
-          <input className="input" placeholder="����" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <input className="input" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
-          <textarea className="textarea" placeholder="����" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <button className="btn" type="submit">�����¼�</button>
+          <input className="input" placeholder="标题" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <DateInput
+            value={eventDate}
+            onChange={setEventDate}
+            valueFormat="YYYY-MM-DD"
+            placeholder="选择事件日期"
+            locale="zh-cn"
+            clearable
+            required
+          />
+          <textarea className="textarea" placeholder="描述" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <button className="btn" type="submit">新增事件</button>
         </form>
       </article>
       <article className="card">
@@ -52,7 +66,7 @@ export default function AdminTimelinePage() {
               <strong>{item.event_date} - {item.title}</strong>
               <p>{item.description}</p>
             </div>
-            <button className="btn btn-danger" onClick={() => onDelete(item.id)}>ɾ��</button>
+            <button className="btn btn-danger" onClick={() => onDelete(item.id)}>删除</button>
           </div>
         ))}
       </article>

@@ -76,32 +76,32 @@ export default function AdminAlbumsPage() {
   return (
     <section className="grid">
       <article className="card">
-        <h1 className="title">������</h1>
+        <h1 className="title">相册管理</h1>
         <form className="form-grid" onSubmit={onCreateAlbum}>
-          <input className="input" placeholder="�����" value={title} onChange={(e) => setTitle(e.target.value)} required />
-          <textarea className="textarea" placeholder="����" value={description} onChange={(e) => setDescription(e.target.value)} />
-          <button className="btn" type="submit">�������</button>
+          <input className="input" placeholder="相册标题" value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <textarea className="textarea" placeholder="相册描述" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <button className="btn" type="submit">创建相册</button>
         </form>
         <div style={{ marginTop: 12 }}>
           {albums.map((album) => (
             <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }} key={album.id}>
-              <button className="btn btn-soft" onClick={() => setAlbumId(album.id)}>{album.title}</button>
-              <button className="btn btn-danger" onClick={() => onDeleteAlbum(album.id)}>ɾ��</button>
+              <button className="btn btn-soft" type="button" onClick={() => setAlbumId(album.id)}>{album.title}</button>
+              <button className="btn btn-danger" type="button" onClick={() => onDeleteAlbum(album.id)}>删除</button>
             </div>
           ))}
         </div>
       </article>
 
       <article className="card">
-        <h2>�ϴ������Ƭ</h2>
+        <h2>上传相册照片</h2>
         <form className="form-grid" onSubmit={onUpload}>
           <select className="select" value={albumId} onChange={(e) => setAlbumId(e.target.value)} required>
-            <option value="">��ѡ�����</option>
+            <option value="">请选择相册</option>
             {albums.map((album) => <option key={album.id} value={album.id}>{album.title}</option>)}
           </select>
           <input className="input" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] ?? null)} required />
-          <input className="input" placeholder="��Ƭ˵������ѡ��" value={caption} onChange={(e) => setCaption(e.target.value)} />
-          <button className="btn" type="submit">�ϴ���Ƭ</button>
+          <input className="input" placeholder="照片说明（可选）" value={caption} onChange={(e) => setCaption(e.target.value)} />
+          <button className="btn" type="submit">上传照片</button>
         </form>
 
         <div className="grid grid-2" style={{ marginTop: 12 }}>
@@ -109,7 +109,7 @@ export default function AdminAlbumsPage() {
             <article className="card" key={photo.id}>
               <img className="cover" src={photo.image_url} alt={photo.caption ?? 'photo'} />
               <p>{photo.caption}</p>
-              <button className="btn btn-danger" onClick={() => onDeletePhoto(photo.id)}>ɾ����Ƭ</button>
+              <button className="btn btn-danger" type="button" onClick={() => onDeletePhoto(photo.id)}>删除照片</button>
             </article>
           ))}
         </div>
