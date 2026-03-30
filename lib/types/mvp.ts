@@ -1,15 +1,3 @@
-export type Profile = {
-  id: string;
-  nickname?: string | null;
-  partner_nickname?: string | null;
-  anniversary_date?: string | null;
-  avatar_url?: string | null;
-  bio?: string | null;
-  intro?: string | null;
-  hero_image_url?: string | null;
-  created_at: string;
-};
-
 export type CoupleProfile = {
   id: string;
   boy_name: string | null;

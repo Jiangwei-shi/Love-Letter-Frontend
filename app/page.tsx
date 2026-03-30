@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import { Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { getSupabasePublicServerClient } from '@/lib/supabase/server';
-import { getTimelineEvents, getPosts } from '@/lib/supabase/queries';
-import type { Profile } from '@/lib/types/mvp';
+import { getCoupleProfile, getTimelineEvents, getPosts } from '@/lib/supabase/queries';
 
 function calcDaysFrom(dateStr?: string | null) {
   if (!dateStr) return null;
@@ -19,13 +17,7 @@ function formatDate(dateStr: string | null) {
 }
 
 export default async function HomePage() {
-  const supabase = getSupabasePublicServerClient();
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .limit(1)
-    .maybeSingle<Profile>();
+  const profile = await getCoupleProfile();
 
   const [events, posts] = await Promise.all([
     getTimelineEvents(),
@@ -44,10 +36,10 @@ export default async function HomePage() {
           <div className="hero-text">
             <Badge color="pink" variant="light">情侣纪念网站 · 我们的小宇宙</Badge>
             <Title order={1} className="hero-title">
-              {profile?.nickname ?? '我们'} 与 {profile?.partner_nickname ?? 'TA'}
+              {profile?.boy_name ?? '我们'} 与 {profile?.girl_name ?? 'TA'}
             </Title>
             <Text className="hero-subtitle">
-              {profile?.bio
+              {profile?.about_text
                 ?? '从相遇到现在，每一个普通的日子，都因为有你而变得值得被记住。'}
             </Text>
             {profile?.anniversary_date && (
@@ -65,9 +57,9 @@ export default async function HomePage() {
             </Group>
           </div>
           <div className="hero-photo">
-            {profile?.hero_image_url ? (
+            {profile?.boy_avatar ? (
               <Image
-                src={profile.hero_image_url}
+                src={profile.boy_avatar}
                 alt="我们的合照"
                 className="hero-photo-img"
                 radius="lg"
@@ -83,7 +75,7 @@ export default async function HomePage() {
         <Card className="hero-side">
           <Title order={3} className="card-title">关于我们</Title>
           <Text className="card-line">
-            {profile?.nickname ?? '我'} ❤️ {profile?.partner_nickname ?? '你'}
+            {profile?.boy_name ?? '我'} ❤️ {profile?.girl_name ?? '你'}
           </Text>
           {profile?.anniversary_date && (
             <Text className="card-line">
@@ -91,7 +83,7 @@ export default async function HomePage() {
             </Text>
           )}
           <Text className="card-muted">
-            {profile?.intro
+            {profile?.girl_message_for_boy ?? profile?.boy_message_for_girl
               ?? '这是一个只想慢慢装满的小角落，写给现在和未来的我们看。'}
           </Text>
         </Card>

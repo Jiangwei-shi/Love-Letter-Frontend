@@ -15,16 +15,31 @@ export default function AdminTimelinePage() {
   const [eventDate, setEventDate] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserLabel, setCurrentUserLabel] = useState<string>('未获取到（请重新登录）');
 
   const load = async () => {
     const supabase = getSupabaseBrowserClient();
     const { data: userData } = await supabase.auth.getUser();
-    setCurrentUserId(userData.user?.id ?? null);
+    const user = userData.user;
+    setCurrentUserId(user?.id ?? null);
+    setCurrentUserLabel(
+      ((user?.user_metadata?.display_name as string | undefined)?.trim())
+      || user?.email
+      || '未获取到（请重新登录）',
+    );
     const { data } = await supabase.from('timeline_events').select('*').order('event_date', { ascending: true });
     setItems((data ?? []) as TimelineEvent[]);
   };
 
   useEffect(() => { void load(); }, []);
+
+  const formatCreatedBy = (createdBy: string | null) => {
+    if (!createdBy) return 'null';
+    if (currentUserId && createdBy === currentUserId) {
+      return currentUserLabel;
+    }
+    return createdBy;
+  };
 
   const onCreate = async (e: FormEvent) => {
     e.preventDefault();
@@ -77,7 +92,7 @@ export default function AdminTimelinePage() {
           新增、编辑、删除时间线，按日期从早到晚展示。
         </Text>
         <Text size="xs" c="dimmed" mt={4}>
-          当前登录用户：{currentUserId ?? '未获取到（请重新登录）'}
+          当前登录用户：{currentUserLabel}
         </Text>
         <form onSubmit={onCreate}>
           <Stack gap="sm" mt="md">
@@ -140,7 +155,7 @@ export default function AdminTimelinePage() {
                 {item.boy_message && <Text size="sm" c="blue">{item.boy_message}</Text>}
                 {item.girl_message && <Text size="sm" c="red">{item.girl_message}</Text>}
                 <Text size="xs" c="dimmed" mt={4}>
-                  created_by: {item.created_by ?? 'null'}
+                  created_by: {formatCreatedBy(item.created_by)}
                 </Text>
               </Box>
               <Group gap={6}>

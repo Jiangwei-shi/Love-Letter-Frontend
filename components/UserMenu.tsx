@@ -7,6 +7,7 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function UserMenu() {
   const [email, setEmail] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,6 +15,7 @@ export default function UserMenu() {
       const supabase = getSupabaseBrowserClient();
       const { data } = await supabase.auth.getUser();
       setEmail(data.user?.email ?? null);
+      setDisplayName((data.user?.user_metadata?.display_name as string | undefined) ?? null);
       setLoading(false);
     };
     void load();
@@ -33,7 +35,7 @@ export default function UserMenu() {
 
   return (
     <Button component={Link} href="/admin" variant="light" size="xs" radius="xl">
-      {email}
+      {displayName?.trim() || email}
     </Button>
   );
 }
