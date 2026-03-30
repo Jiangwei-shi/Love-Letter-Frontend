@@ -1,8 +1,80 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Alert, Badge, Box, Button, Card, Divider, Group, Paper, Stack, Text, TextInput, Title } from '@mantine/core';
+import Link from 'next/link';
+import {
+  Alert,
+  Badge,
+  Box,
+  Button,
+  Card,
+  Container,
+  Divider,
+  Flex,
+  Grid,
+  Group,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+} from '@mantine/core';
+import AdminSidebar, { ADMIN_SIDEBAR_WIDTH } from '@/components/AdminSidebar';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
+
+type EntryCardProps = {
+  title: string;
+  desc: string;
+  href: string;
+  actionText: string;
+  accent: string;
+};
+
+function EntryCard({ title, desc, href, actionText, accent }: EntryCardProps) {
+  return (
+    <Card
+      radius="lg"
+      p="xl"
+      style={{
+        minHeight: 280,
+        display: 'flex',
+        flexDirection: 'column',
+        background: '#ffffff',
+        boxShadow: '0 12px 40px rgba(156,64,80,0.06)',
+        border: '1px solid rgba(218,192,194,0.25)',
+      }}
+    >
+      <Box
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: 999,
+          background: `${accent}12`,
+          marginBottom: 20,
+        }}
+      />
+      <Title order={3} mb={8} style={{ fontWeight: 600 }}>
+        {title}
+      </Title>
+      <Text size="sm" c="#666" style={{ lineHeight: 1.8 }}>
+        {desc}
+      </Text>
+      <Button
+        component={Link}
+        href={href}
+        mt="auto"
+        radius="xl"
+        variant="light"
+        style={{
+          alignSelf: 'flex-start',
+          color: accent,
+          background: `${accent}12`,
+        }}
+      >
+        {actionText}
+      </Button>
+    </Card>
+  );
+}
 
 export default function AdminPage() {
   const [email, setEmail] = useState('');
@@ -61,118 +133,207 @@ export default function AdminPage() {
 
   const readonlyInputStyles = {
     input: {
-      backgroundColor: 'rgba(240, 240, 245, 0.75)',
+      backgroundColor: '#f4f4f0',
       color: '#8b8b95',
       borderColor: 'rgba(214, 214, 224, 0.9)',
     },
     label: {
-      color: '#8b8b95',
+      color: '#6d5c5e',
+      fontWeight: 600,
     },
   } as const;
 
   return (
-    <Paper
-      radius="xl"
-      p={{ base: 'md', md: 'lg' }}
+    <Box
+      className="admin-page-root"
       style={{
-        background: 'linear-gradient(145deg, rgba(255,250,251,0.96), rgba(255,244,249,0.96), rgba(246,242,255,0.9))',
-        border: '1px solid rgba(244, 221, 232, 0.85)',
-        boxShadow: '0 14px 36px rgba(214, 152, 176, 0.14)',
+        minHeight: '100vh',
+        background:
+          'radial-gradient(circle at top left, rgba(255, 142, 158, 0.12) 0%, transparent 38%), radial-gradient(circle at bottom right, rgba(142, 202, 255, 0.12) 0%, transparent 40%), #faf9f5',
       }}
     >
-      <Stack gap="md">
-        <Title order={2}>后台管理</Title>
-        <Text c="dimmed" size="sm">
-          你已登录：{email || '—'}
-        </Text>
-        <Card
-          withBorder
-          radius="lg"
-          p={{ base: 'md', md: 'lg' }}
-          style={{
-            background: 'rgba(255,255,255,0.72)',
-            border: '1px solid rgba(241, 217, 228, 0.95)',
-            boxShadow: '0 8px 22px rgba(194, 153, 172, 0.12)',
-            backdropFilter: 'blur(4px)',
-          }}
-        >
-          <Stack gap="md">
-            <Group justify="space-between" align="center">
-              <Title order={4}>账号信息</Title>
-              <Badge color="pink" variant="light">
-                浪漫小站
-              </Badge>
-            </Group>
-            <Divider color="pink.1" />
-            <TextInput
-              label="Display name"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.currentTarget.value)}
-              placeholder="请输入展示名称"
-            />
-            <TextInput
-              label="Email（联系你宝宝修改）"
-              value={email}
-              readOnly
-              styles={readonlyInputStyles}
-            />
-            <TextInput
-              label="Phone（可选）"
-              value={phone}
-              onChange={(e) => setPhone(e.currentTarget.value)}
-              placeholder="例如 +8613800000000"
-            />
-            <TextInput
-              label="创建时间（联系你宝宝修改）"
-              value={createdAt}
-              readOnly
-              styles={readonlyInputStyles}
-            />
-            <TextInput
-              label="上次登录时间（联系你宝宝修改）"
-              value={lastSignInAt}
-              readOnly
-              styles={readonlyInputStyles}
-            />
-            <Group
-              justify="space-between"
-              align="center"
+      <AdminSidebar />
+
+      <Box ml={ADMIN_SIDEBAR_WIDTH} pt={32} pb={36} px={28}>
+        <Container fluid maw={1180}>
+          <Stack gap="xl">
+            <Box>
+              <Title order={2} mb={8}>
+                午安，珍藏者
+              </Title>
+              <Text c="#6d5c5e" maw={620}>
+                欢迎回到您的记忆圣殿。在这里，您可以编织过去，记录现在，为未来留下永恒印记。
+              </Text>
+            </Box>
+
+            <Grid gutter="md">
+              <Grid.Col span={{ base: 12, md: 6, xl: 3 }}>
+                <Card
+                  radius="lg"
+                  p="xl"
+                  style={{
+                    height: '100%',
+                    background: '#ffffff',
+                    boxShadow: '0 12px 40px rgba(156,64,80,0.06)',
+                    border: '1px solid rgba(218,192,194,0.25)',
+                  }}
+                >
+                  <Stack h="100%">
+                    <Title order={3}>快速操作</Title>
+                    <Text size="sm" c="#666" style={{ lineHeight: 1.8 }}>
+                      当前登录账号：{email || '—'}
+                    </Text>
+                    <Button
+                      component={Link}
+                      href="/admin"
+                      radius="xl"
+                      style={{ background: '#9c4050' }}
+                    >
+                      修改账号信息
+                    </Button>
+                    <Button mt="auto" color="red" variant="light" onClick={onLogout}>
+                      退出登录
+                    </Button>
+                  </Stack>
+                </Card>
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6, xl: 3 }}>
+                <EntryCard
+                  title="时间线管理"
+                  desc="整理生活中的里程碑，让每一个重要时刻都按序排列。"
+                  href="/admin/timeline"
+                  actionText="管理回忆"
+                  accent="#1c6392"
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6, xl: 3 }}>
+                <EntryCard
+                  title="推文管理"
+                  desc="发布、编辑或删除记录内容，持续完善你们的故事。"
+                  href="/admin/posts"
+                  actionText="书写生活"
+                  accent="#006d3e"
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6, xl: 3 }}>
+                <EntryCard
+                  title="伴侣信息"
+                  desc="维护双人空间资料，更新纪念日与专属誓言。"
+                  href="/admin/about"
+                  actionText="守护甜蜜"
+                  accent="#9c4050"
+                />
+              </Grid.Col>
+            </Grid>
+
+            <Card
+              withBorder
+              radius="lg"
+              p={{ base: 'md', md: 'lg' }}
               style={{
-                border: '1px solid rgba(214, 214, 224, 0.85)',
-                borderRadius: 10,
-                padding: '10px 12px',
-                background: 'rgba(240, 240, 245, 0.5)',
+                background: 'rgba(255,255,255,0.8)',
+                border: '1px solid rgba(218,192,194,0.45)',
+                boxShadow: '0 12px 32px rgba(156,64,80,0.08)',
               }}
             >
-              <Text size="sm" c="dimmed">邮箱是否认证过</Text>
-              <Badge color={isVerified ? 'teal' : 'gray'} variant="light">
-                {isVerified ? '已认证' : '未认证'}
-              </Badge>
-            </Group>
-            <Group justify="space-between" align="center">
-              <Text size="xs" c="dimmed">
-                仅可修改 Display name 与 Phone
-              </Text>
-              <Button onClick={onSave} loading={saving} color="pink">
-                保存
-              </Button>
-            </Group>
-            {saveMessage && (
-              <Alert color={saveMessage.includes('失败') ? 'red' : 'green'}>
-                {saveMessage}
-              </Alert>
-            )}
+              <Stack gap="md">
+                <Group justify="space-between" align="center">
+                  <Title order={4}>账号信息</Title>
+                  <Badge color="pink" variant="light">
+                    控制台
+                  </Badge>
+                </Group>
+                <Divider color="pink.1" />
+                <TextInput
+                  label="显示名称"
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.currentTarget.value)}
+                  placeholder="请输入展示名称"
+                />
+                <TextInput
+                  label="邮箱（只读）"
+                  value={email}
+                  readOnly
+                  styles={readonlyInputStyles}
+                />
+                <TextInput
+                  label="手机号（可选）"
+                  value={phone}
+                  onChange={(e) => setPhone(e.currentTarget.value)}
+                  placeholder="例如 +8613800000000"
+                />
+                <Group grow>
+                  <TextInput
+                    label="创建时间（只读）"
+                    value={createdAt}
+                    readOnly
+                    styles={readonlyInputStyles}
+                  />
+                  <TextInput
+                    label="上次登录时间（只读）"
+                    value={lastSignInAt}
+                    readOnly
+                    styles={readonlyInputStyles}
+                  />
+                </Group>
+                <Group
+                  justify="space-between"
+                  align="center"
+                  style={{
+                    border: '1px solid rgba(214, 214, 224, 0.85)',
+                    borderRadius: 10,
+                    padding: '10px 12px',
+                    background: '#f4f4f0',
+                  }}
+                >
+                  <Text size="sm" c="dimmed">
+                    认证状态
+                  </Text>
+                  <Badge color={isVerified ? 'teal' : 'gray'} variant="light">
+                    {isVerified ? '已认证' : '未认证'}
+                  </Badge>
+                </Group>
+                <Group justify="space-between" align="center">
+                  <Text size="xs" c="dimmed">
+                    仅可修改显示名称和手机号
+                  </Text>
+                  <Button onClick={onSave} loading={saving} color="pink">
+                    保存更改
+                  </Button>
+                </Group>
+                {saveMessage && (
+                  <Alert color={saveMessage.includes('失败') ? 'red' : 'green'}>
+                    {saveMessage}
+                  </Alert>
+                )}
+              </Stack>
+            </Card>
+
+            <Flex gap="xl" align="center" direction={{ base: 'column', md: 'row' }}>
+              <Box flex={1}>
+                <Title order={3} mb="sm" style={{ color: '#9c4050' }}>
+                  “记忆是灵魂的香气，记录则是让香气永存的瓶子。”
+                </Title>
+                <Text c="#6d5c5e" fs="italic">
+                  —— 永恒珍藏致词
+                </Text>
+              </Box>
+              <Card radius="lg" p={0} style={{ flex: 1, minWidth: 280, overflow: 'hidden' }}>
+                <Box
+                  style={{
+                    width: '100%',
+                    aspectRatio: '4 / 3',
+                    backgroundImage:
+                      'url(https://lh3.googleusercontent.com/aida-public/AB6AXuA7nr50BHGO154wmYZQdMJvzjz9rCdTfaw_iGmeYJklfw6xwqPIelAdjxHgrwubtAeLt1L_wK8khXDuKa27dJmakYXawK6Uvf-fiPIcR4aoc2wf16bUUzUJnxHME2-KyQ6TTLUNeOaxnF7OcHiv3niA-KjSEBgBmDqLREWiMDCbtioZvw7tBOo1hysADeF-Fy32ii54iJci5sF3gGfhgCU9Cvmm1TyqPEFy_kbPVOg4yombYts-ChUl3SqN_-nJ_9D8SoRseyDC3ZtU)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }}
+                />
+              </Card>
+            </Flex>
           </Stack>
-        </Card>
-        <Text size="sm">
-          从上面的导航进入时间线、生活记录和情侣信息管理。
-        </Text>
-        <Box>
-          <Button color="red" variant="light" onClick={onLogout}>
-            退出登录
-          </Button>
-        </Box>
-      </Stack>
-    </Paper>
+        </Container>
+      </Box>
+    </Box>
   );
 }

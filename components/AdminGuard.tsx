@@ -1,9 +1,8 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Group, Loader, Pill } from '@mantine/core';
+import { Group, Loader } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 
 export default function AdminGuard({ children }: { children: React.ReactNode }) {
@@ -34,23 +33,5 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     );
   }
 
-  return (
-    <div>
-      <Group gap="xs" mb="md">
-        <Pill component={Link} href="/admin" withRemove={false}>
-          概览
-        </Pill>
-        <Pill component={Link} href="/admin/timeline" withRemove={false}>
-          时间线
-        </Pill>
-        <Pill component={Link} href="/admin/posts" withRemove={false}>
-          生活记录
-        </Pill>
-        <Pill component={Link} href="/admin/about" withRemove={false}>
-          情侣信息
-        </Pill>
-      </Group>
-      {children}
-    </div>
-  );
+  return <div>{children}</div>;
 }
