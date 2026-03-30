@@ -1,27 +1,29 @@
-import '@mantine/core/styles.css';
 import React from 'react';
-import { MantineProvider, ColorSchemeScript } from '@mantine/core';
-import { theme } from '@/theme';
-import StoreProvider from '@/app/StoreProvider';
+import Link from 'next/link';
+import './globals.css';
 
 export const metadata = {
-  title: 'Mantine Next.js template',
-  description: 'I am using Mantine with Next.js!',
+  title: 'LoveLetter - 情侣纪念网站',
+  description: '记录我们在一起的每一个瞬间',
 };
 
-export default function RootLayout({ children }: { children: any }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head>
-        <ColorSchemeScript />
-        <link rel="shortcut icon" href="/favicon.svg" />
-        <meta
-          name="viewport"
-          content="minimum-scale=1, initial-scale=1, width=device-width, user-scalable=no"
-        />
-      </head>
+    <html lang="zh-CN">
       <body>
-        <MantineProvider theme={theme}><StoreProvider>{children}</StoreProvider></MantineProvider>
+        <header className="site-header">
+          <div className="container nav-row">
+            <Link href="/" className="brand">LoveLetter</Link>
+            <nav className="nav-links">
+              <Link href="/timeline">时间线</Link>
+              <Link href="/posts">生活记录</Link>
+              <Link href="/albums">相册</Link>
+              <Link href="/admin">后台</Link>
+              <Link href="/login" className="btn btn-soft">登录</Link>
+            </nav>
+          </div>
+        </header>
+        <main className="container page-content">{children}</main>
       </body>
     </html>
   );
