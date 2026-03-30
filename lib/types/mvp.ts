@@ -29,11 +29,11 @@ export type Post = {
   content: string;
   record_time: string;
   author: string;
+  like_count: number;
   created_at: string;
   updated_at: string;
   created_by: string;
   post_images?: PostImage[];
-  post_likes?: PostLike[];
   post_comments?: PostComment[];
 };
 
@@ -42,12 +42,6 @@ export type PostImage = {
   post_id: string;
   image_url: string;
   sort_order: number;
-  created_at: string;
-};
-
-export type PostLike = {
-  id: string;
-  post_id: string;
   created_at: string;
 };
 

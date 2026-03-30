@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Alert, Badge, Button, Card, Group, Image, SimpleGrid, Stack, Text, TextInput, Title } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { Post, PostComment } from '@/lib/types/mvp';
 
@@ -12,15 +12,31 @@ function formatRecordTime(recordTime: string) {
 export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [commentInputs, setCommentInputs] = useState<Record<string, { visitor_name: string; message: string }>>({});
+  const [commentSubmitting, setCommentSubmitting] = useState<Record<string, boolean>>({});
+  const [commentErrors, setCommentErrors] = useState<Record<string, string>>({});
+
+  const setCommentField = (postId: string, field: 'visitor_name' | 'message', value: string) => {
+    setCommentInputs((prev) => {
+      const current = prev[postId] ?? { visitor_name: '', message: '' };
+      return {
+        ...prev,
+        [postId]: {
+          ...current,
+          [field]: value,
+        },
+      };
+    });
+  };
 
   const onLike = async (postId: string) => {
     const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase.from('post_likes').insert({ post_id: postId }).select('id').single();
-    if (error || !data) return;
+    const { data, error } = await supabase.rpc('increment_post_like_count', { p_post_id: postId });
+    if (error) return;
+    const nextCount = Number(data ?? 0);
 
     setPosts((prev) => prev.map((post) => (
       post.id === postId
-        ? { ...post, post_likes: [...(post.post_likes ?? []), { id: data.id, post_id: postId, created_at: new Date().toISOString() }] }
+        ? { ...post, like_count: nextCount || (post.like_count ?? 0) + 1 }
         : post
     )));
   };
@@ -29,15 +45,24 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
     const input = commentInputs[postId] ?? { visitor_name: '', message: '' };
     const visitor_name = input.visitor_name.trim();
     const message = input.message.trim();
-    if (!visitor_name || !message) return;
+    if (!visitor_name || !message) {
+      setCommentErrors((prev) => ({ ...prev, [postId]: '请输入昵称和留言内容。' }));
+      return;
+    }
 
+    setCommentSubmitting((prev) => ({ ...prev, [postId]: true }));
+    setCommentErrors((prev) => ({ ...prev, [postId]: '' }));
     const supabase = getSupabaseBrowserClient();
     const { data, error } = await supabase
       .from('post_comments')
       .insert({ post_id: postId, visitor_name, message })
       .select('*')
       .single();
-    if (error || !data) return;
+    if (error || !data) {
+      setCommentErrors((prev) => ({ ...prev, [postId]: error?.message || '评论失败，请稍后重试。' }));
+      setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
+      return;
+    }
 
     setPosts((prev) => prev.map((post) => (
       post.id === postId
@@ -46,6 +71,7 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
     )));
 
     setCommentInputs((prev) => ({ ...prev, [postId]: { visitor_name: '', message: '' } }));
+    setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
   };
 
   if (posts.length === 0) {
@@ -59,7 +85,7 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
   return (
     <Stack gap="md">
       {posts.map((post) => {
-        const likes = post.post_likes?.length ?? 0;
+        const likes = post.like_count ?? 0;
         const comments = post.post_comments ?? [];
 
         return (
@@ -89,27 +115,31 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
             <Stack gap={6} mt="sm">
               {comments.map((comment) => (
                 <Card key={comment.id} p="xs" bg="pink.0">
-                  <Text size="sm"><strong>{comment.visitor_name}：</strong>{comment.message}</Text>
+                  <Text size="sm">
+                    <Text component="span" fw={600}>{comment.visitor_name}：</Text>
+                    {comment.message}
+                  </Text>
                 </Card>
               ))}
+              {commentErrors[post.id] && (
+                <Alert color="red" py={6}>
+                  {commentErrors[post.id]}
+                </Alert>
+              )}
               <Group grow>
                 <TextInput
                   placeholder="访客昵称"
                   value={commentInputs[post.id]?.visitor_name ?? ''}
-                  onChange={(e) => setCommentInputs((prev) => ({
-                    ...prev,
-                    [post.id]: { visitor_name: e.currentTarget.value, message: prev[post.id]?.message ?? '' },
-                  }))}
+                  onChange={(event) => setCommentField(post.id, 'visitor_name', event.currentTarget?.value ?? '')}
                 />
                 <TextInput
                   placeholder="写下留言..."
                   value={commentInputs[post.id]?.message ?? ''}
-                  onChange={(e) => setCommentInputs((prev) => ({
-                    ...prev,
-                    [post.id]: { visitor_name: prev[post.id]?.visitor_name ?? '', message: e.currentTarget.value },
-                  }))}
+                  onChange={(event) => setCommentField(post.id, 'message', event.currentTarget?.value ?? '')}
                 />
-                <Button onClick={() => onComment(post.id)}>发送</Button>
+                <Button loading={Boolean(commentSubmitting[post.id])} onClick={() => onComment(post.id)}>
+                  发送
+                </Button>
               </Group>
             </Stack>
           </Card>

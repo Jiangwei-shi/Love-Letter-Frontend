@@ -16,7 +16,7 @@ export async function getPosts(): Promise<Post[]> {
   const supabase = getSupabasePublicServerClient();
   const { data, error } = await supabase
     .from('posts')
-    .select('*, post_images(*), post_likes(id), post_comments(*)')
+    .select('*, post_images(*), post_comments(*)')
     .order('record_time', { ascending: false })
     .order('created_at', { ascending: false });
 
@@ -28,7 +28,7 @@ export async function getPostById(id: string): Promise<Post | null> {
   const supabase = getSupabasePublicServerClient();
   const { data, error } = await supabase
     .from('posts')
-    .select('*, post_images(*), post_likes(id), post_comments(*)')
+    .select('*, post_images(*), post_comments(*)')
     .eq('id', id)
     .maybeSingle();
 

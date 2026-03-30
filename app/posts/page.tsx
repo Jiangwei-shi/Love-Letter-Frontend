@@ -1,8 +1,12 @@
 import { getPosts } from '@/lib/supabase/queries';
 import { Stack, Text, Title } from '@mantine/core';
+import { unstable_noStore as noStore } from 'next/cache';
 import PostsFeed from '@/components/PostsFeed';
 
+export const dynamic = 'force-dynamic';
+
 export default async function PostsPage() {
+  noStore();
   const posts = await getPosts();
 
   return (
