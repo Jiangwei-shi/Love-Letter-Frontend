@@ -209,7 +209,7 @@ function TimelineList({ items, sortOrder, onToggleSort, onEdit, onDelete, format
                 boxShadow: '0 10px 28px rgba(0,0,0,0.03)',
               }}
             >
-              <Group justify="space-between" align="flex-start" mb="md">
+              <Group align="flex-start" mb="md">
                 <Box>
                   <Text size="xs" fw={700} c="#1c6392" style={{ letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                     {item.event_date}
@@ -218,26 +218,6 @@ function TimelineList({ items, sortOrder, onToggleSort, onEdit, onDelete, format
                     {item.title}
                   </Title>
                 </Box>
-                <Group gap={6}>
-                  <ActionIcon
-                    variant="light"
-                    color="gray"
-                    radius="xl"
-                    aria-label="编辑"
-                    onClick={() => onEdit(item)}
-                  >
-                    <IconEdit size={16} />
-                  </ActionIcon>
-                  <ActionIcon
-                    color="red"
-                    variant="light"
-                    radius="xl"
-                    aria-label="删除"
-                    onClick={() => { void onDelete(item.id); }}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
               </Group>
 
               <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
@@ -272,9 +252,31 @@ function TimelineList({ items, sortOrder, onToggleSort, onEdit, onDelete, format
               </SimpleGrid>
 
               <Divider my="md" color="rgba(218,192,194,0.5)" />
-              <Text size="xs" c="dimmed">
-                创建者：{formatCreatedBy(item.created_by)}
-              </Text>
+              <Group justify="space-between" align="center" wrap="wrap" gap={10}>
+                <Text size="xs" c="dimmed">
+                  创建者：{formatCreatedBy(item.created_by)}
+                </Text>
+                <Group gap={6}>
+                  <ActionIcon
+                    variant="light"
+                    color="gray"
+                    radius="xl"
+                    aria-label="编辑"
+                    onClick={() => onEdit(item)}
+                  >
+                    <IconEdit size={16} />
+                  </ActionIcon>
+                  <ActionIcon
+                    color="red"
+                    variant="light"
+                    radius="xl"
+                    aria-label="删除"
+                    onClick={() => { void onDelete(item.id); }}
+                  >
+                    <IconTrash size={16} />
+                  </ActionIcon>
+                </Group>
+              </Group>
             </Card>
           </Box>
         ))}

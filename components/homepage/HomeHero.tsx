@@ -64,7 +64,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
             fw={300}
             style={{
               fontFamily: serif,
-              fontSize: 'clamp(2.75rem, 6vw, 5.5rem)',
+              fontSize: 'clamp(2.5rem, 5.6vw, 5.5rem)',
               lineHeight: 1.05,
               letterSpacing: '-0.04em',
               color: ARCHIVE.primary,

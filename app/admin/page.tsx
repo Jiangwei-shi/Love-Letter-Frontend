@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   Alert,
@@ -73,6 +73,7 @@ function EntryCard({ title, desc, href, actionText, accent }: EntryCardProps) {
 }
 
 export default function AdminPage() {
+  const accountInfoRef = useRef<HTMLDivElement | null>(null);
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [createdAt, setCreatedAt] = useState('');
@@ -127,6 +128,14 @@ export default function AdminPage() {
     window.location.href = '/login';
   };
 
+  const onEditAccountClick = () => {
+    if (window.innerWidth > 768) return;
+    accountInfoRef.current?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
   const readonlyInputStyles = {
     input: {
       backgroundColor: '#f4f4f0',
@@ -170,8 +179,7 @@ export default function AdminPage() {
                       当前登录账号：{email || '—'}
                     </Text>
                     <Button
-                      component={Link}
-                      href="/admin"
+                      onClick={onEditAccountClick}
                       className="home-float-btn admin-btn admin-btn-primary"
                       radius="xl"
                     >
@@ -218,10 +226,12 @@ export default function AdminPage() {
             </Grid>
 
             <Card
+              ref={accountInfoRef}
               withBorder
               radius="lg"
               p={{ base: 'md', md: 'lg' }}
               style={{
+                scrollMarginTop: 96,
                 background: 'rgba(255,255,255,0.8)',
                 border: '1px solid rgba(218,192,194,0.45)',
                 boxShadow: '0 12px 32px rgba(156,64,80,0.08)',
