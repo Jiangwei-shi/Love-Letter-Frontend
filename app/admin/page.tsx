@@ -75,7 +75,6 @@ function EntryCard({ title, desc, href, actionText, accent }: EntryCardProps) {
 export default function AdminPage() {
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [phone, setPhone] = useState('');
   const [createdAt, setCreatedAt] = useState('');
   const [lastSignInAt, setLastSignInAt] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -99,7 +98,6 @@ export default function AdminPage() {
       const user = data.user;
       setEmail(user?.email ?? '');
       setDisplayName((user?.user_metadata?.display_name as string | undefined) ?? '');
-      setPhone(user?.phone ?? '');
       setCreatedAt(formatDateTime(user?.created_at));
       setLastSignInAt(formatDateTime(user?.last_sign_in_at));
       setIsVerified(Boolean(user?.email_confirmed_at || user?.phone_confirmed_at));
@@ -113,7 +111,6 @@ export default function AdminPage() {
     const supabase = getSupabaseBrowserClient();
     const { error } = await supabase.auth.updateUser({
       data: { display_name: displayName.trim() },
-      ...(phone.trim() ? { phone: phone.trim() } : {}),
     });
     if (error) {
       setSaveMessage(`保存失败：${error.message}`);
@@ -250,12 +247,6 @@ export default function AdminPage() {
                   readOnly
                   styles={readonlyInputStyles}
                 />
-                <TextInput
-                  label="手机号（可选）"
-                  value={phone}
-                  onChange={(e) => setPhone(e.currentTarget.value)}
-                  placeholder="例如 +8613800000000"
-                />
                 <Stack gap="sm">
                   <TextInput
                     label="创建时间（只读）"
@@ -289,7 +280,7 @@ export default function AdminPage() {
                 </Group>
                 <Group justify="space-between" align="center">
                   <Text size="xs" c="dimmed">
-                    仅可修改显示名称和手机号
+                    仅可修改显示名称
                   </Text>
                   <Button
                     onClick={onSave}

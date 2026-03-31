@@ -24,6 +24,11 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TimelineEvent } from '@/lib/types/mvp';
 
+const CREATOR_NAME_MAP: Record<string, string> = {
+  '1cc07653-b90f-4d9b-8e3f-f30ff814a715': '袁雨婷',
+  '1d965b67-091a-4932-a827-93eecd14af0f': '石江玮',
+};
+
 type TimelineFormProps = {
   editingId: string | null;
   title: string;
@@ -327,7 +332,8 @@ export default function AdminTimelinePage() {
   }, [items, sortOrder]);
 
   const formatCreatedBy = (createdBy: string | null) => {
-    if (!createdBy) return 'null';
+    if (!createdBy) return '未知';
+    if (CREATOR_NAME_MAP[createdBy]) return CREATOR_NAME_MAP[createdBy];
     if (currentUserId && createdBy === currentUserId) {
       return currentUserLabel;
     }
