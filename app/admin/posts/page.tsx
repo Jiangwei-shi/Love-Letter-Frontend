@@ -285,6 +285,8 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
     postTitle: string;
     comment: NonNullable<Post['post_comments']>[number];
   } | null>(null);
+  const [ipLocationMap, setIpLocationMap] = useState<Record<string, string>>({});
+  const [ipLookupLoading, setIpLookupLoading] = useState(false);
 
   const openCommentDetail = (postTitle: string, comment: NonNullable<Post['post_comments']>[number]) => {
     setSelectedComment({ postTitle, comment });
@@ -307,9 +309,99 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
     return comment.ip_address || (comment as Record<string, string | null | undefined>).ip || '未知';
   };
 
+  const normalizeIp = (ip: string) => {
+    if (ip.startsWith('::ffff:')) return ip.slice(7);
+    return ip;
+  };
+
+  const isPrivateOrLocalIp = (ip: string) => {
+    const normalized = normalizeIp(ip).toLowerCase();
+    if (normalized === 'localhost' || normalized === '::1' || normalized === '127.0.0.1') return true;
+    if (normalized.startsWith('10.')) return true;
+    if (normalized.startsWith('192.168.')) return true;
+    if (normalized.startsWith('172.')) {
+      const second = Number(normalized.split('.')[1] ?? -1);
+      if (second >= 16 && second <= 31) return true;
+    }
+    if (normalized.startsWith('fc') || normalized.startsWith('fd')) return true;
+    return false;
+  };
+
+  const formatLocation = (
+    country: unknown,
+    region: unknown,
+    city: unknown,
+  ) => {
+    const parts = [country, region, city]
+      .map((part) => (typeof part === 'string' ? part.trim() : ''))
+      .filter(Boolean);
+    return parts.length > 0 ? parts.join(', ') : '未知地区';
+  };
+
+  const lookupIpLocation = async (ip: string) => {
+    const normalizedIp = normalizeIp(ip);
+    if (!normalizedIp || normalizedIp === '未知') return;
+    if (ipLocationMap[normalizedIp]) return;
+
+    if (isPrivateOrLocalIp(normalizedIp)) {
+      setIpLocationMap((prev) => ({ ...prev, [normalizedIp]: '内网或本地地址' }));
+      return;
+    }
+
+    setIpLookupLoading(true);
+    try {
+      const ipWhoRes = await fetch(`https://ipwho.is/${encodeURIComponent(normalizedIp)}?lang=zh`);
+      if (ipWhoRes.ok) {
+        const ipWhoData = await ipWhoRes.json() as {
+          success?: boolean;
+          country?: string;
+          region?: string;
+          city?: string;
+        };
+        if (ipWhoData.success !== false) {
+          setIpLocationMap((prev) => ({
+            ...prev,
+            [normalizedIp]: formatLocation(ipWhoData.country, ipWhoData.region, ipWhoData.city),
+          }));
+          return;
+        }
+      }
+
+      const ipApiRes = await fetch(`https://ipapi.co/${encodeURIComponent(normalizedIp)}/json/`);
+      if (ipApiRes.ok) {
+        const ipApiData = await ipApiRes.json() as {
+          country_name?: string;
+          region?: string;
+          city?: string;
+        };
+        setIpLocationMap((prev) => ({
+          ...prev,
+          [normalizedIp]: formatLocation(ipApiData.country_name, ipApiData.region, ipApiData.city),
+        }));
+        return;
+      }
+
+      setIpLocationMap((prev) => ({ ...prev, [normalizedIp]: '定位失败' }));
+    } catch (error) {
+      console.error('IP 归属地解析失败', error);
+      setIpLocationMap((prev) => ({ ...prev, [normalizedIp]: '定位失败' }));
+    } finally {
+      setIpLookupLoading(false);
+    }
+  };
+
   const resolveUserAgent = (comment: NonNullable<Post['post_comments']>[number]) => {
     return comment.user_agent || '未知';
   };
+
+  useEffect(() => {
+    if (!selectedComment) return;
+    const rawIp = resolveIp(selectedComment.comment);
+    const normalizedIp = normalizeIp(rawIp);
+    if (!normalizedIp || normalizedIp === '未知') return;
+    if (ipLocationMap[normalizedIp]) return;
+    void lookupIpLocation(normalizedIp);
+  }, [selectedComment, ipLocationMap]);
 
   return (
     <>
@@ -548,7 +640,18 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
               </Group>
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">IP</Text>
-                <Text size="xs">{resolveIp(selectedComment.comment)}</Text>
+                <Text size="xs">{normalizeIp(resolveIp(selectedComment.comment))}</Text>
+              </Group>
+              <Group justify="space-between">
+                <Text size="xs" c="dimmed">归属地</Text>
+                <Text size="xs">
+                  {(() => {
+                    const normalizedIp = normalizeIp(resolveIp(selectedComment.comment));
+                    if (!normalizedIp || normalizedIp === '未知') return '未知';
+                    if (ipLocationMap[normalizedIp]) return ipLocationMap[normalizedIp];
+                    return ipLookupLoading ? '解析中...' : '待解析';
+                  })()}
+                </Text>
               </Group>
               <Group justify="space-between" align="flex-start">
                 <Text size="xs" c="dimmed">User-Agent</Text>
