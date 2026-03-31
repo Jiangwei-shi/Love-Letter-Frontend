@@ -56,7 +56,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
               },
             }}
           >
-            情侣纪念网站 · 我们的旅程
+            LoveLetter · 我们的旅程
           </Badge>
 
           <Title
@@ -127,7 +127,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
             <Stack gap="sm">
               <Button
                 component={Link}
-                href="/timeline"
+                href="/about"
                 size="lg"
                 radius="xl"
                 rightSection={<IconArrowRight size={18} />}
@@ -172,7 +172,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
               }}
             >
               <Text size="sm" style={{ fontFamily: serif }} fs="italic" c={ARCHIVE.onSurfaceVariant}>
-                {profile?.girl_message_for_boy ?? profile?.boy_message_for_girl}
+                女生寄语：{profile?.girl_message_for_boy ?? profile?.boy_message_for_girl}
               </Text>
             </Paper>
           )}

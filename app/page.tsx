@@ -7,6 +7,9 @@ import HomeLifeRecords from '@/components/home/HomeLifeRecords';
 import HomeTimelinePreview from '@/components/home/HomeTimelinePreview';
 import { ARCHIVE } from '@/components/home/constants';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 function calcDaysFrom(dateStr?: string | null) {
   if (!dateStr) return null;
   const start = new Date(dateStr);

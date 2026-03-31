@@ -100,7 +100,7 @@ export default function HomeTimelinePreview({ events }: Props) {
                     </Title>
                     <Stack gap="md">
                       {item.boy_message && (
-                        <Box pl="md" style={{ borderLeft: `2px solid ${ARCHIVE.primaryContainer}` }}>
+                        <Box pl="md" style={{ borderLeft: `2px solid ${ARCHIVE.secondaryContainer}` }}>
                           <Text
                             tt="uppercase"
                             size="xs"
@@ -120,7 +120,7 @@ export default function HomeTimelinePreview({ events }: Props) {
                         </Box>
                       )}
                       {item.girl_message && (
-                        <Box pl="md" style={{ borderLeft: `2px solid ${ARCHIVE.secondaryContainer}` }}>
+                        <Box pl="md" style={{ borderLeft: `2px solid ${ARCHIVE.primaryContainer}` }}>
                           <Text
                             tt="uppercase"
                             size="xs"

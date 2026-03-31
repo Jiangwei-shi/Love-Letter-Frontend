@@ -41,7 +41,7 @@ export default function HomeHeartNote({ profile }: Props) {
           一个只属于我们的小宇宙。无论外面的世界多快，回到这里时，愿我们仍觉得当下很值得。
         </Text>
         <Text size="sm" maw={520} fs="italic" c="dimmed" style={{ fontFamily: serif }}>
-          {noteHint}
+          男生寄语：{noteHint}
         </Text>
         <Group justify="center" wrap="wrap" gap="md" w="100%">
           <TextInput
