@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Box, Button, Card, FileInput, Group, Image, Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, Group, Image, Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -280,143 +280,290 @@ type PostListProps = {
 };
 
 function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, onDeleteComment }: PostListProps) {
+  const [detailOpened, setDetailOpened] = useState(false);
+  const [selectedComment, setSelectedComment] = useState<{
+    postTitle: string;
+    comment: NonNullable<Post['post_comments']>[number];
+  } | null>(null);
+
+  const openCommentDetail = (postTitle: string, comment: NonNullable<Post['post_comments']>[number]) => {
+    setSelectedComment({ postTitle, comment });
+    setDetailOpened(true);
+  };
+
+  const closeCommentDetail = () => {
+    setDetailOpened(false);
+    setSelectedComment(null);
+  };
+
+  const formatCommentTime = (value?: string | null) => {
+    if (!value) return '未知';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '未知';
+    return date.toLocaleString('zh-CN', { hour12: false });
+  };
+
+  const resolveIp = (comment: NonNullable<Post['post_comments']>[number]) => {
+    return comment.ip_address || (comment as Record<string, string | null | undefined>).ip || '未知';
+  };
+
+  const resolveSource = (comment: NonNullable<Post['post_comments']>[number]) => {
+    return comment.source || (comment as Record<string, string | null | undefined>).client_source || '未知';
+  };
+
+  const resolveUserAgent = (comment: NonNullable<Post['post_comments']>[number]) => {
+    return comment.user_agent || '未知';
+  };
+
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="flex-end">
-        <Stack gap={4}>
-          <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1c6392' }}>
-            记录集合
-          </Text>
-          <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
-            最近归档记录
-          </Title>
-        </Stack>
-        <Group gap="xs" mb={2}>
-          <Button
-            variant="default"
-            className="home-float-btn admin-btn admin-btn-muted"
-            radius="xl"
-            size="xs"
-            onClick={onToggleSort}
-          >
-            按记录时间{sortOrder === 'desc' ? '倒序' : '正序'}
-          </Button>
+    <>
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-end">
+          <Stack gap={4}>
+            <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1c6392' }}>
+              记录集合
+            </Text>
+            <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
+              最近归档记录
+            </Title>
+          </Stack>
+          <Group gap="xs" mb={2}>
+            <Button
+              variant="default"
+              className="home-float-btn admin-btn admin-btn-muted"
+              radius="xl"
+              size="xs"
+              onClick={onToggleSort}
+            >
+              按记录时间{sortOrder === 'desc' ? '倒序' : '正序'}
+            </Button>
+          </Group>
         </Group>
-      </Group>
 
-      {loading && <Text size="sm" c="dimmed">正在加载生活记录...</Text>}
-      {!loading && posts.length === 0 && (
-        <Card withBorder radius="lg" p="xl" style={{ borderStyle: 'dashed' }}>
-          <Text size="sm" c="dimmed">还没有任何记录，从左边的表单开始写下第一条吧。</Text>
-        </Card>
-      )}
+        {loading && <Text size="sm" c="dimmed">正在加载生活记录...</Text>}
+        {!loading && posts.length === 0 && (
+          <Card withBorder radius="lg" p="xl" style={{ borderStyle: 'dashed' }}>
+            <Text size="sm" c="dimmed">还没有任何记录，从左边的表单开始写下第一条吧。</Text>
+          </Card>
+        )}
 
-      {!loading && (
-        <Stack gap="md" style={{ maxHeight: 1200, overflowY: 'auto', paddingRight: 8 }}>
-          {posts.map((post) => {
-            const previewImage = post.post_images?.[0]?.image_url;
-            return (
-              <Card
-                key={post.id}
-                radius="lg"
-                p={0}
-                withBorder
+        {!loading && (
+          <Stack gap="md" style={{ paddingRight: 8 }}>
+            {posts.map((post) => {
+              const previewImage = post.post_images?.[0]?.image_url;
+              return (
+                <Card
+                  key={post.id}
+                  radius="lg"
+                  p={0}
+                  withBorder
+                  style={{
+                    overflow: 'hidden',
+                    background: '#ffffff',
+                    borderColor: 'rgba(218,192,194,0.18)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                  }}
+                >
+                  <Group align="stretch" gap={0} wrap="nowrap">
+                    <Box style={{ width: 190, minWidth: 190, height: 200, background: '#e3e2df' }}>
+                      {previewImage ? (
+                        <Image src={previewImage} alt={post.title} h={200} w={190} fit="cover" />
+                      ) : (
+                        <Stack justify="center" align="center" h={200} gap={4}>
+                          <Text size="xs" c="dimmed">暂无封面</Text>
+                        </Stack>
+                      )}
+                    </Box>
+                    <Stack gap="md" p="xl" style={{ flex: 1 }}>
+                      <Stack gap={6}>
+                        <Group justify="space-between" align="flex-start">
+                          <Box>
+                            <Text size="xs" fw={700} style={{ color: '#9c4050', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+                              {(post.record_time || '').replace('T', ' ').slice(0, 16)}
+                            </Text>
+                            <Title order={4} mt={2} style={{ fontStyle: 'italic', fontWeight: 500 }}>
+                              {post.title}
+                            </Title>
+                          </Box>
+                          <Group gap={6}>
+                            <ActionIcon
+                              variant="light"
+                              color="gray"
+                              radius="xl"
+                              aria-label="编辑"
+                              onClick={() => onEdit(post)}
+                            >
+                              <IconEdit size={16} />
+                            </ActionIcon>
+                            <ActionIcon
+                              color="red"
+                              variant="light"
+                              radius="xl"
+                              aria-label="删除"
+                              onClick={() => { void onDelete(post.id); }}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Group>
+                        </Group>
+                        <Text size="sm" c="#6d5c5e" style={{ lineHeight: 1.8, fontStyle: 'italic' }} lineClamp={2}>
+                          {post.content}
+                        </Text>
+                      </Stack>
+                      <Group justify="space-between" style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}>
+                        <Text size="xs" c="#8f7f80" fs="italic">
+                          记录者：{post.author || '未设置'}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {(post.post_comments ?? []).length} 条留言
+                        </Text>
+                      </Group>
+                      {(post.post_comments ?? []).length > 0 && (
+                        <Stack gap={8}>
+                          {(post.post_comments ?? []).map((comment) => (
+                            <Box
+                              key={comment.id}
+                              p={10}
+                              style={{
+                                borderRadius: 10,
+                                border: '1px solid rgba(218,192,194,0.24)',
+                                background: 'rgba(250,249,245,0.65)',
+                              }}
+                            >
+                              <Stack gap={6}>
+                                <Group justify="space-between" align="flex-start" wrap="wrap" gap={8}>
+                                  <Text size="xs" fw={700} c="#7f6b6d">
+                                    {comment.visitor_name || '匿名访客'}
+                                  </Text>
+                                  <Group gap={6} wrap="wrap" justify="flex-end">
+                                    <Button
+                                      size="compact-xs"
+                                      variant="default"
+                                      className="home-float-btn admin-btn admin-btn-muted"
+                                      radius="xl"
+                                      onClick={() => openCommentDetail(post.title, comment)}
+                                    >
+                                      查看详情
+                                    </Button>
+                                    <Button
+                                      size="compact-xs"
+                                      variant="default"
+                                      className="home-float-btn admin-btn admin-btn-danger"
+                                      radius="xl"
+                                      onClick={() => { void onDeleteComment(comment.id); }}
+                                    >
+                                      删除留言
+                                    </Button>
+                                  </Group>
+                                </Group>
+                                <Text
+                                  size="xs"
+                                  style={{
+                                    whiteSpace: 'pre-wrap',
+                                    wordBreak: 'break-word',
+                                    lineHeight: 1.7,
+                                  }}
+                                >
+                                  {comment.message}
+                                </Text>
+                              </Stack>
+                            </Box>
+                          ))}
+                        </Stack>
+                      )}
+                    </Stack>
+                  </Group>
+                </Card>
+              );
+            })}
+            {!loading && posts.length > 0 && (
+              <Stack align="center" gap={6} py="md">
+                <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
+                <Text size="xs" c="#9b8a8b" style={{ letterSpacing: '0.28em', textTransform: 'uppercase' }}>
+                  记录到底啦
+                </Text>
+                <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
+              </Stack>
+            )}
+          </Stack>
+        )}
+      </Stack>
+
+      <Drawer
+        opened={detailOpened}
+        onClose={closeCommentDetail}
+        position="right"
+        size="md"
+        title="留言详情"
+      >
+        {!selectedComment ? (
+          <Text c="dimmed" size="sm">未选中留言</Text>
+        ) : (
+          <Stack gap="md">
+            <Box>
+              <Text size="xs" c="dimmed">所属记录</Text>
+              <Text fw={600}>{selectedComment.postTitle}</Text>
+            </Box>
+            <Group justify="space-between" align="center">
+              <Box>
+                <Text size="xs" c="dimmed">访客昵称</Text>
+                <Text fw={600}>{selectedComment.comment.visitor_name || '匿名访客'}</Text>
+              </Box>
+              <CopyButton value={selectedComment.comment.message} timeout={1200}>
+                {({ copied, copy }) => (
+                  <Button
+                    size="xs"
+                    variant="default"
+                    className="home-float-btn admin-btn admin-btn-secondary"
+                    radius="xl"
+                    onClick={copy}
+                  >
+                    {copied ? '已复制' : '复制留言'}
+                  </Button>
+                )}
+              </CopyButton>
+            </Group>
+            <Divider />
+            <Box>
+              <Text size="xs" c="dimmed" mb={6}>留言内容</Text>
+              <Text
+                size="sm"
                 style={{
-                  overflow: 'hidden',
-                  background: '#ffffff',
-                  borderColor: 'rgba(218,192,194,0.18)',
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  lineHeight: 1.8,
                 }}
               >
-                <Group align="stretch" gap={0} wrap="nowrap">
-                  <Box style={{ width: 190, minWidth: 190, height: 200, background: '#e3e2df' }}>
-                    {previewImage ? (
-                      <Image src={previewImage} alt={post.title} h={200} w={190} fit="cover" />
-                    ) : (
-                      <Stack justify="center" align="center" h={200} gap={4}>
-                        <Text size="xs" c="dimmed">暂无封面</Text>
-                      </Stack>
-                    )}
-                  </Box>
-                  <Stack justify="space-between" gap="md" p="xl" style={{ flex: 1 }}>
-                    <Stack gap={6}>
-                      <Group justify="space-between" align="flex-start">
-                        <Box>
-                          <Text size="xs" fw={700} style={{ color: '#9c4050', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-                            {(post.record_time || '').replace('T', ' ').slice(0, 16)}
-                          </Text>
-                          <Title order={4} mt={2} style={{ fontStyle: 'italic', fontWeight: 500 }}>
-                            {post.title}
-                          </Title>
-                        </Box>
-                        <Group gap={6}>
-                          <ActionIcon
-                            variant="light"
-                            color="gray"
-                            radius="xl"
-                            aria-label="编辑"
-                            onClick={() => onEdit(post)}
-                          >
-                            <IconEdit size={16} />
-                          </ActionIcon>
-                          <ActionIcon
-                            color="red"
-                            variant="light"
-                            radius="xl"
-                            aria-label="删除"
-                            onClick={() => { void onDelete(post.id); }}
-                          >
-                            <IconTrash size={16} />
-                          </ActionIcon>
-                        </Group>
-                      </Group>
-                      <Text size="sm" c="#6d5c5e" style={{ lineHeight: 1.8, fontStyle: 'italic' }} lineClamp={2}>
-                        {post.content}
-                      </Text>
-                    </Stack>
-                    <Group justify="space-between" style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}>
-                      <Text size="xs" c="#8f7f80" fs="italic">
-                        记录者：{post.author || '未设置'}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {(post.post_comments ?? []).length} 条留言
-                      </Text>
-                    </Group>
-                    {(post.post_comments ?? []).length > 0 && (
-                      <Stack gap={4}>
-                        {(post.post_comments ?? []).map((comment) => (
-                          <Group key={comment.id} justify="space-between">
-                            <Text size="xs">{comment.visitor_name}: {comment.message}</Text>
-                            <Button
-                              size="compact-xs"
-                              variant="default"
-                              className="home-float-btn admin-btn admin-btn-danger"
-                              radius="xl"
-                              onClick={() => { void onDeleteComment(comment.id); }}
-                            >
-                              删除留言
-                            </Button>
-                          </Group>
-                        ))}
-                      </Stack>
-                    )}
-                  </Stack>
-                </Group>
-              </Card>
-            );
-          })}
-          {!loading && posts.length > 0 && (
-            <Stack align="center" gap={6} py="md">
-              <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
-              <Text size="xs" c="#9b8a8b" style={{ letterSpacing: '0.28em', textTransform: 'uppercase' }}>
-                记录到底啦
+                {selectedComment.comment.message}
               </Text>
-              <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
-            </Stack>
-          )}
-        </Stack>
-      )}
-    </Stack>
+            </Box>
+            <Divider />
+            <SimpleGrid cols={1} spacing="xs">
+              <Group justify="space-between">
+                <Text size="xs" c="dimmed">留言时间</Text>
+                <Text size="xs">{formatCommentTime(selectedComment.comment.created_at)}</Text>
+              </Group>
+              <Group justify="space-between">
+                <Text size="xs" c="dimmed">IP</Text>
+                <Text size="xs">{resolveIp(selectedComment.comment)}</Text>
+              </Group>
+              <Group justify="space-between" align="flex-start">
+                <Text size="xs" c="dimmed">来源</Text>
+                <Text size="xs" ta="right" style={{ maxWidth: '75%', wordBreak: 'break-word' }}>
+                  {resolveSource(selectedComment.comment)}
+                </Text>
+              </Group>
+              <Group justify="space-between" align="flex-start">
+                <Text size="xs" c="dimmed">User-Agent</Text>
+                <Text size="xs" ta="right" style={{ maxWidth: '75%', wordBreak: 'break-word' }}>
+                  {resolveUserAgent(selectedComment.comment)}
+                </Text>
+              </Group>
+            </SimpleGrid>
+          </Stack>
+        )}
+      </Drawer>
+    </>
   );
 }
 

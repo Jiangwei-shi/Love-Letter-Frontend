@@ -51,4 +51,7 @@ export type PostComment = {
   visitor_name: string;
   message: string;
   created_at: string;
+  ip_address?: string | null;
+  source?: string | null;
+  user_agent?: string | null;
 };

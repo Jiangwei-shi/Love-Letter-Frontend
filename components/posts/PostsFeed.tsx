@@ -58,16 +58,33 @@ export default function PostsFeed({
 
     setCommentSubmitting((prev) => ({ ...prev, [postId]: true }));
     setCommentErrors((prev) => ({ ...prev, [postId]: '' }));
-    const supabase = getSupabaseBrowserClient();
-    const { data, error } = await supabase
-      .from('post_comments')
-      .insert({ post_id: postId, visitor_name, message })
-      .select('*')
-      .single();
-    if (error || !data) {
+    const source = window.location.pathname || 'web:unknown';
+    let data: PostComment | null = null;
+    let errorMessage = '';
+    try {
+      const response = await fetch('/api/post-comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          post_id: postId,
+          visitor_name,
+          message,
+          source,
+        }),
+      });
+      const payload = (await response.json()) as { data?: PostComment; error?: string };
+      if (!response.ok || !payload.data) {
+        errorMessage = payload.error || '评论失败，请稍后重试。';
+      } else {
+        data = payload.data;
+      }
+    } catch {
+      errorMessage = '评论失败，请稍后重试。';
+    }
+    if (!data) {
       setCommentErrors((prev) => ({
         ...prev,
-        [postId]: error?.message || '评论失败，请稍后重试。',
+        [postId]: errorMessage || '评论失败，请稍后重试。',
       }));
       setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
       return;
