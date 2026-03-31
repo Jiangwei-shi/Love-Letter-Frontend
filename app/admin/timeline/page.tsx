@@ -342,6 +342,8 @@ export default function AdminTimelinePage() {
   };
 
   const onDelete = async (id: string) => {
+    const confirmDelete = window.confirm('确定要删除这个时间节点吗？删掉后这段回忆就不会出现在时间线上了。');
+    if (!confirmDelete) return;
     const supabase = getSupabaseBrowserClient();
     await supabase.from('timeline_events').delete().eq('id', id);
     await load();

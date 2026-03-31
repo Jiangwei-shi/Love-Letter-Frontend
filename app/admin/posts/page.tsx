@@ -813,6 +813,8 @@ export default function AdminPostsPage() {
   };
 
   const onDeleteComment = async (commentId: string) => {
+    const confirmDelete = window.confirm('确定要删除这条留言吗？删除后将无法恢复。');
+    if (!confirmDelete) return;
     const supabase = getSupabaseBrowserClient();
     await supabase.from('post_comments').delete().eq('id', commentId);
     await load();
