@@ -1,5 +1,5 @@
 import { getTimelineEvents } from '@/lib/supabase/queries';
-import TimelinePageView from '@/components/timeline/TimelinePageView';
+import TimelinePageView from '@/timeline/TimelinePageView';
 import { unstable_noStore as noStore } from 'next/cache';
 
 export const dynamic = 'force-dynamic';

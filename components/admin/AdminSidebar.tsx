@@ -4,14 +4,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Box, Button, Stack, Text, Title } from '@mantine/core';
 
-/** 与侧栏固定宽度一致，主内容区 `ml` 请使用该值 */
+/** Match sidebar width; use same value for main content `ml` on desktop. */
 export const ADMIN_SIDEBAR_WIDTH = 256;
 
 export const ADMIN_NAV_ITEMS = [
-  { href: '/admin', label: '控制台' },
-  { href: '/admin/timeline', label: '时间线管理' },
-  { href: '/admin/posts', label: '推文管理' },
-  { href: '/admin/about', label: '伴侣信息' },
+  { href: '/admin', label: '\u63a7\u5236\u53f0' },
+  { href: '/admin/timeline', label: '\u65f6\u95f4\u7ebf\u7ba1\u7406' },
+  { href: '/admin/posts', label: '\u63a8\u6587\u7ba1\u7406' },
+  { href: '/admin/about', label: '\u4f34\u4fa3\u4fe1\u606f' },
 ] as const;
 
 export function adminNavItemActive(pathname: string, href: string) {

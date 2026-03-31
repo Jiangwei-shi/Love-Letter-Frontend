@@ -1,9 +1,9 @@
 import { getCoupleProfile, getPosts } from '@/lib/supabase/queries';
 import { Box, Stack, Text, Title } from '@mantine/core';
 import { unstable_noStore as noStore } from 'next/cache';
-import PostsFeed from '@/components/PostsFeed';
-import SiteFooter from '@/components/SiteFooter';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import PostsFeed from '@/posts/PostsFeed';
+import SiteFooter from '@/shell/SiteFooter';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 export const dynamic = 'force-dynamic';
 

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useDisclosure } from '@mantine/hooks';
 import { Anchor, Box, Burger, Button, Drawer, Group, Stack, Text } from '@mantine/core';
-import AdminSidebar, { ADMIN_NAV_ITEMS, ADMIN_SIDEBAR_WIDTH, adminNavItemActive } from '@/components/AdminSidebar';
+import AdminSidebar, { ADMIN_NAV_ITEMS, ADMIN_SIDEBAR_WIDTH, adminNavItemActive } from '@/admin/AdminSidebar';
 
 const MOBILE_CHROME_H = 52;
 

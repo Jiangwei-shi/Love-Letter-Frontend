@@ -3,8 +3,8 @@ import { Inter, Noto_Serif } from 'next/font/google';
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import './globals.css';
-import SiteHeader from '@/components/SiteHeader';
-import MantineRootProvider from '@/components/MantineRootProvider';
+import SiteHeader from '@/shell/SiteHeader';
+import MantineRootProvider from '@/shell/MantineRootProvider';
 
 const inter = Inter({
   subsets: ['latin'],

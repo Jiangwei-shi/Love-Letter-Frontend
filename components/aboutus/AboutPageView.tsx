@@ -1,11 +1,11 @@
 import { Box, Stack } from '@mantine/core';
 import type { CoupleProfile } from '@/lib/types/mvp';
-import AboutHeroSection from '@/components/about/AboutHeroSection';
-import AboutProfilesSection from '@/components/about/AboutProfilesSection';
-import AboutSentimentsGrid from '@/components/about/AboutSentimentsGrid';
-import AboutStorySection from '@/components/about/AboutStorySection';
-import SiteFooter from '@/components/SiteFooter';
-import { ARCHIVE } from '@/components/home/constants';
+import AboutHeroSection from '@/aboutus/AboutHeroSection';
+import AboutProfilesSection from '@/aboutus/AboutProfilesSection';
+import AboutSentimentsGrid from '@/aboutus/AboutSentimentsGrid';
+import AboutStorySection from '@/aboutus/AboutStorySection';
+import SiteFooter from '@/shell/SiteFooter';
+import { ARCHIVE } from '@/homepage/constants';
 
 type AboutPageViewProps = {
   profile: CoupleProfile;

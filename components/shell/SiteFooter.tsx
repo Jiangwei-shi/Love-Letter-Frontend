@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Anchor, Box, Group, Stack, Text } from '@mantine/core';
-import { ARCHIVE, serif } from '@/components/home/constants';
+import { ARCHIVE, serif } from '@/homepage/constants';
 
 /** 全站公共页脚：首页、时间线、生活记录、关于我们等统一使用 */
 export default function SiteFooter() {

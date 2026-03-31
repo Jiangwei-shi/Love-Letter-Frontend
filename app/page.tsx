@@ -1,11 +1,11 @@
 import { Box } from '@mantine/core';
 import { getCoupleProfile, getTimelineEvents, getPosts } from '@/lib/supabase/queries';
-import SiteFooter from '@/components/SiteFooter';
-import HomeHeartNote from '@/components/home/HomeHeartNote';
-import HomeHero from '@/components/home/HomeHero';
-import HomeLifeRecords from '@/components/home/HomeLifeRecords';
-import HomeTimelinePreview from '@/components/home/HomeTimelinePreview';
-import { ARCHIVE } from '@/components/home/constants';
+import SiteFooter from '@/shell/SiteFooter';
+import HomeHeartNote from '@/homepage/HomeHeartNote';
+import HomeHero from '@/homepage/HomeHero';
+import HomeLifeRecords from '@/homepage/HomeLifeRecords';
+import HomeTimelinePreview from '@/homepage/HomeTimelinePreview';
+import { ARCHIVE } from '@/homepage/constants';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;

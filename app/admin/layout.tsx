@@ -1,5 +1,5 @@
-import AdminGuard from '@/components/AdminGuard';
-import AdminChrome from '@/components/AdminChrome';
+import AdminGuard from '@/admin/AdminGuard';
+import AdminChrome from '@/admin/AdminChrome';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (

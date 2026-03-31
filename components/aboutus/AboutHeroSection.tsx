@@ -1,5 +1,5 @@
 import { Box, Image, Stack, Text, Title } from '@mantine/core';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 type Props = {
   heroImageSrc?: string | null;

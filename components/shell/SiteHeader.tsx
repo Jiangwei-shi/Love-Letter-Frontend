@@ -3,8 +3,8 @@
 import Link from 'next/link';
 import { useDisclosure } from '@mantine/hooks';
 import { Anchor, Box, Burger, Drawer, Group, Stack, Text } from '@mantine/core';
-import UserMenu from '@/components/UserMenu';
-import { ARCHIVE, serif } from '@/components/home/constants';
+import UserMenu from '@/shell/UserMenu';
+import { ARCHIVE, serif } from '@/homepage/constants';
 
 const navLinkProps = {
   underline: 'never' as const,

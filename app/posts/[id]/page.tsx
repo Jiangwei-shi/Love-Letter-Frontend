@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Box, Button, Card, Group, Image, SimpleGrid, Text, Title, Badge } from '@mantine/core';
-import SiteFooter from '@/components/SiteFooter';
-import { ARCHIVE } from '@/components/home/constants';
+import SiteFooter from '@/shell/SiteFooter';
+import { ARCHIVE } from '@/homepage/constants';
 import { getPostById } from '@/lib/supabase/queries';
 
 export default async function PostDetailPage({ params }: { params: { id: string } }) {
@@ -71,4 +71,3 @@ export default async function PostDetailPage({ params }: { params: { id: string 
     </Box>
   );
 }
-

@@ -21,7 +21,7 @@ import {
 } from '@mantine/core';
 import { IconDots, IconHeartFilled, IconMessageCircle, IconSparkles } from '@tabler/icons-react';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 function sortImages(post: Post) {
   const imgs = post.post_images ?? [];

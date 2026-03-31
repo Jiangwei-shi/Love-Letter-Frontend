@@ -1,9 +1,9 @@
 import { Box, Paper, Text } from '@mantine/core';
 import { unstable_noStore as noStore } from 'next/cache';
-import AboutPageView from '@/components/AboutPageView';
-import SiteFooter from '@/components/SiteFooter';
+import AboutPageView from '@/aboutus/AboutPageView';
+import SiteFooter from '@/shell/SiteFooter';
 import { getCoupleProfile } from '@/lib/supabase/queries';
-import { ARCHIVE, sans } from '@/components/home/constants';
+import { ARCHIVE, sans } from '@/homepage/constants';
 
 export const dynamic = 'force-dynamic';
 

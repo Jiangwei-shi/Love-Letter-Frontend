@@ -16,7 +16,14 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/shell/*": ["./components/shell/*"],
+      "@/admin/*": ["./components/admin/*"],
+      "@/homepage/*": ["./components/homepage/*"],
+      "@/timeline/*": ["./components/timeline/*"],
+      "@/posts/*": ["./components/posts/*"],
+      "@/aboutus/*": ["./components/aboutus/*"],
+      "@/login/*": ["./components/login/*"]
     },
     "plugins": [{ "name": "next" }]
   },

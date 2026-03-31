@@ -6,8 +6,8 @@ import { Box, Button, Paper, Stack, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
-import EtherealPostCard from '@/components/posts/EtherealPostCard';
-import { ARCHIVE, sans } from '@/components/home/constants';
+import EtherealPostCard from '@/posts/EtherealPostCard';
+import { ARCHIVE, sans } from '@/homepage/constants';
 
 export default function PostsFeed({
   initialPosts,

@@ -12,8 +12,8 @@ import {
 } from '@mantine/core';
 import { IconCirclePlus, IconEdit, IconMars, IconVenus } from '@tabler/icons-react';
 import type { TimelineEvent } from '@/lib/types/mvp';
-import SiteFooter from '@/components/SiteFooter';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import SiteFooter from '@/shell/SiteFooter';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 type Props = {
   events: TimelineEvent[];

@@ -1,6 +1,6 @@
 import { Box, Paper, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconDroplet, IconHeartFilled, IconLeaf } from '@tabler/icons-react';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 type Props = {
   girlName: string;

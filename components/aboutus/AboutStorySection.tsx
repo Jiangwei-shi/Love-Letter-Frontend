@@ -1,6 +1,6 @@
 import { Box, Stack, Text, Title } from '@mantine/core';
 import { IconSparkles } from '@tabler/icons-react';
-import { ARCHIVE, sans, serif } from '@/components/home/constants';
+import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
 type Props = {
   firstParagraph: string;
