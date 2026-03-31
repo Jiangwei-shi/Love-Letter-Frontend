@@ -1,9 +1,9 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, Group, Image, Select, SimpleGrid, Stack, Switch, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconCamera, IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post } from '@/lib/types/mvp';
 
@@ -88,7 +88,7 @@ type PostFormProps = {
   onRecordTimeChange: (value: string | null) => void;
   onAuthorChange: (value: string) => void;
   onLockedChange: (value: boolean) => void;
-  onImagesChange: (files: File[]) => void;
+  onAddImages: (files: File[]) => void;
   onRemoveExistingImage: (id: string) => void;
   onRemoveNewImage: (index: number) => void;
   onSubmit: (e: FormEvent) => Promise<void>;
@@ -111,12 +111,32 @@ function PostFormCard({
   onRecordTimeChange,
   onAuthorChange,
   onLockedChange,
-  onImagesChange,
+  onAddImages,
   onRemoveExistingImage,
   onRemoveNewImage,
   onSubmit,
   onCancelEdit,
 }: PostFormProps) {
+  const cameraInputRef = useRef<HTMLInputElement | null>(null);
+
+  const normalizePickedFiles = (files: File[] | File | null) => {
+    if (!files) return [];
+    return Array.isArray(files) ? files : [files];
+  };
+
+  const handleImagePick = (files: File[] | File | null) => {
+    const picked = normalizePickedFiles(files);
+    if (picked.length === 0) return;
+    onAddImages(picked);
+  };
+
+  const handleCameraInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const picked = normalizePickedFiles(Array.from(event.currentTarget.files ?? []));
+    if (picked.length > 0) onAddImages(picked);
+    // 允许连续拍摄同一张时仍能触发 change
+    event.currentTarget.value = '';
+  };
+
   return (
     <Stack gap="lg">
       <Stack gap={4}>
@@ -202,22 +222,43 @@ function PostFormCard({
               label="图片档案（最多9张）"
               placeholder="选择图片"
               multiple
-              accept="image/png,image/jpeg,image/webp"
+              // Android 端使用 image/* 更容易弹出“图库/文件”等图片来源选项
+              accept="image/*"
               value={images}
-              onChange={(files) => {
-                const picked = Array.isArray(files) ? files : files ? [files] : [];
-                onImagesChange(picked);
-              }}
+              onChange={handleImagePick}
               styles={{
                 label: { fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8f7f80' },
                 input: { backgroundColor: '#e9e8e4', border: '1px dashed rgba(136,114,115,0.35)' },
               }}
             />
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleCameraInputChange}
+              style={{ display: 'none' }}
+            />
+            <Group gap="xs">
+              <Button
+                type="button"
+                variant="default"
+                className="home-float-btn admin-btn admin-btn-muted"
+                radius="xl"
+                leftSection={<IconCamera size={16} />}
+                onClick={() => cameraInputRef.current?.click()}
+              >
+                拍照上传
+              </Button>
+            </Group>
             <Text size="xs" c="dimmed">
               当前已选 {existingImages.length + images.length}/9 张，可点击图片右上角删除单张预览。
             </Text>
             <Text size="xs" c="dimmed">
               新上传图片会在上传前自动压缩到约 300KB，以节省云存储空间。
+            </Text>
+            <Text size="xs" c="dimmed">
+              普通上传不默认加 capture，避免部分 Android 设备只能打开相机而不便于选图库。
             </Text>
             <SimpleGrid cols={3} spacing="xs">
               {existingImages.map((img) => (
@@ -708,6 +749,17 @@ export default function AdminPostsPage() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const appendPickedImages = (picked: File[]) => {
+    setImages((prev) => {
+      const merged = [...prev, ...picked];
+      const unique = merged.filter((file, index, arr) => arr.findIndex((f) => (
+        f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
+      )) === index);
+      const maxNew = Math.max(0, 9 - existingImages.length);
+      return unique.slice(0, maxNew);
+    });
+  };
+
   const load = async () => {
     setLoading(true);
     const supabase = getSupabaseBrowserClient();
@@ -876,16 +928,7 @@ export default function AdminPostsPage() {
               onRecordTimeChange={setRecordTime}
               onAuthorChange={setAuthor}
               onLockedChange={setLocked}
-              onImagesChange={(picked) => {
-                setImages((prev) => {
-                  const merged = [...prev, ...picked];
-                  const unique = merged.filter((file, index, arr) => arr.findIndex((f) => (
-                    f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
-                  )) === index);
-                  const maxNew = Math.max(0, 9 - existingImages.length);
-                  return unique.slice(0, maxNew);
-                });
-              }}
+              onAddImages={appendPickedImages}
               onRemoveExistingImage={removeExistingImage}
               onRemoveNewImage={removeNewImage}
               onSubmit={onCreate}

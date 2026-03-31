@@ -47,7 +47,7 @@ function CoupleProfilesCard({
 
       <SimpleGrid cols={2} spacing={{ base: 'md', sm: 'xl', md: 48 }}>
         <Stack gap="sm" align="center" miw={0}>
-          <FileButton onChange={(file) => file && void onUploadAvatar(file, 'boy')} accept="image/png,image/jpeg,image/webp">
+          <FileButton onChange={(file) => file && void onUploadAvatar(file, 'boy')} accept="image/*">
             {(props) => (
               <Avatar
                 {...props}
@@ -85,7 +85,7 @@ function CoupleProfilesCard({
         </Stack>
 
         <Stack gap="sm" align="center" miw={0}>
-          <FileButton onChange={(file) => file && void onUploadAvatar(file, 'girl')} accept="image/png,image/jpeg,image/webp">
+          <FileButton onChange={(file) => file && void onUploadAvatar(file, 'girl')} accept="image/*">
             {(props) => (
               <Avatar
                 {...props}
