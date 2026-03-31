@@ -8,10 +8,10 @@ import { Box, Button, Stack, Text, Title } from '@mantine/core';
 export const ADMIN_SIDEBAR_WIDTH = 256;
 
 export const ADMIN_NAV_ITEMS = [
-  { href: '/admin', label: '\u63a7\u5236\u53f0' },
-  { href: '/admin/timeline', label: '\u65f6\u95f4\u7ebf\u7ba1\u7406' },
-  { href: '/admin/posts', label: '\u63a8\u6587\u7ba1\u7406' },
-  { href: '/admin/about', label: '\u4f34\u4fa3\u4fe1\u606f' },
+  { href: '/admin', label: '控制台' },
+  { href: '/admin/timeline', label: '时间线管理' },
+  { href: '/admin/posts', label: '推文管理' },
+  { href: '/admin/about', label: '伴侣信息' },
 ] as const;
 
 export function adminNavItemActive(pathname: string, href: string) {
