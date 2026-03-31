@@ -18,9 +18,9 @@ import {
   Text,
   Textarea,
   TextInput,
-  ThemeIcon,
   Title,
 } from '@mantine/core';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { TimelineEvent } from '@/lib/types/mvp';
 
@@ -66,9 +66,6 @@ function TimelineFormCard({
       }}
     >
       <Group gap="sm" mb="lg">
-        <ThemeIcon size={40} radius="xl" color="pink" variant="light">
-          +
-        </ThemeIcon>
         <Box>
           <Title order={3} style={{ fontStyle: 'italic', fontWeight: 600 }}>
             {editingId ? '编辑时间节点' : '新增时间节点'}
@@ -199,11 +196,23 @@ function TimelineList({ items, onEdit, onDelete, formatCreatedBy }: TimelineList
                   </Title>
                 </Box>
                 <Group gap={6}>
-                  <ActionIcon variant="light" color="gray" radius="xl" onClick={() => onEdit(item)}>
-                    编辑
+                  <ActionIcon
+                    variant="light"
+                    color="gray"
+                    radius="xl"
+                    aria-label="编辑"
+                    onClick={() => onEdit(item)}
+                  >
+                    <IconEdit size={16} />
                   </ActionIcon>
-                  <ActionIcon color="red" variant="light" radius="xl" onClick={() => { void onDelete(item.id); }}>
-                    删
+                  <ActionIcon
+                    color="red"
+                    variant="light"
+                    radius="xl"
+                    aria-label="删除"
+                    onClick={() => { void onDelete(item.id); }}
+                  >
+                    <IconTrash size={16} />
                   </ActionIcon>
                 </Group>
               </Group>
@@ -241,7 +250,7 @@ function TimelineList({ items, onEdit, onDelete, formatCreatedBy }: TimelineList
 
               <Divider my="md" color="rgba(218,192,194,0.5)" />
               <Text size="xs" c="dimmed">
-                created_by: {formatCreatedBy(item.created_by)}
+                创建者：{formatCreatedBy(item.created_by)}
               </Text>
             </Card>
           </Box>
@@ -352,13 +361,9 @@ export default function AdminTimelinePage() {
   return (
     <Box className="admin-page-main-subheader">
         <Box className="admin-inner-topbar">
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
-            Memorial Management
+          <Title order={4} style={{ color: '#9c4050', fontWeight: 600 }}>
+            时间线管理
           </Title>
-          <Group gap="xs" visibleFrom="sm">
-            <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
-            <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
-          </Group>
         </Box>
 
         <Container fluid maw={1320} px={0}>
@@ -369,13 +374,13 @@ export default function AdminTimelinePage() {
                 fw={700}
                 style={{ color: '#9c4050', letterSpacing: '0.18em', textTransform: 'uppercase' }}
               >
-                Chronology
+                时间轴
               </Text>
               <Title order={1} mt={4} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', fontStyle: 'italic', fontWeight: 500 }}>
-                Timeline Management
+                时间线管理
               </Title>
               <Text c="#6d5c5e" mt={8} maw={760}>
-                Curate the beautiful journey of life and love. Add milestones, shared memories, and personal reflections to the eternal archive.
+                在这里整理你们关于生活与爱的旅程，添加重要里程碑、共同记忆与个人心声，让每段时光都被温柔珍藏。
               </Text>
             </Box>
 

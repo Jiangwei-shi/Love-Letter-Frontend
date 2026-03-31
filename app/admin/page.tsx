@@ -84,6 +84,9 @@ export default function AdminPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const currentHour = new Date().getHours();
+  const timeGreeting = currentHour < 12 ? '早安' : currentHour < 18 ? '午安' : '晚安';
+  const greetingName = displayName.trim() || '珍藏者';
 
   const formatDateTime = (value?: string | null) => {
     if (!value) return '—';
@@ -148,7 +151,7 @@ export default function AdminPage() {
           <Stack gap="xl">
             <Box>
               <Title order={2} mb={8}>
-                午安，珍藏者
+                {timeGreeting}，{greetingName}
               </Title>
               <Text c="#6d5c5e" maw={620}>
                 欢迎回到您的记忆圣殿。在这里，您可以编织过去，记录现在，为未来留下永恒印记。
@@ -206,8 +209,8 @@ export default function AdminPage() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, md: 6, xl: 3 }}>
                 <EntryCard
-                  title="伴侣信息"
-                  desc="维护双人空间资料，更新纪念日与专属誓言。"
+                  title="情侣信息"
+                  desc="维护双人空间资料，更新我们在一起的时间与专属誓言。"
                   href="/admin/about"
                   actionText="守护甜蜜"
                   accent="#9c4050"

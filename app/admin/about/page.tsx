@@ -41,7 +41,7 @@ function CoupleProfilesCard({
       <Group gap={8} mb={{ base: 'md', md: 'lg' }}>
         <Text c="#9c4050">❤</Text>
         <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }} lineClamp={1}>
-          The Couple
+          情侣信息
         </Title>
       </Group>
 
@@ -72,7 +72,7 @@ function CoupleProfilesCard({
           </Button>
           <TextInput
             w="100%"
-            label="Partner A Name"
+            label="男生昵称"
             value={profile.boy_name ?? ''}
             onChange={(e) => onProfileChange({ ...profile, boy_name: e.currentTarget.value })}
             styles={{
@@ -108,7 +108,7 @@ function CoupleProfilesCard({
           </Button>
           <TextInput
             w="100%"
-            label="Partner B Name"
+            label="女生昵称"
             value={profile.girl_name ?? ''}
             onChange={(e) => onProfileChange({ ...profile, girl_name: e.currentTarget.value })}
             styles={{
@@ -199,13 +199,9 @@ export default function AdminAboutPage() {
   return (
     <Box className="admin-page-main-subheader">
         <Box className="admin-inner-topbar">
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
-            Memorial Management
+          <Title order={4} style={{ color: '#9c4050', fontWeight: 600 }}>
+            情侣信息
           </Title>
-          <Group gap="xs" visibleFrom="sm">
-            <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
-            <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
-          </Group>
         </Box>
 
         <Box maw={1180} mx="auto" w="100%">
@@ -216,13 +212,13 @@ export default function AdminAboutPage() {
                 fw={700}
                 style={{ letterSpacing: '0.18em', textTransform: 'uppercase', color: '#9c4050' }}
               >
-                Settings &amp; Identity
+                资料与身份
               </Text>
               <Title order={1} mt={6} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', fontWeight: 500 }}>
-                Couple Information
+                情侣信息
               </Title>
               <Text c="#6d5c5e" mt="sm" maw={780}>
-                Update the core details of the memorial profile. This information forms the emotional foundation of the digital archive.
+                在这里更新你们的核心资料。这些信息将构成整个纪念空间的情感底色与记忆基石。
               </Text>
             </Box>
 
@@ -264,7 +260,7 @@ export default function AdminAboutPage() {
                     <Stack align="center" justify="center" gap="md" className="admin-about-anniversary-stack">
                       <Text size="xl" c="#9c4050">📅</Text>
                       <Title order={3} ta="center" style={{ fontStyle: 'italic', fontWeight: 500 }} lineClamp={2}>
-                        Anniversary Date
+                        我们在一起的时间
                       </Title>
                       <Card radius="md" p={{ base: 'sm', sm: 'md' }} w="100%" maw={{ base: '100%', lg: 400 }} mx="auto" style={{ background: '#ffffff' }}>
                         <DatePickerInput
@@ -272,10 +268,10 @@ export default function AdminAboutPage() {
                           value={anniversaryDate}
                           onChange={setAnniversaryDate}
                           valueFormat="YYYY-MM-DD"
-                          placeholder="选择纪念日"
+                          placeholder="选择我们在一起的时间"
                           clearable
                           dropdownType={useModalDatePicker ? 'modal' : 'popover'}
-                          modalProps={{ title: '选择纪念日', size: 'sm' }}
+                          modalProps={{ title: '选择我们在一起的时间', size: 'sm' }}
                           styles={{
                             label: { textAlign: 'center', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#7d7071' },
                             input: { textAlign: 'center', border: 'none', backgroundColor: 'transparent', fontWeight: 600 },
@@ -283,7 +279,7 @@ export default function AdminAboutPage() {
                         />
                       </Card>
                       <Text size="xs" c="#6d5c5e" fs="italic">
-                        "The date that started it all."
+                        "一切开始的那一天。"
                       </Text>
                     </Stack>
                   </Card>
@@ -305,14 +301,14 @@ export default function AdminAboutPage() {
                       <Group gap={8}>
                         <Text c="#9c4050">📖</Text>
                         <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
-                          About Us
+                          关于我们
                         </Title>
                       </Group>
                     </Group>
                     <Stack gap="md">
                       <Textarea
-                        label="About Us"
-                        placeholder="Tell their story here..."
+                        label="关于我们"
+                        placeholder="在这里写下属于你们的故事..."
                         value={profile.about_text ?? ''}
                         onChange={(e) => setProfile({ ...profile, about_text: e.currentTarget.value })}
                         autosize
@@ -352,7 +348,7 @@ export default function AdminAboutPage() {
                       onClick={() => void load()}
                       style={{ letterSpacing: '0.12em', textTransform: 'uppercase' }}
                     >
-                      Discard Changes
+                      放弃更改
                     </Button>
                     <Button
                       type="submit"
@@ -366,7 +362,7 @@ export default function AdminAboutPage() {
                         boxShadow: '0 12px 40px rgba(156,64,80,0.15)',
                       }}
                     >
-                      Update Information
+                      更新资料
                     </Button>
                   </Group>
                 </Box>

@@ -1,8 +1,9 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { ActionIcon, Box, Button, Card, FileInput, Group, Image, Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post } from '@/lib/types/mvp';
 
@@ -51,12 +52,12 @@ function PostFormCard({
     <Stack gap="lg">
       <Stack gap={4}>
         <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#9c4050' }}>
-          New Life Record
+          新增生活记录
         </Text>
         <Title order={1} style={{ fontSize: 'clamp(1.75rem, 5vw, 2.625rem)', lineHeight: 1.15, fontStyle: 'italic', fontWeight: 500 }}>
-          Preserve a new
+          珍藏一个新的
           <br />
-          moment in history
+          生活片段
         </Title>
       </Stack>
 
@@ -73,7 +74,7 @@ function PostFormCard({
         <form onSubmit={(e) => { void onSubmit(e); }}>
           <Stack gap="md">
             <TextInput
-              label="Entry Title"
+              label="记录标题"
               placeholder="例如：第一次一起做饭"
               value={title}
               onChange={(e) => onTitleChange(e.currentTarget.value)}
@@ -85,7 +86,7 @@ function PostFormCard({
             />
             <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
               <DateInput
-                label="Date of Memory"
+                label="记录日期"
                 placeholder="选择记录时间"
                 value={recordTime}
                 onChange={(value) => onRecordTimeChange(value)}
@@ -97,7 +98,7 @@ function PostFormCard({
                 }}
               />
               <Select
-                label="Contributor"
+                label="记录者"
                 data={authorOptions}
                 value={author}
                 onChange={(v) => onAuthorChange(v ?? '')}
@@ -109,8 +110,8 @@ function PostFormCard({
               />
             </SimpleGrid>
             <Textarea
-              label="Narrative"
-              placeholder="Write the story here..."
+              label="内容叙述"
+              placeholder="在这里写下这段故事..."
               value={content}
               onChange={(e) => onContentChange(e.currentTarget.value)}
               autosize
@@ -124,7 +125,7 @@ function PostFormCard({
             />
             <TextInput label="字数统计" value={`${content.length}/200`} readOnly styles={{ input: { backgroundColor: '#f4f4f0' } }} />
             <FileInput
-              label="Visual Archive（最多9张）"
+              label="图片档案（最多9张）"
               placeholder="选择图片"
               multiple
               accept="image/png,image/jpeg,image/webp"
@@ -182,7 +183,7 @@ function PostFormCard({
                 boxShadow: '0 12px 40px rgba(156,64,80,0.15)',
               }}
             >
-              {saving ? '保存中...' : editingId ? '保存修改' : 'Create New Post'}
+              {saving ? '保存中...' : editingId ? '保存修改' : '创建记录'}
             </Button>
             {editingId && (
               <Button variant="light" color="gray" radius="xl" onClick={onCancelEdit}>
@@ -199,26 +200,29 @@ function PostFormCard({
 type PostListProps = {
   posts: Post[];
   loading: boolean;
+  sortOrder: 'asc' | 'desc';
+  onToggleSort: () => void;
   onEdit: (post: Post) => void;
   onDelete: (id: string) => Promise<void>;
   onDeleteComment: (commentId: string) => Promise<void>;
 };
 
-function PostList({ posts, loading, onEdit, onDelete, onDeleteComment }: PostListProps) {
+function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, onDeleteComment }: PostListProps) {
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="flex-end">
         <Stack gap={4}>
           <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1c6392' }}>
-            The Collection
+            记录集合
           </Text>
           <Title order={3} style={{ fontStyle: 'italic', fontWeight: 500 }}>
-            Recent Archive Entries
+            最近归档记录
           </Title>
         </Stack>
         <Group gap="xs" mb={2}>
-          <Button variant="light" color="gray" radius="xl" size="xs">筛选</Button>
-          <Button variant="light" color="gray" radius="xl" size="xs">排序</Button>
+          <Button variant="light" color="gray" radius="xl" size="xs" onClick={onToggleSort}>
+            按记录时间{sortOrder === 'desc' ? '倒序' : '正序'}
+          </Button>
         </Group>
       </Group>
 
@@ -268,11 +272,23 @@ function PostList({ posts, loading, onEdit, onDelete, onDeleteComment }: PostLis
                           </Title>
                         </Box>
                         <Group gap={6}>
-                          <ActionIcon variant="light" color="blue" radius="xl" onClick={() => onEdit(post)}>
-                            编
+                          <ActionIcon
+                            variant="light"
+                            color="gray"
+                            radius="xl"
+                            aria-label="编辑"
+                            onClick={() => onEdit(post)}
+                          >
+                            <IconEdit size={16} />
                           </ActionIcon>
-                          <ActionIcon color="red" variant="light" radius="xl" onClick={() => { void onDelete(post.id); }}>
-                            删
+                          <ActionIcon
+                            color="red"
+                            variant="light"
+                            radius="xl"
+                            aria-label="删除"
+                            onClick={() => { void onDelete(post.id); }}
+                          >
+                            <IconTrash size={16} />
                           </ActionIcon>
                         </Group>
                       </Group>
@@ -282,7 +298,7 @@ function PostList({ posts, loading, onEdit, onDelete, onDeleteComment }: PostLis
                     </Stack>
                     <Group justify="space-between" style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}>
                       <Text size="xs" c="#8f7f80" fs="italic">
-                        By {post.author || '未设置'}
+                        记录者：{post.author || '未设置'}
                       </Text>
                       <Text size="xs" c="dimmed">
                         {(post.post_comments ?? []).length} 条留言
@@ -314,7 +330,7 @@ function PostList({ posts, loading, onEdit, onDelete, onDeleteComment }: PostLis
             <Stack align="center" gap={6} py="md">
               <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
               <Text size="xs" c="#9b8a8b" style={{ letterSpacing: '0.28em', textTransform: 'uppercase' }}>
-                EndOfRecords
+                记录到底啦
               </Text>
               <Box w={46} h={1} style={{ background: 'rgba(136,114,115,0.25)' }} />
             </Stack>
@@ -337,6 +353,15 @@ export default function AdminPostsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  const sortedPosts = useMemo(() => {
+    return [...posts].sort((a, b) => {
+      const aTime = a.record_time ? new Date(a.record_time).getTime() : 0;
+      const bTime = b.record_time ? new Date(b.record_time).getTime() : 0;
+      return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+  }, [posts, sortOrder]);
 
   const removeExistingImage = (id: string) => {
     setExistingImages((prev) => prev.filter((img) => img.id !== id));
@@ -474,13 +499,9 @@ export default function AdminPostsPage() {
   return (
     <Box className="admin-page-main-subheader">
         <Box className="admin-inner-topbar">
-          <Title order={4} style={{ color: '#9c4050', fontStyle: 'italic', fontWeight: 600 }} lineClamp={1}>
-            Memorial Management
+          <Title order={4} style={{ color: '#9c4050', fontWeight: 600 }}>
+            推文管理
           </Title>
-          <Group gap="xs" visibleFrom="sm">
-            <Button variant="subtle" color="gray" radius="xl" size="xs">通知</Button>
-            <Button variant="subtle" color="gray" radius="xl" size="xs">设置</Button>
-          </Group>
         </Box>
 
         <SimpleGrid cols={{ base: 1, lg: 12 }} spacing="xl" className="admin-posts-grid">
@@ -517,8 +538,10 @@ export default function AdminPostsPage() {
           </Box>
           <Box className="admin-col-list" style={{ gridColumn: 'span 7' }}>
             <PostList
-              posts={posts}
+              posts={sortedPosts}
               loading={loading}
+              sortOrder={sortOrder}
+              onToggleSort={() => setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
               onEdit={onEdit}
               onDelete={onDelete}
               onDeleteComment={onDeleteComment}
