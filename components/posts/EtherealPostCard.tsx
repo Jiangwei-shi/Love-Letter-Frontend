@@ -254,7 +254,7 @@ export default function EtherealPostCard({
   const commentPreview =
     comments.length > 0 ? (
       <Stack gap={6} mt="md">
-        {comments.slice(0, 3).map((c) => (
+        {comments.map((c) => (
           <Text key={c.id} size="xs" c="dimmed" lineClamp={2} style={{ fontFamily: sans }}>
             <Text span fw={600} c={ARCHIVE.onSurfaceVariant}>
               {c.visitor_name}
