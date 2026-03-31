@@ -128,6 +128,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
               <Button
                 component={Link}
                 href="/about"
+                className="home-float-btn"
                 size="lg"
                 radius="xl"
                 rightSection={<IconArrowRight size={18} />}
@@ -145,6 +146,7 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
               <Button
                 component={Link}
                 href="/posts"
+                className="home-float-btn"
                 size="md"
                 radius="xl"
                 variant="default"

@@ -62,6 +62,7 @@ export default function HomeHeartNote({ profile }: Props) {
           <Button
             component={Link}
             href="/posts"
+            className="home-float-btn"
             size="md"
             radius="xl"
             styles={{

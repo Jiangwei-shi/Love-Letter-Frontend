@@ -42,7 +42,22 @@ export default function HomeLifeRecords({ posts }: Props) {
           <Text c="dimmed" ta="center" maw={480} style={{ fontFamily: sans }}>
             还没有写下哪怕一小段日常。没关系，从某一天的一个瞬间开始就好。
           </Text>
-          <Button component={Link} href="/posts" radius="xl" variant="default" color="pink">
+          <Button
+            component={Link}
+            href="/posts"
+            radius="xl"
+            variant="default"
+            color="pink"
+            styles={{
+              root: {
+                transition: 'transform 180ms ease, box-shadow 180ms ease',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: ARCHIVE.cardShadowSoft,
+                },
+              },
+            }}
+          >
             去生活记录看看
           </Button>
         </Stack>
@@ -106,6 +121,7 @@ export default function HomeLifeRecords({ posts }: Props) {
             <Button
               component={Link}
               href="/posts"
+              className="home-float-btn"
               size="md"
               radius="xl"
               variant="default"
