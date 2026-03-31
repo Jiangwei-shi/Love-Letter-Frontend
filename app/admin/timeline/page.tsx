@@ -353,6 +353,9 @@ export default function AdminTimelinePage() {
     setBoyMessage(item.boy_message ?? '');
     setGirlMessage(item.girl_message ?? '');
     setEventDate(item.event_date ?? null);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   };
 
   const resetForm = () => {

@@ -11,7 +11,7 @@ export const ADMIN_NAV_ITEMS = [
   { href: '/admin', label: '控制台' },
   { href: '/admin/timeline', label: '时间线管理' },
   { href: '/admin/posts', label: '推文管理' },
-  { href: '/admin/about', label: '伴侣信息' },
+  { href: '/admin/about', label: '情侣信息' },
 ] as const;
 
 export function adminNavItemActive(pathname: string, href: string) {
