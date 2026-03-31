@@ -453,18 +453,14 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                   }}
                 >
                   <Group align="stretch" gap={0} wrap="nowrap" className="admin-post-archive-main">
-                    <Box
-                      className="admin-post-archive-cover"
-                      style={{ width: 190, minWidth: 190, height: 200, background: '#e3e2df' }}
-                    >
-                      {previewImage ? (
+                    {previewImage && (
+                      <Box
+                        className="admin-post-archive-cover"
+                        style={{ width: 190, minWidth: 190, height: 200 }}
+                      >
                         <Image src={previewImage} alt={post.title} h={200} w={190} fit="cover" />
-                      ) : (
-                        <Stack justify="center" align="center" h={200} gap={4}>
-                          <Text size="xs" c="dimmed">暂无封面</Text>
-                        </Stack>
-                      )}
-                    </Box>
+                      </Box>
+                    )}
                     <Stack gap="md" p="xl" style={{ flex: 1 }} className="admin-post-archive-content">
                       <Stack gap={6}>
                         <Group justify="space-between" align="flex-start" className="admin-post-archive-header">
