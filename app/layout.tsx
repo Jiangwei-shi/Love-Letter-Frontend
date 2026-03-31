@@ -20,8 +20,11 @@ const notoSerif = Noto_Serif({
 });
 
 export const metadata = {
-  title: 'LoveLetter - 情侣纪念网站',
+  title: 'LoveLetter - 情书',
   description: '记录我们在一起的每一个瞬间',
+  icons: {
+    icon: '/love.ico',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
