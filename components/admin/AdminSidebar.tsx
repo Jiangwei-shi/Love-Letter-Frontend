@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Box, Button, Stack, Text, Title } from '@mantine/core';
+import { Anchor, Box, Button, Stack, Text, Title } from '@mantine/core';
 
 /** Match sidebar width; use same value for main content `ml` on desktop. */
 export const ADMIN_SIDEBAR_WIDTH = 256;
@@ -40,7 +40,7 @@ export default function AdminSidebar() {
       }}
     >
       <Stack h="100%">
-        <Stack gap={6}>
+        <Stack gap={6} align="center">
           <Title
             order={2}
             style={{
@@ -50,6 +50,7 @@ export default function AdminSidebar() {
               color: '#9c4050',
               fontSize: '1.65rem',
               lineHeight: 1.2,
+              textAlign: 'center',
             }}
           >
             The Archive
@@ -61,6 +62,7 @@ export default function AdminSidebar() {
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: '#a8a29e',
+              textAlign: 'center',
             }}
           >
             Admin Portal
@@ -85,6 +87,17 @@ export default function AdminSidebar() {
             );
           })}
         </Stack>
+
+        <Anchor
+          component={Link}
+          href="/"
+          c="dimmed"
+          fz="sm"
+          fw={500}
+          style={{ marginTop: 'auto', textAlign: 'center' }}
+        >
+          返回前台
+        </Anchor>
       </Stack>
     </Box>
   );
