@@ -128,7 +128,6 @@ export default function PostsFeed({
               post={post}
               coupleProfile={coupleProfile}
               index={index}
-              journalNumber={posts.length - index}
               comments={comments}
               commentInput={commentInputs[post.id] ?? { visitor_name: '', message: '' }}
               commentError={commentErrors[post.id]}

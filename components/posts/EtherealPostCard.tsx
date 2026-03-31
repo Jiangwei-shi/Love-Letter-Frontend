@@ -19,7 +19,7 @@ import {
   UnstyledButton,
   useMatches,
 } from '@mantine/core';
-import { IconDots, IconHeartFilled, IconMessageCircle, IconSparkles } from '@tabler/icons-react';
+import { IconDots, IconHeartFilled, IconMessageCircle } from '@tabler/icons-react';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
@@ -70,7 +70,6 @@ type Props = {
   post: Post;
   coupleProfile: CoupleProfile | null;
   index: number;
-  journalNumber: number;
   comments: PostComment[];
   commentInput: { visitor_name: string; message: string };
   commentError?: string;
@@ -84,7 +83,6 @@ export default function EtherealPostCard({
   post,
   coupleProfile,
   index,
-  journalNumber,
   comments,
   commentInput,
   commentError,
@@ -113,7 +111,6 @@ export default function EtherealPostCard({
   });
 
   const images = sortImages(post);
-  const layout = images.length === 0 ? 'quote' : 'standard';
   const likes = post.like_count ?? 0;
   const author = post.author?.trim() || '发布者';
   const { avatarSrc, role } = resolveAuthorVisual(post.author, coupleProfile, index);
@@ -121,12 +118,9 @@ export default function EtherealPostCard({
   const avatarBorder = isBoy ? 'rgba(142, 202, 255, 0.35)' : 'rgba(255, 142, 158, 0.35)';
 
   const cardBase = {
-    background: layout === 'quote' ? `${ARCHIVE.surfaceContainerLow}80` : ARCHIVE.surfaceContainerLowest,
-    border:
-      layout === 'quote'
-        ? `1px solid ${ARCHIVE.outlineVariant}26`
-        : `1px solid ${ARCHIVE.outlineVariant}1a`,
-    boxShadow: layout === 'quote' ? 'none' : ARCHIVE.cardShadow,
+    background: ARCHIVE.surfaceContainerLowest,
+    border: `1px solid ${ARCHIVE.outlineVariant}1a`,
+    boxShadow: ARCHIVE.cardShadow,
   } as const;
 
   const headerRow = (
@@ -185,7 +179,7 @@ export default function EtherealPostCard({
           fontWeight: 400,
           fontStyle: italicTitle ? 'italic' : 'normal',
           color: ARCHIVE.onSurface,
-          fontSize: layout === 'quote' ? '1.25rem' : '1.35rem',
+          fontSize: '1.35rem',
           lineHeight: 1.35,
         }}
       >
@@ -326,50 +320,6 @@ export default function EtherealPostCard({
       </Group>
     </Stack>
   );
-
-  if (layout === 'quote') {
-    return (
-      <Paper
-        component="article"
-        p={{ base: 24, md: 32 }}
-        radius="md"
-        styles={{ root: { ...cardBase, transition: 'background 0.25s ease' } }}
-        className="ethereal-post-card ethereal-post-card--quote"
-      >
-        <Stack align="center" ta="center">
-          <Box
-            w={40}
-            h={40}
-            style={{
-              borderRadius: 999,
-              display: 'grid',
-              placeItems: 'center',
-              background: `${ARCHIVE.primary}1a`,
-              color: ARCHIVE.primary,
-              marginBottom: 20,
-            }}
-          >
-            <IconSparkles size={22} stroke={1.25} />
-          </Box>
-          {titleBlock(true)}
-          <Group gap="md" mt="lg" justify="center">
-            <Box h={1} w={32} bg={`${ARCHIVE.outlineVariant}55`} />
-            <Text
-              fz={10}
-              tt="uppercase"
-              c="dimmed"
-              style={{ letterSpacing: '0.2em', fontFamily: sans }}
-            >
-              Journal Entry #{journalNumber}
-            </Text>
-            <Box h={1} w={32} bg={`${ARCHIVE.outlineVariant}55`} />
-          </Group>
-          {interactionBar}
-          {commentComposer}
-        </Stack>
-      </Paper>
-    );
-  }
 
   return (
     <Paper
