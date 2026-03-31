@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { DatePickerInput } from '@mantine/dates';
 import 'dayjs/locale/zh-cn';
 import {
@@ -147,14 +147,27 @@ function TimelineFormCard({
 
 type TimelineListProps = {
   items: TimelineEvent[];
+  sortOrder: 'asc' | 'desc';
+  onToggleSort: () => void;
   onEdit: (item: TimelineEvent) => void;
   onDelete: (id: string) => Promise<void>;
   formatCreatedBy: (createdBy: string | null) => string;
 };
 
-function TimelineList({ items, onEdit, onDelete, formatCreatedBy }: TimelineListProps) {
+function TimelineList({ items, sortOrder, onToggleSort, onEdit, onDelete, formatCreatedBy }: TimelineListProps) {
   return (
     <Box style={{ position: 'relative' }}>
+      <Group justify="flex-end" mb="sm">
+        <Button
+          variant="default"
+          className="home-float-btn admin-btn admin-btn-muted"
+          radius="xl"
+          size="xs"
+          onClick={onToggleSort}
+        >
+          按记录时间{sortOrder === 'desc' ? '倒序' : '正序'}
+        </Button>
+      </Group>
       <Box
         style={{
           position: 'absolute',
@@ -280,6 +293,7 @@ function TimelineList({ items, onEdit, onDelete, formatCreatedBy }: TimelineList
 
 export default function AdminTimelinePage() {
   const [items, setItems] = useState<TimelineEvent[]>([]);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [title, setTitle] = useState('');
   const [boyMessage, setBoyMessage] = useState('');
   const [girlMessage, setGirlMessage] = useState('');
@@ -303,6 +317,14 @@ export default function AdminTimelinePage() {
   };
 
   useEffect(() => { void load(); }, []);
+
+  const sortedItems = useMemo(() => {
+    return [...items].sort((a, b) => {
+      const aTime = a.event_date ? new Date(a.event_date).getTime() : 0;
+      const bTime = b.event_date ? new Date(b.event_date).getTime() : 0;
+      return sortOrder === 'asc' ? aTime - bTime : bTime - aTime;
+    });
+  }, [items, sortOrder]);
 
   const formatCreatedBy = (createdBy: string | null) => {
     if (!createdBy) return 'null';
@@ -413,7 +435,9 @@ export default function AdminTimelinePage() {
               </Grid.Col>
               <Grid.Col span={{ base: 12, lg: 7 }}>
                 <TimelineList
-                  items={items}
+                  items={sortedItems}
+                  sortOrder={sortOrder}
+                  onToggleSort={() => setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
                   onEdit={onEdit}
                   onDelete={onDelete}
                   formatCreatedBy={formatCreatedBy}

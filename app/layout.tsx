@@ -23,7 +23,9 @@ export const metadata = {
   title: 'LoveLetter - 情书',
   description: '记录我们在一起的每一个瞬间',
   icons: {
-    icon: '/love.ico',
+    icon: '/love.png',
+    shortcut: '/love.ico',
+    apple: '/love.png',
   },
 };
 
