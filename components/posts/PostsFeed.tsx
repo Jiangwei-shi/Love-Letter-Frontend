@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Paper, Stack, Text } from '@mantine/core';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
@@ -15,9 +15,41 @@ export default function PostsFeed({
   coupleProfile: CoupleProfile | null;
 }) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
+  const [syncedWithAuth, setSyncedWithAuth] = useState(false);
   const [commentInputs, setCommentInputs] = useState<Record<string, { visitor_name: string; message: string }>>({});
   const [commentSubmitting, setCommentSubmitting] = useState<Record<string, boolean>>({});
   const [commentErrors, setCommentErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const syncPostsByAuth = async () => {
+      const supabase = getSupabaseBrowserClient();
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user || cancelled) {
+        setSyncedWithAuth(true);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*, post_images(*), post_comments(*)')
+        .order('record_time', { ascending: false })
+        .order('created_at', { ascending: false });
+
+      if (!cancelled && !error && data) {
+        setPosts(data as Post[]);
+      }
+      if (!cancelled) {
+        setSyncedWithAuth(true);
+      }
+    };
+
+    void syncPostsByAuth();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const setCommentField = (postId: string, field: 'visitor_name' | 'message', value: string) => {
     setCommentInputs((prev) => {
@@ -100,7 +132,7 @@ export default function PostsFeed({
     setCommentSubmitting((prev) => ({ ...prev, [postId]: false }));
   };
 
-  if (posts.length === 0) {
+  if (syncedWithAuth && posts.length === 0) {
     return (
       <Paper
         p="xl"
@@ -140,18 +172,20 @@ export default function PostsFeed({
         })}
       </Stack>
 
-      <Box ta="center" mt={48}>
-        <Button
-          className="home-float-btn admin-btn admin-btn-primary"
-          radius="xl"
-          size="md"
-          onClick={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }}
-        >
-          回到顶部
-        </Button>
-      </Box>
+      {(posts.length > 0 || syncedWithAuth) && (
+        <Box ta="center" mt={48}>
+          <Button
+            className="home-float-btn admin-btn admin-btn-primary"
+            radius="xl"
+            size="md"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          >
+            回到顶部
+          </Button>
+        </Box>
+      )}
 
     </>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
-import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, Group, Image, Select, SimpleGrid, Stack, Text, Textarea, TextInput, Title } from '@mantine/core';
+import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, Group, Image, Select, SimpleGrid, Stack, Switch, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
@@ -77,6 +77,7 @@ type PostFormProps = {
   content: string;
   recordTime: string | null;
   author: string;
+  locked: boolean;
   authorOptions: { value: string; label: string }[];
   images: File[];
   existingImages: { id: string; image_url: string }[];
@@ -86,6 +87,7 @@ type PostFormProps = {
   onContentChange: (value: string) => void;
   onRecordTimeChange: (value: string | null) => void;
   onAuthorChange: (value: string) => void;
+  onLockedChange: (value: boolean) => void;
   onImagesChange: (files: File[]) => void;
   onRemoveExistingImage: (id: string) => void;
   onRemoveNewImage: (index: number) => void;
@@ -98,6 +100,7 @@ function PostFormCard({
   content,
   recordTime,
   author,
+  locked,
   authorOptions,
   images,
   existingImages,
@@ -107,6 +110,7 @@ function PostFormCard({
   onContentChange,
   onRecordTimeChange,
   onAuthorChange,
+  onLockedChange,
   onImagesChange,
   onRemoveExistingImage,
   onRemoveNewImage,
@@ -174,6 +178,11 @@ function PostFormCard({
                 }}
               />
             </SimpleGrid>
+            <Switch
+              label="是否上锁"
+              checked={locked}
+              onChange={(e) => onLockedChange(e.currentTarget.checked)}
+            />
             <Textarea
               label="内容叙述"
               placeholder="在这里写下这段故事..."
@@ -502,9 +511,14 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                         className="admin-post-archive-meta"
                         style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}
                       >
-                        <Text size="xs" c="#8f7f80" fs="italic">
-                          记录者：{post.author || '未设置'}
-                        </Text>
+                        <Group gap={10}>
+                          <Text size="xs" c="#8f7f80" fs="italic">
+                            记录者：{post.author || '未设置'}
+                          </Text>
+                          <Text size="xs" c={post.locked ? '#9c4050' : 'dimmed'}>
+                            {post.locked ? '已上锁' : '未上锁'}
+                          </Text>
+                        </Group>
                         <Text size="xs" c="dimmed">
                           {(post.post_comments ?? []).length} 条留言
                         </Text>
@@ -669,6 +683,7 @@ export default function AdminPostsPage() {
   const [content, setContent] = useState('');
   const [recordTime, setRecordTime] = useState<string | null>(null);
   const [author, setAuthor] = useState('');
+  const [locked, setLocked] = useState(false);
   const [authorOptions, setAuthorOptions] = useState<{ value: string; label: string }[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ id: string; image_url: string }[]>([]);
@@ -737,6 +752,7 @@ export default function AdminPostsPage() {
           content,
           record_time: recordTime || new Date().toISOString().slice(0, 10),
           author,
+          locked,
         })
         .eq('id', editingId);
       await supabase.from('post_images').delete().eq('post_id', editingId);
@@ -748,6 +764,7 @@ export default function AdminPostsPage() {
           content,
           record_time: recordTime || new Date().toISOString().slice(0, 10),
           author,
+          locked,
           created_by: currentUserId,
         })
         .select('*')
@@ -783,6 +800,7 @@ export default function AdminPostsPage() {
     setContent('');
     setRecordTime(null);
     setAuthor(authorOptions[0]?.value ?? '');
+    setLocked(false);
     setImages([]);
     setExistingImages([]);
     setEditingId(null);
@@ -804,6 +822,7 @@ export default function AdminPostsPage() {
     setContent(post.content);
     setRecordTime(post.record_time ? post.record_time.slice(0, 10) : null);
     setAuthor(post.author ?? '');
+    setLocked(Boolean(post.locked));
     setExistingImages((post.post_images ?? []).map((img) => ({ id: img.id, image_url: img.image_url })));
     setImages([]);
 
@@ -826,6 +845,7 @@ export default function AdminPostsPage() {
     setContent('');
     setRecordTime(null);
     setAuthor(authorOptions[0]?.value ?? '');
+    setLocked(false);
     setImages([]);
     setExistingImages([]);
   };
@@ -845,6 +865,7 @@ export default function AdminPostsPage() {
               content={content}
               recordTime={recordTime}
               author={author}
+              locked={locked}
               authorOptions={authorOptions}
               images={images}
               existingImages={existingImages}
@@ -854,6 +875,7 @@ export default function AdminPostsPage() {
               onContentChange={setContent}
               onRecordTimeChange={setRecordTime}
               onAuthorChange={setAuthor}
+              onLockedChange={setLocked}
               onImagesChange={(picked) => {
                 setImages((prev) => {
                   const merged = [...prev, ...picked];

@@ -12,13 +12,19 @@ export async function getTimelineEvents(): Promise<TimelineEvent[]> {
   return (data ?? []) as TimelineEvent[];
 }
 
-export async function getPosts(): Promise<Post[]> {
+export async function getPosts({ includeLocked = false }: { includeLocked?: boolean } = {}): Promise<Post[]> {
   const supabase = getSupabasePublicServerClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from('posts')
     .select('*, post_images(*), post_comments(*)')
     .order('record_time', { ascending: false })
     .order('created_at', { ascending: false });
+
+  if (!includeLocked) {
+    query = query.eq('locked', false);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
   return (data ?? []) as Post[];

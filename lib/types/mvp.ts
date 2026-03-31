@@ -27,6 +27,7 @@ export type Post = {
   id: string;
   title: string;
   content: string;
+  locked: boolean;
   record_time: string;
   author: string;
   like_count: number;

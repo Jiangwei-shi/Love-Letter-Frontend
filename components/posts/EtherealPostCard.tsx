@@ -19,7 +19,7 @@ import {
   UnstyledButton,
   useMatches,
 } from '@mantine/core';
-import { IconDots, IconHeartFilled, IconMessageCircle } from '@tabler/icons-react';
+import { IconDots, IconHeartFilled, IconLock, IconMessageCircle } from '@tabler/icons-react';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
 
@@ -220,28 +220,38 @@ export default function EtherealPostCard({
 
   const interactionBar = (
     <Group
-      gap={24}
       pt={24}
       mt={24}
       w="100%"
-      justify="flex-start"
+      justify="space-between"
+      align="center"
       style={{ borderTop: `1px solid ${ARCHIVE.surfaceContainerHigh}` }}
-      wrap="wrap"
+      wrap="nowrap"
     >
-      <UnstyledButton onClick={onLike} style={{ fontFamily: sans }}>
-        <Group gap={8} c="#78716c">
-          <IconHeartFilled size={22} color={ARCHIVE.primary} />
+      <Group gap={24} wrap="wrap">
+        <UnstyledButton onClick={onLike} style={{ fontFamily: sans }}>
+          <Group gap={8} c="#78716c">
+            <IconHeartFilled size={22} color={ARCHIVE.primary} />
+            <Text size="sm" fw={500}>
+              {likes}
+            </Text>
+          </Group>
+        </UnstyledButton>
+        <Group gap={8} c="#78716c" style={{ cursor: 'default' }}>
+          <IconMessageCircle size={22} stroke={1.25} color="#1c6392" />
           <Text size="sm" fw={500}>
-            {likes}
+            {comments.length}
           </Text>
         </Group>
-      </UnstyledButton>
-      <Group gap={8} c="#78716c" style={{ cursor: 'default' }}>
-        <IconMessageCircle size={22} stroke={1.25} color="#1c6392" />
-        <Text size="sm" fw={500}>
-          {comments.length}
-        </Text>
       </Group>
+      {post.locked && (
+        <Group gap={6} c="#78716c" wrap="nowrap">
+          <IconLock size={18} stroke={1.5} />
+          <Text size="xs" c="dimmed">
+            已上锁
+          </Text>
+        </Group>
+      )}
     </Group>
   );
 
