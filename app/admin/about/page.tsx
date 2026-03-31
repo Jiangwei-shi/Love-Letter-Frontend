@@ -62,7 +62,9 @@ function CoupleProfilesCard({
           </FileButton>
           <Button
             size="xs"
-            variant="light"
+            variant="default"
+            className="home-float-btn admin-btn admin-btn-muted"
+            radius="xl"
             loading={uploadingBoyAvatar}
             onClick={() => onProfileChange({ ...profile, boy_avatar: null })}
             px={8}
@@ -98,7 +100,9 @@ function CoupleProfilesCard({
           </FileButton>
           <Button
             size="xs"
-            variant="light"
+            variant="default"
+            className="home-float-btn admin-btn admin-btn-muted"
+            radius="xl"
             loading={uploadingGirlAvatar}
             onClick={() => onProfileChange({ ...profile, girl_avatar: null })}
             px={8}
@@ -343,8 +347,9 @@ export default function AdminAboutPage() {
                 <Box style={isAboutLgGrid ? { gridColumn: 'span 12' } : undefined} w="100%">
                   <Group justify="flex-end" gap="md" wrap="wrap">
                     <Button
-                      variant="subtle"
-                      color="gray"
+                      variant="default"
+                      className="home-float-btn admin-btn admin-btn-muted"
+                      radius="xl"
                       onClick={() => void load()}
                       style={{ letterSpacing: '0.12em', textTransform: 'uppercase' }}
                     >
@@ -353,13 +358,12 @@ export default function AdminAboutPage() {
                     <Button
                       type="submit"
                       loading={saving}
+                      className="home-float-btn admin-btn admin-btn-primary"
                       radius="xl"
                       style={{
                         paddingLeft: 28,
                         paddingRight: 28,
                         height: 46,
-                        background: 'linear-gradient(145deg, #9c4050, #ff8e9e)',
-                        boxShadow: '0 12px 40px rgba(156,64,80,0.15)',
                       }}
                     >
                       更新资料

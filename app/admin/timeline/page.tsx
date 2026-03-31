@@ -126,11 +126,16 @@ function TimelineFormCard({
               input: { backgroundColor: 'rgba(255,142,158,0.12)', border: 'none', fontStyle: 'italic' },
             }}
           />
-          <Button type="submit" radius="xl" style={{ background: '#9c4050' }}>
+          <Button type="submit" radius="xl" className="home-float-btn admin-btn admin-btn-primary">
             {editingId ? '保存修改' : '归档事件'}
           </Button>
           {editingId && (
-            <Button variant="light" color="gray" radius="xl" onClick={onCancelEdit}>
+            <Button
+              variant="default"
+              className="home-float-btn admin-btn admin-btn-muted"
+              radius="xl"
+              onClick={onCancelEdit}
+            >
               取消编辑
             </Button>
           )}

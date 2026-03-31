@@ -285,6 +285,47 @@ a { color: inherit; text-decoration: none; }
   box-shadow: 0 4px 10px rgba(156, 64, 80, 0.12) !important;
 }
 
+.admin-btn {
+  font-family: var(--font-inter), Inter, 'Segoe UI', sans-serif;
+  transition: transform 200ms ease, box-shadow 200ms ease, filter 200ms ease;
+}
+.admin-btn:hover {
+  transform: translateY(-2px);
+}
+.admin-btn-primary {
+  background: linear-gradient(90deg, #9c4050, #ff8e9e);
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 30px rgba(156, 64, 80, 0.2);
+}
+.admin-btn-secondary {
+  background: #fff;
+  color: #9c4050;
+  border: 1px solid rgba(218, 192, 194, 0.9);
+  box-shadow: 0 6px 16px rgba(156, 64, 80, 0.06);
+}
+.admin-btn-muted {
+  background: rgba(255, 255, 255, 0.76);
+  color: #6d5c5e;
+  border: 1px solid rgba(218, 192, 194, 0.75);
+}
+.admin-btn-danger {
+  background: linear-gradient(90deg, #c94257, #ff7d8e);
+  color: #fff;
+  border: none;
+  box-shadow: 0 10px 30px rgba(201, 66, 87, 0.2);
+}
+.admin-btn-nav {
+  background: transparent;
+  color: #6d5c5e;
+  border: 1px solid transparent;
+}
+.admin-btn-nav-active {
+  background: rgba(255, 142, 158, 0.16);
+  color: #9c4050;
+  border-color: rgba(156, 64, 80, 0.25);
+}
+
 .about-profile-text {
   align-items: center;
 }

@@ -130,21 +130,14 @@ export default function PostsFeed({
 
       <Box ta="center" mt={48}>
         <Button
+          className="home-float-btn admin-btn admin-btn-primary"
           radius="xl"
           size="md"
           onClick={() => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
-          styles={{
-            root: {
-              background: `linear-gradient(90deg, ${ARCHIVE.primary}, ${ARCHIVE.primaryContainer})`,
-              border: 'none',
-              fontFamily: sans,
-              boxShadow: '0 8px 20px rgba(156, 64, 80, 0.2)',
-            },
-          }}
         >
-          Trace Back Further
+          回到顶部
         </Button>
       </Box>
 

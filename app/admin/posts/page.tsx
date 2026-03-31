@@ -243,18 +243,22 @@ function PostFormCard({
             <Button
               type="submit"
               disabled={saving}
+              className="home-float-btn admin-btn admin-btn-primary"
               radius="xl"
               style={{
                 marginTop: 8,
                 height: 50,
-                background: 'linear-gradient(90deg, #9c4050, #ff8e9e)',
-                boxShadow: '0 12px 40px rgba(156,64,80,0.15)',
               }}
             >
               {saving ? '保存中...' : editingId ? '保存修改' : '创建记录'}
             </Button>
             {editingId && (
-              <Button variant="light" color="gray" radius="xl" onClick={onCancelEdit}>
+              <Button
+                variant="default"
+                className="home-float-btn admin-btn admin-btn-muted"
+                radius="xl"
+                onClick={onCancelEdit}
+              >
                 取消编辑
               </Button>
             )}
@@ -288,7 +292,13 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
           </Title>
         </Stack>
         <Group gap="xs" mb={2}>
-          <Button variant="light" color="gray" radius="xl" size="xs" onClick={onToggleSort}>
+          <Button
+            variant="default"
+            className="home-float-btn admin-btn admin-btn-muted"
+            radius="xl"
+            size="xs"
+            onClick={onToggleSort}
+          >
             按记录时间{sortOrder === 'desc' ? '倒序' : '正序'}
           </Button>
         </Group>
@@ -379,8 +389,9 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                             <Text size="xs">{comment.visitor_name}: {comment.message}</Text>
                             <Button
                               size="compact-xs"
-                              variant="subtle"
-                              color="red"
+                              variant="default"
+                              className="home-float-btn admin-btn admin-btn-danger"
+                              radius="xl"
                               onClick={() => { void onDeleteComment(comment.id); }}
                             >
                               删除留言

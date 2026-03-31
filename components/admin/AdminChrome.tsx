@@ -83,10 +83,10 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
                 key={href}
                 component={Link}
                 href={href}
-                variant={active ? 'light' : 'subtle'}
+                variant="default"
                 justify="start"
                 radius="xl"
-                color={active ? 'pink' : 'gray'}
+                className={`home-float-btn admin-btn admin-btn-nav${active ? ' admin-btn-nav-active' : ''}`}
                 onClick={closeDrawer}
               >
                 {label}

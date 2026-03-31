@@ -61,13 +61,10 @@ function EntryCard({ title, desc, href, actionText, accent }: EntryCardProps) {
         component={Link}
         href={href}
         mt="auto"
+        className="home-float-btn admin-btn admin-btn-secondary"
         radius="xl"
-        variant="light"
-        style={{
-          alignSelf: 'flex-start',
-          color: accent,
-          background: `${accent}12`,
-        }}
+        variant="default"
+        style={{ alignSelf: 'flex-start' }}
       >
         {actionText}
       </Button>
@@ -178,12 +175,17 @@ export default function AdminPage() {
                     <Button
                       component={Link}
                       href="/admin"
+                      className="home-float-btn admin-btn admin-btn-primary"
                       radius="xl"
-                      style={{ background: '#9c4050' }}
                     >
                       修改账号信息
                     </Button>
-                    <Button mt="auto" color="red" variant="light" onClick={onLogout}>
+                    <Button
+                      mt="auto"
+                      className="home-float-btn admin-btn admin-btn-danger"
+                      radius="xl"
+                      onClick={onLogout}
+                    >
                       退出登录
                     </Button>
                   </Stack>
@@ -289,7 +291,12 @@ export default function AdminPage() {
                   <Text size="xs" c="dimmed">
                     仅可修改显示名称和手机号
                   </Text>
-                  <Button onClick={onSave} loading={saving} color="pink">
+                  <Button
+                    onClick={onSave}
+                    loading={saving}
+                    radius="xl"
+                    className="home-float-btn admin-btn admin-btn-primary"
+                  >
                     保存更改
                   </Button>
                 </Group>
