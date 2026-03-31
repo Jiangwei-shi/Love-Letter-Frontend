@@ -1,4 +1,4 @@
-import { Box, Group, Paper, Stack, Text, Title } from '@mantine/core';
+import { Box, Paper, Stack, Text, Title } from '@mantine/core';
 import { IconBook, IconDroplet, IconHeartFilled, IconLeaf } from '@tabler/icons-react';
 import { ARCHIVE, sans, serif } from '@/components/home/constants';
 
@@ -62,17 +62,14 @@ export default function AboutSentimentsGrid({
             >
               &ldquo;{girlMessage}&rdquo;
             </Text>
-            <Group gap="md">
-              <Box w={40} h={40} style={{ borderRadius: '50%', background: ARCHIVE.secondaryContainer }} />
-              <Text
-                tt="uppercase"
-                fz="xs"
-                c="dimmed"
-                style={{ letterSpacing: '0.16em', fontFamily: sans }}
-              >
-                — {girlName}
-              </Text>
-            </Group>
+            <Text
+              tt="uppercase"
+              fz="xs"
+              c="dimmed"
+              style={{ letterSpacing: '0.16em', fontFamily: sans }}
+            >
+              — {girlName}
+            </Text>
           </Paper>
         </Box>
 
@@ -105,7 +102,7 @@ export default function AboutSentimentsGrid({
               c="dimmed"
               style={{ letterSpacing: '0.16em', fontFamily: sans }}
             >
-              — {boyName.slice(0, 1)}.
+              — {boyName}
             </Text>
           </Paper>
         </Box>
@@ -163,17 +160,14 @@ export default function AboutSentimentsGrid({
             >
               &ldquo;{closingLine}&rdquo;
             </Text>
-            <Group gap="md">
-              <Box w={40} h={40} style={{ borderRadius: '50%', background: '#cde5ff' }} />
-              <Text
-                tt="uppercase"
-                fz="xs"
-                c="dimmed"
-                style={{ letterSpacing: '0.16em', fontFamily: sans }}
-              >
-                — Forever
-              </Text>
-            </Group>
+            <Text
+              tt="uppercase"
+              fz="xs"
+              c="dimmed"
+              style={{ letterSpacing: '0.16em', fontFamily: sans }}
+            >
+              — Forever
+            </Text>
           </Paper>
         </Box>
       </Box>

@@ -1,6 +1,6 @@
 import { Box } from '@mantine/core';
 import { getCoupleProfile, getTimelineEvents, getPosts } from '@/lib/supabase/queries';
-import HomeFooter from '@/components/home/HomeFooter';
+import SiteFooter from '@/components/SiteFooter';
 import HomeHeartNote from '@/components/home/HomeHeartNote';
 import HomeHero from '@/components/home/HomeHero';
 import HomeLifeRecords from '@/components/home/HomeLifeRecords';
@@ -35,7 +35,7 @@ export default async function HomePage() {
       <HomeTimelinePreview events={recentTimeline} />
       <HomeLifeRecords posts={recentPosts} />
       <HomeHeartNote profile={profile} />
-      <HomeFooter />
+      <SiteFooter />
     </Box>
   );
 }

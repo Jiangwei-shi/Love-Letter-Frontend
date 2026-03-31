@@ -1,15 +1,15 @@
-import { getPosts } from '@/lib/supabase/queries';
+import { getCoupleProfile, getPosts } from '@/lib/supabase/queries';
 import { Box, Stack, Text, Title } from '@mantine/core';
 import { unstable_noStore as noStore } from 'next/cache';
 import PostsFeed from '@/components/PostsFeed';
-import HomeFooter from '@/components/home/HomeFooter';
+import SiteFooter from '@/components/SiteFooter';
 import { ARCHIVE, sans, serif } from '@/components/home/constants';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PostsPage() {
   noStore();
-  const posts = await getPosts();
+  const [posts, coupleProfile] = await Promise.all([getPosts(), getCoupleProfile()]);
 
   return (
     <Box style={{ background: ARCHIVE.bg }}>
@@ -44,10 +44,10 @@ export default async function PostsPage() {
             </Text>
           </Box>
 
-          <PostsFeed initialPosts={posts} />
+          <PostsFeed initialPosts={posts} coupleProfile={coupleProfile} />
         </Stack>
       </Box>
-      <HomeFooter />
+      <SiteFooter />
     </Box>
   );
 }

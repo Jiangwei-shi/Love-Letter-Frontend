@@ -4,7 +4,7 @@ import AboutHeroSection from '@/components/about/AboutHeroSection';
 import AboutProfilesSection from '@/components/about/AboutProfilesSection';
 import AboutSentimentsGrid from '@/components/about/AboutSentimentsGrid';
 import AboutStorySection from '@/components/about/AboutStorySection';
-import HomeFooter from '@/components/home/HomeFooter';
+import SiteFooter from '@/components/SiteFooter';
 import { ARCHIVE } from '@/components/home/constants';
 
 type AboutPageViewProps = {
@@ -82,7 +82,7 @@ export default function AboutPageView({ profile }: AboutPageViewProps) {
           anniversaryLine={anniversaryLine}
           closingLine={closingLine}
         />
-        <HomeFooter />
+        <SiteFooter />
       </Stack>
     </Box>
   );

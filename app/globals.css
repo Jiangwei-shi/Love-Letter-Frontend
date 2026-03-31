@@ -224,11 +224,6 @@ a { color: inherit; text-decoration: none; }
 .posts-feed-img-grid .mantine-Image-root:hover img {
   transform: scale(1.05);
 }
-@media (min-width: 768px) {
-  .posts-feed-split-rotate {
-    transform: rotate(2deg);
-  }
-}
 .ethereal-post-card:hover {
   box-shadow: 0 12px 40px rgba(156, 64, 80, 0.08);
 }

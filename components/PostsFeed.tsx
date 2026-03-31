@@ -5,11 +5,17 @@ import Link from 'next/link';
 import { Box, Button, Paper, Stack, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { Post, PostComment } from '@/lib/types/mvp';
+import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import EtherealPostCard from '@/components/posts/EtherealPostCard';
 import { ARCHIVE, sans } from '@/components/home/constants';
 
-export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
+export default function PostsFeed({
+  initialPosts,
+  coupleProfile,
+}: {
+  initialPosts: Post[];
+  coupleProfile: CoupleProfile | null;
+}) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [commentInputs, setCommentInputs] = useState<Record<string, { visitor_name: string; message: string }>>({});
   const [commentSubmitting, setCommentSubmitting] = useState<Record<string, boolean>>({});
@@ -107,6 +113,7 @@ export default function PostsFeed({ initialPosts }: { initialPosts: Post[] }) {
             <EtherealPostCard
               key={post.id}
               post={post}
+              coupleProfile={coupleProfile}
               index={index}
               journalNumber={posts.length - index}
               comments={comments}

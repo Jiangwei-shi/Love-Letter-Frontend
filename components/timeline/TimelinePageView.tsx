@@ -12,7 +12,7 @@ import {
 } from '@mantine/core';
 import { IconCirclePlus, IconEdit, IconMars, IconVenus } from '@tabler/icons-react';
 import type { TimelineEvent } from '@/lib/types/mvp';
-import HomeFooter from '@/components/home/HomeFooter';
+import SiteFooter from '@/components/SiteFooter';
 import { ARCHIVE, sans, serif } from '@/components/home/constants';
 
 type Props = {
@@ -221,7 +221,7 @@ export default function TimelinePageView({ events }: Props) {
         </Box>
       </Box>
 
-      <HomeFooter />
+      <SiteFooter />
 
       <Box className="timeline-mobile-fab" hiddenFrom="md">
         <Button
