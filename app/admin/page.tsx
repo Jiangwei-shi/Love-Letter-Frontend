@@ -314,7 +314,7 @@ export default function AdminPage() {
                   “记忆是灵魂的香气，记录则是让香气永存的瓶子。”
                 </Title>
                 <Text c="#6d5c5e" fs="italic">
-                  —— 永恒珍藏致词
+                  —— 斯嘉玮·史率格致词
                 </Text>
               </Box>
               <Card radius="lg" p={0} style={{ flex: 1, minWidth: 280, overflow: 'hidden' }}>
@@ -322,8 +322,7 @@ export default function AdminPage() {
                   style={{
                     width: '100%',
                     aspectRatio: '4 / 3',
-                    backgroundImage:
-                      'url(https://lh3.googleusercontent.com/aida-public/AB6AXuA7nr50BHGO154wmYZQdMJvzjz9rCdTfaw_iGmeYJklfw6xwqPIelAdjxHgrwubtAeLt1L_wK8khXDuKa27dJmakYXawK6Uvf-fiPIcR4aoc2wf16bUUzUJnxHME2-KyQ6TTLUNeOaxnF7OcHiv3niA-KjSEBgBmDqLREWiMDCbtioZvw7tBOo1hysADeF-Fy32ii54iJci5sF3gGfhgCU9Cvmm1TyqPEFy_kbPVOg4yombYts-ChUl3SqN_-nJ_9D8SoRseyDC3ZtU)',
+                    backgroundImage: 'url(/aboutUs.jpg)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                   }}
