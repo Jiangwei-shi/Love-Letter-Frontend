@@ -5,7 +5,6 @@ type CreateCommentPayload = {
   post_id?: string;
   visitor_name?: string;
   message?: string;
-  source?: string;
 };
 
 function normalizeText(value: unknown, maxLen: number) {
@@ -34,10 +33,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '缺少必要字段' }, { status: 400 });
     }
 
-    const source = normalizeText(
-      body.source || req.headers.get('origin') || req.headers.get('referer') || 'web:unknown',
-      255,
-    );
     const userAgent = normalizeText(req.headers.get('user-agent') || '', 500);
     const ipAddress = resolveClientIp(req);
 
@@ -48,7 +43,6 @@ export async function POST(req: NextRequest) {
         post_id: postId,
         visitor_name: visitorName,
         message,
-        source,
         user_agent: userAgent || null,
         ip_address: ipAddress,
       })

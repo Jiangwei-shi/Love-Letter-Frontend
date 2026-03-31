@@ -58,7 +58,6 @@ export default function PostsFeed({
 
     setCommentSubmitting((prev) => ({ ...prev, [postId]: true }));
     setCommentErrors((prev) => ({ ...prev, [postId]: '' }));
-    const source = window.location.pathname || 'web:unknown';
     let data: PostComment | null = null;
     let errorMessage = '';
     try {
@@ -69,7 +68,6 @@ export default function PostsFeed({
           post_id: postId,
           visitor_name,
           message,
-          source,
         }),
       });
       const payload = (await response.json()) as { data?: PostComment; error?: string };

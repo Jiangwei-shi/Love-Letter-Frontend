@@ -307,10 +307,6 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
     return comment.ip_address || (comment as Record<string, string | null | undefined>).ip || '未知';
   };
 
-  const resolveSource = (comment: NonNullable<Post['post_comments']>[number]) => {
-    return comment.source || (comment as Record<string, string | null | undefined>).client_source || '未知';
-  };
-
   const resolveUserAgent = (comment: NonNullable<Post['post_comments']>[number]) => {
     return comment.user_agent || '未知';
   };
@@ -546,12 +542,6 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
               <Group justify="space-between">
                 <Text size="xs" c="dimmed">IP</Text>
                 <Text size="xs">{resolveIp(selectedComment.comment)}</Text>
-              </Group>
-              <Group justify="space-between" align="flex-start">
-                <Text size="xs" c="dimmed">来源</Text>
-                <Text size="xs" ta="right" style={{ maxWidth: '75%', wordBreak: 'break-word' }}>
-                  {resolveSource(selectedComment.comment)}
-                </Text>
               </Group>
               <Group justify="space-between" align="flex-start">
                 <Text size="xs" c="dimmed">User-Agent</Text>
