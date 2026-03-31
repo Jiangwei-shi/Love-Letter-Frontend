@@ -1,9 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { Box, Button, Paper, Stack, Text } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import EtherealPostCard from '@/posts/EtherealPostCard';
@@ -141,28 +139,6 @@ export default function PostsFeed({
         </Button>
       </Box>
 
-      <Button
-        component={Link}
-        href="/admin/posts"
-        pos="fixed"
-        bottom={32}
-        right={32}
-        w={56}
-        h={56}
-        p={0}
-        radius="xl"
-        aria-label="新增记录"
-        style={{ zIndex: 40 }}
-        styles={{
-          root: {
-            background: ARCHIVE.primary,
-            border: 'none',
-            boxShadow: '0 12px 28px rgba(0,0,0,0.18)',
-          },
-        }}
-      >
-        <IconPlus size={26} stroke={2} color="#fff" />
-      </Button>
     </>
   );
 }

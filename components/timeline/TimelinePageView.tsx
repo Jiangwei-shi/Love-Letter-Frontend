@@ -10,7 +10,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconCirclePlus, IconEdit, IconMars, IconVenus } from '@tabler/icons-react';
+import { IconCirclePlus, IconMars, IconVenus } from '@tabler/icons-react';
 import type { TimelineEvent } from '@/lib/types/mvp';
 import SiteFooter from '@/shell/SiteFooter';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
@@ -223,26 +223,6 @@ export default function TimelinePageView({ events }: Props) {
 
       <SiteFooter />
 
-      <Box className="timeline-mobile-fab" hiddenFrom="md">
-        <Button
-          component={Link}
-          href="/admin/timeline"
-          radius="xl"
-          size="xl"
-          styles={{
-            root: {
-              width: 64,
-              height: 64,
-              borderRadius: 999,
-              padding: 0,
-              background: ARCHIVE.primary,
-              boxShadow: '0 18px 36px rgba(0,0,0,0.25)',
-            },
-          }}
-        >
-          <IconEdit size={22} />
-        </Button>
-      </Box>
     </Box>
   );
 }

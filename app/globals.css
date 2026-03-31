@@ -210,13 +210,6 @@ a { color: inherit; text-decoration: none; }
   filter: blur(100px);
   background: #8ecaff;
 }
-.timeline-mobile-fab {
-  position: fixed;
-  right: 32px;
-  bottom: 32px;
-  z-index: 50;
-}
-
 .posts-feed-img-grid img,
 .posts-feed-img-grid .mantine-Image-root img {
   transition: transform 0.45s ease;

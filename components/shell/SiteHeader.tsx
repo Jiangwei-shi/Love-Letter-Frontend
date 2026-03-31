@@ -85,6 +85,9 @@ export default function SiteHeader() {
         }}
       >
         <Stack gap="lg" onClick={close}>
+          <Anchor component={Link} href="/" {...navLinkProps}>
+            LoveLetter
+          </Anchor>
           {links}
         </Stack>
       </Drawer>
