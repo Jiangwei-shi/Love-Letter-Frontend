@@ -435,6 +435,59 @@ a { color: inherit; text-decoration: none; }
     grid-column: 1 / -1 !important;
   }
 }
+@media (max-width: 767px) {
+  .admin-posts-list-header {
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .admin-posts-list-header > * {
+    width: 100%;
+  }
+  .admin-post-archive-main {
+    flex-direction: column;
+  }
+  .admin-post-archive-cover {
+    width: 100% !important;
+    min-width: 100% !important;
+    height: 184px !important;
+  }
+  .admin-post-archive-cover .mantine-Image-root,
+  .admin-post-archive-cover .mantine-Image-image {
+    width: 100% !important;
+    height: 184px !important;
+  }
+  .admin-post-archive-content {
+    padding: 14px !important;
+    gap: 10px !important;
+  }
+  .admin-post-archive-header {
+    gap: 8px;
+  }
+  .admin-post-archive-header > *:first-child {
+    width: 100%;
+  }
+  .admin-post-archive-actions {
+    justify-content: flex-start !important;
+  }
+  .admin-post-archive-meta {
+    align-items: flex-start;
+    gap: 4px;
+  }
+  .admin-post-archive-comments {
+    width: 100%;
+  }
+  .admin-post-comment-header {
+    gap: 8px;
+  }
+  .admin-post-comment-actions {
+    width: 100%;
+    justify-content: flex-start !important;
+  }
+  .admin-post-comment-actions > button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
 /* Below Mantine lg (~75em): prevent span 8 / span 4 with cols=1 from shrinking cards */
 @media (max-width: 74.99em) {
   .admin-about-grid {

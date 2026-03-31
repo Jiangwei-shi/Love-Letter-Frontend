@@ -314,7 +314,7 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
   return (
     <>
       <Stack gap="lg">
-        <Group justify="space-between" align="flex-end">
+        <Group justify="space-between" align="flex-end" className="admin-posts-list-header">
           <Stack gap={4}>
             <Text size="xs" fw={700} style={{ letterSpacing: '0.2em', textTransform: 'uppercase', color: '#1c6392' }}>
               记录集合
@@ -360,8 +360,11 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                     boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
                   }}
                 >
-                  <Group align="stretch" gap={0} wrap="nowrap">
-                    <Box style={{ width: 190, minWidth: 190, height: 200, background: '#e3e2df' }}>
+                  <Group align="stretch" gap={0} wrap="nowrap" className="admin-post-archive-main">
+                    <Box
+                      className="admin-post-archive-cover"
+                      style={{ width: 190, minWidth: 190, height: 200, background: '#e3e2df' }}
+                    >
                       {previewImage ? (
                         <Image src={previewImage} alt={post.title} h={200} w={190} fit="cover" />
                       ) : (
@@ -370,9 +373,9 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                         </Stack>
                       )}
                     </Box>
-                    <Stack gap="md" p="xl" style={{ flex: 1 }}>
+                    <Stack gap="md" p="xl" style={{ flex: 1 }} className="admin-post-archive-content">
                       <Stack gap={6}>
-                        <Group justify="space-between" align="flex-start">
+                        <Group justify="space-between" align="flex-start" className="admin-post-archive-header">
                           <Box>
                             <Text size="xs" fw={700} style={{ color: '#9c4050', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
                               {(post.record_time || '').replace('T', ' ').slice(0, 16)}
@@ -381,32 +384,36 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                               {post.title}
                             </Title>
                           </Box>
-                          <Group gap={6}>
-                            <ActionIcon
-                              variant="light"
-                              color="gray"
-                              radius="xl"
-                              aria-label="编辑"
-                              onClick={() => onEdit(post)}
-                            >
-                              <IconEdit size={16} />
-                            </ActionIcon>
-                            <ActionIcon
-                              color="red"
-                              variant="light"
-                              radius="xl"
-                              aria-label="删除"
-                              onClick={() => { void onDelete(post.id); }}
-                            >
-                              <IconTrash size={16} />
-                            </ActionIcon>
-                          </Group>
                         </Group>
                         <Text size="sm" c="#6d5c5e" style={{ lineHeight: 1.8, fontStyle: 'italic' }} lineClamp={2}>
                           {post.content}
                         </Text>
+                        <Group gap={6} justify="flex-end" className="admin-post-archive-actions">
+                          <ActionIcon
+                            variant="light"
+                            color="gray"
+                            radius="xl"
+                            aria-label="编辑"
+                            onClick={() => onEdit(post)}
+                          >
+                            <IconEdit size={16} />
+                          </ActionIcon>
+                          <ActionIcon
+                            color="red"
+                            variant="light"
+                            radius="xl"
+                            aria-label="删除"
+                            onClick={() => { void onDelete(post.id); }}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Group>
                       </Stack>
-                      <Group justify="space-between" style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}>
+                      <Group
+                        justify="space-between"
+                        className="admin-post-archive-meta"
+                        style={{ borderTop: '1px solid rgba(218,192,194,0.22)', paddingTop: 12 }}
+                      >
                         <Text size="xs" c="#8f7f80" fs="italic">
                           记录者：{post.author || '未设置'}
                         </Text>
@@ -415,7 +422,7 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                         </Text>
                       </Group>
                       {(post.post_comments ?? []).length > 0 && (
-                        <Stack gap={8}>
+                        <Stack gap={8} className="admin-post-archive-comments">
                           {(post.post_comments ?? []).map((comment) => (
                             <Box
                               key={comment.id}
@@ -427,30 +434,10 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                               }}
                             >
                               <Stack gap={6}>
-                                <Group justify="space-between" align="flex-start" wrap="wrap" gap={8}>
+                                <Group justify="space-between" align="flex-start" wrap="wrap" gap={8} className="admin-post-comment-header">
                                   <Text size="xs" fw={700} c="#7f6b6d">
                                     {comment.visitor_name || '匿名访客'}
                                   </Text>
-                                  <Group gap={6} wrap="wrap" justify="flex-end">
-                                    <Button
-                                      size="compact-xs"
-                                      variant="default"
-                                      className="home-float-btn admin-btn admin-btn-muted"
-                                      radius="xl"
-                                      onClick={() => openCommentDetail(post.title, comment)}
-                                    >
-                                      查看详情
-                                    </Button>
-                                    <Button
-                                      size="compact-xs"
-                                      variant="default"
-                                      className="home-float-btn admin-btn admin-btn-danger"
-                                      radius="xl"
-                                      onClick={() => { void onDeleteComment(comment.id); }}
-                                    >
-                                      删除留言
-                                    </Button>
-                                  </Group>
                                 </Group>
                                 <Text
                                   size="xs"
@@ -462,6 +449,26 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                                 >
                                   {comment.message}
                                 </Text>
+                                <Group gap={6} wrap="wrap" justify="flex-end" className="admin-post-comment-actions">
+                                  <Button
+                                    size="compact-xs"
+                                    variant="default"
+                                    className="home-float-btn admin-btn admin-btn-muted"
+                                    radius="xl"
+                                    onClick={() => openCommentDetail(post.title, comment)}
+                                  >
+                                    查看详情
+                                  </Button>
+                                  <Button
+                                    size="compact-xs"
+                                    variant="default"
+                                    className="home-float-btn admin-btn admin-btn-danger"
+                                    radius="xl"
+                                    onClick={() => { void onDeleteComment(comment.id); }}
+                                  >
+                                    删除留言
+                                  </Button>
+                                </Group>
                               </Stack>
                             </Box>
                           ))}
@@ -700,6 +707,10 @@ export default function AdminPostsPage() {
     setAuthor(post.author ?? '');
     setExistingImages((post.post_images ?? []).map((img) => ({ id: img.id, image_url: img.image_url })));
     setImages([]);
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
   };
 
   const onDeleteComment = async (commentId: string) => {
