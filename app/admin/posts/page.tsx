@@ -7,6 +7,71 @@ import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post } from '@/lib/types/mvp';
 
+const TARGET_IMAGE_SIZE_BYTES = 300 * 1024;
+const MAX_IMAGE_EDGE = 1920;
+
+const detectFileExtension = (mimeType: string) => {
+  if (mimeType.includes('png')) return 'png';
+  if (mimeType.includes('webp')) return 'webp';
+  return 'jpg';
+};
+
+const loadImageElement = (file: File) => new Promise<HTMLImageElement>((resolve, reject) => {
+  const objectUrl = URL.createObjectURL(file);
+  const img = new window.Image();
+  img.onload = () => {
+    URL.revokeObjectURL(objectUrl);
+    resolve(img);
+  };
+  img.onerror = () => {
+    URL.revokeObjectURL(objectUrl);
+    reject(new Error('无法读取图片内容'));
+  };
+  img.src = objectUrl;
+});
+
+const canvasToBlob = (canvas: HTMLCanvasElement, mimeType: string, quality: number) => (
+  new Promise<Blob | null>((resolve) => {
+    canvas.toBlob((blob) => resolve(blob), mimeType, quality);
+  })
+);
+
+async function compressImageForUpload(file: File) {
+  if (file.size <= TARGET_IMAGE_SIZE_BYTES) return file;
+
+  const img = await loadImageElement(file);
+  const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(img.width, img.height));
+  const targetWidth = Math.max(1, Math.round(img.width * scale));
+  const targetHeight = Math.max(1, Math.round(img.height * scale));
+
+  const canvas = document.createElement('canvas');
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext('2d');
+  if (!context) throw new Error('无法初始化图片压缩画布');
+  context.drawImage(img, 0, 0, targetWidth, targetHeight);
+
+  const outputMimeType = file.type === 'image/png' ? 'image/webp' : 'image/jpeg';
+  const qualityCandidates = [0.9, 0.82, 0.74, 0.66, 0.58, 0.5, 0.42, 0.35];
+  let bestBlob: Blob | null = null;
+
+  for (const quality of qualityCandidates) {
+    const blob = await canvasToBlob(canvas, outputMimeType, quality);
+    if (!blob) continue;
+    bestBlob = blob;
+    if (blob.size <= TARGET_IMAGE_SIZE_BYTES) break;
+  }
+
+  if (!bestBlob) return file;
+
+  const outputExt = detectFileExtension(bestBlob.type || outputMimeType);
+  const outputName = file.name.replace(/\.[^.]+$/, '') || `compressed-${Date.now()}`;
+  return new File([bestBlob], `${outputName}.${outputExt}`, {
+    type: bestBlob.type || outputMimeType,
+    lastModified: Date.now(),
+  });
+}
+
 type PostFormProps = {
   title: string;
   content: string;
@@ -141,6 +206,9 @@ function PostFormCard({
             />
             <Text size="xs" c="dimmed">
               当前已选 {existingImages.length + images.length}/9 张，可点击图片右上角删除单张预览。
+            </Text>
+            <Text size="xs" c="dimmed">
+              新上传图片会在上传前自动压缩到约 300KB，以节省云存储空间。
             </Text>
             <SimpleGrid cols={3} spacing="xs">
               {existingImages.map((img) => (
@@ -436,9 +504,15 @@ export default function AdminPostsPage() {
     if (postId) {
       const uploadedUrls: string[] = [];
       for (const file of images.slice(0, 9)) {
-        const ext = file.name.split('.').pop() || 'jpg';
+        let uploadFile = file;
+        try {
+          uploadFile = await compressImageForUpload(file);
+        } catch (error) {
+          console.error('图片压缩失败，已回退原图上传', error);
+        }
+        const ext = detectFileExtension(uploadFile.type || file.type);
         const path = `posts/${postId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from('post-images').upload(path, file, { upsert: true });
+        const { error: uploadError } = await supabase.storage.from('post-images').upload(path, uploadFile, { upsert: true });
         if (uploadError) continue;
         const { data: urlData } = supabase.storage.from('post-images').getPublicUrl(path);
         uploadedUrls.push(urlData.publicUrl);
