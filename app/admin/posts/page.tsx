@@ -1,9 +1,9 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, Group, Image, Select, SimpleGrid, Stack, Switch, Text, Textarea, TextInput, Title } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconArrowsMove, IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
 import type { CoupleProfile, Post } from '@/lib/types/mvp';
 
@@ -81,6 +81,14 @@ type PostFormProps = {
   authorOptions: { value: string; label: string }[];
   images: File[];
   existingImages: { id: string; image_url: string }[];
+  imagePreviewItems: {
+    key: string;
+    kind: 'existing' | 'new';
+    imageUrl: string;
+    alt: string;
+    existingId?: string;
+    newIndex?: number;
+  }[];
   editingId: string | null;
   saving: boolean;
   onTitleChange: (value: string) => void;
@@ -91,6 +99,7 @@ type PostFormProps = {
   onAddImages: (files: File[]) => void;
   onRemoveExistingImage: (id: string) => void;
   onRemoveNewImage: (index: number) => void;
+  onReorderImages: (fromKey: string, toKey: string) => void;
   onSubmit: (e: FormEvent) => Promise<void>;
   onCancelEdit: () => void;
 };
@@ -104,6 +113,7 @@ function PostFormCard({
   authorOptions,
   images,
   existingImages,
+  imagePreviewItems,
   editingId,
   saving,
   onTitleChange,
@@ -114,9 +124,19 @@ function PostFormCard({
   onAddImages,
   onRemoveExistingImage,
   onRemoveNewImage,
+  onReorderImages,
   onSubmit,
   onCancelEdit,
 }: PostFormProps) {
+  const [draggingKey, setDraggingKey] = useState<string | null>(null);
+  const [dragOverKey, setDragOverKey] = useState<string | null>(null);
+  const touchTargetKeyRef = useRef<string | null>(null);
+
+  const handleDropReorder = (targetKey: string) => {
+    if (!draggingKey || draggingKey === targetKey) return;
+    onReorderImages(draggingKey, targetKey);
+  };
+
   const normalizePickedFiles = (files: File[] | File | null) => {
     if (!files) return [];
     return Array.isArray(files) ? files : [files];
@@ -229,29 +249,88 @@ function PostFormCard({
               新上传图片会在上传前自动压缩到约 300KB，以节省云存储空间。
             </Text>
             <SimpleGrid cols={3} spacing="xs">
-              {existingImages.map((img) => (
-                <Card key={img.id} p={0} radius="sm" style={{ position: 'relative', overflow: 'hidden' }}>
-                  <Image src={img.image_url} alt="已存在图片" h={92} radius="sm" fit="cover" />
-                  <ActionIcon
-                    color="red"
-                    variant="filled"
-                    size="sm"
-                    style={{ position: 'absolute', top: 4, right: 4 }}
-                    onClick={() => onRemoveExistingImage(img.id)}
+              {imagePreviewItems.map((item) => (
+                <Card
+                  key={item.key}
+                  p={0}
+                  radius="sm"
+                  draggable
+                  onDragStart={() => setDraggingKey(item.key)}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragOverKey(item.key);
+                  }}
+                  onDrop={() => {
+                    handleDropReorder(item.key);
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
+                  onTouchStart={() => {
+                    setDraggingKey(item.key);
+                    touchTargetKeyRef.current = item.key;
+                    setDragOverKey(item.key);
+                  }}
+                  onTouchMove={(event) => {
+                    const touch = event.touches[0];
+                    if (!touch) return;
+                    const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const dropZone = targetElement?.closest<HTMLElement>('[data-image-key]');
+                    if (!dropZone) return;
+                    const targetKey = dropZone.dataset.imageKey;
+                    if (!targetKey) return;
+                    touchTargetKeyRef.current = targetKey;
+                    setDragOverKey(targetKey);
+                  }}
+                  onTouchEnd={() => {
+                    const targetKey = touchTargetKeyRef.current;
+                    if (targetKey) handleDropReorder(targetKey);
+                    touchTargetKeyRef.current = null;
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
+                  data-image-key={item.key}
+                  style={{
+                    position: 'relative',
+                    overflow: 'hidden',
+                    cursor: 'grab',
+                    opacity: draggingKey === item.key ? 0.75 : 1,
+                    touchAction: 'none',
+                    border: dragOverKey === item.key ? '2px solid #9c4050' : '2px solid transparent',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <Image src={item.imageUrl} alt={item.alt} h={92} radius="sm" fit="cover" />
+                  <Box
+                    style={{
+                      position: 'absolute',
+                      left: 4,
+                      top: 4,
+                      zIndex: 2,
+                      background: 'rgba(156,64,80,0.9)',
+                      color: '#ffffff',
+                      borderRadius: 6,
+                      width: 20,
+                      height: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
                   >
-                    ×
-                  </ActionIcon>
-                </Card>
-              ))}
-              {images.map((file, index) => (
-                <Card key={`${file.name}-${index}`} p={0} radius="sm" style={{ position: 'relative', overflow: 'hidden' }}>
-                  <Image src={URL.createObjectURL(file)} alt={file.name} h={92} radius="sm" fit="cover" />
+                    <IconArrowsMove size={12} />
+                  </Box>
                   <ActionIcon
                     color="red"
                     variant="filled"
                     size="sm"
                     style={{ position: 'absolute', top: 4, right: 4 }}
-                    onClick={() => onRemoveNewImage(index)}
+                    onClick={() => {
+                      if (item.kind === 'existing' && item.existingId) onRemoveExistingImage(item.existingId);
+                      if (item.kind === 'new' && typeof item.newIndex === 'number') onRemoveNewImage(item.newIndex);
+                    }}
                   >
                     ×
                   </ActionIcon>
@@ -717,6 +796,59 @@ export default function AdminPostsPage() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const reorderImages = (fromKey: string, toKey: string) => {
+    if (fromKey === toKey) return;
+
+    const orderedItems = [
+      ...existingImages.map((img) => ({ key: `existing-${img.id}`, kind: 'existing' as const, existingId: img.id })),
+      ...images.map((_, index) => ({ key: `new-${index}`, kind: 'new' as const, newIndex: index })),
+    ];
+    const fromIndex = orderedItems.findIndex((item) => item.key === fromKey);
+    const toIndex = orderedItems.findIndex((item) => item.key === toKey);
+    if (fromIndex < 0 || toIndex < 0) return;
+
+    const nextOrdered = [...orderedItems];
+    [nextOrdered[fromIndex], nextOrdered[toIndex]] = [nextOrdered[toIndex], nextOrdered[fromIndex]];
+
+    const existingMap = new Map(existingImages.map((img) => [img.id, img]));
+    const newMap = new Map(images.map((file, index) => [index, file]));
+    const nextExisting: { id: string; image_url: string }[] = [];
+    const nextNew: File[] = [];
+
+    nextOrdered.forEach((item) => {
+      if (item.kind === 'existing') {
+        const id = item.existingId;
+        if (!id) return;
+        const existing = existingMap.get(id);
+        if (existing) nextExisting.push(existing);
+        return;
+      }
+      const file = typeof item.newIndex === 'number' ? newMap.get(item.newIndex) : null;
+      if (file) nextNew.push(file);
+    });
+
+    setExistingImages(nextExisting);
+    setImages(nextNew);
+  };
+
+  const imagePreviewItems = useMemo(() => {
+    const existing = existingImages.map((img) => ({
+      key: `existing-${img.id}`,
+      kind: 'existing' as const,
+      imageUrl: img.image_url,
+      alt: '已存在图片',
+      existingId: img.id,
+    }));
+    const fresh = images.map((file, index) => ({
+      key: `new-${index}`,
+      kind: 'new' as const,
+      imageUrl: URL.createObjectURL(file),
+      alt: file.name,
+      newIndex: index,
+    }));
+    return [...existing, ...fresh];
+  }, [existingImages, images]);
+
   const appendPickedImages = (picked: File[]) => {
     setImages((prev) => {
       const merged = [...prev, ...picked];
@@ -889,6 +1021,7 @@ export default function AdminPostsPage() {
               authorOptions={authorOptions}
               images={images}
               existingImages={existingImages}
+              imagePreviewItems={imagePreviewItems}
               editingId={editingId}
               saving={saving}
               onTitleChange={setTitle}
@@ -899,6 +1032,7 @@ export default function AdminPostsPage() {
               onAddImages={appendPickedImages}
               onRemoveExistingImage={removeExistingImage}
               onRemoveNewImage={removeNewImage}
+              onReorderImages={reorderImages}
               onSubmit={onCreate}
               onCancelEdit={resetForm}
             />
