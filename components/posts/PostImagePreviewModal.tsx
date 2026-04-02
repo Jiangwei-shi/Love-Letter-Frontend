@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { Box } from '@mantine/core';
 
@@ -23,7 +23,7 @@ export default function PostImagePreviewModal({
   opened,
   onClose,
   alt,
-}: Props) {
+}: Props): ReactElement | null {
   const [mounted, setMounted] = useState(false);
   const [index, setIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -156,5 +156,5 @@ export default function PostImagePreviewModal({
     </Box>
   );
 
-  return createPortal(overlay, document.body);
+  return createPortal(overlay, document.body) as ReactElement;
 }
