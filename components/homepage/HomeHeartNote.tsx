@@ -22,7 +22,12 @@ export default function HomeHeartNote({ profile }: Props) {
       style={{ background: ARCHIVE.heartTint }}
     >
       <Stack gap="lg" maw={720} mx="auto" align="center" ta="center">
-        <IconHeartFilled size={40} color={ARCHIVE.primary} />
+        <IconHeartFilled
+          size={40}
+          stroke={0}
+          style={{ color: ARCHIVE.primaryContainer }}
+          aria-hidden
+        />
         <Title
           order={2}
           style={{

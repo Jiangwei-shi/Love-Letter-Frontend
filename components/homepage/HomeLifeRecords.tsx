@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Box, Button, Image, Stack, Text, Title } from '@mantine/core';
-import { IconHeartFilled } from '@tabler/icons-react';
 import type { Post } from '@/lib/types/mvp';
 import { ARCHIVE, sans, serif } from './constants';
 
@@ -81,7 +80,7 @@ export default function HomeLifeRecords({ posts }: Props) {
                   cover={getCoverUrl(main)}
                   title={main.title}
                   excerpt={excerpt(main.content)}
-                  variant="hero"
+                  minHeight={360}
                 />
               </Box>
             )}
@@ -96,7 +95,7 @@ export default function HomeLifeRecords({ posts }: Props) {
                   cover={getCoverUrl(second)}
                   title={second.title}
                   excerpt={excerpt(second.content)}
-                  variant="blurCaption"
+                  minHeight={200}
                 />
               </Box>
             )}
@@ -111,7 +110,7 @@ export default function HomeLifeRecords({ posts }: Props) {
                   cover={getCoverUrl(third)}
                   title={third.title}
                   excerpt={excerpt(third.content)}
-                  variant="heart"
+                  minHeight={200}
                 />
               </Box>
             )}
@@ -143,18 +142,16 @@ export default function HomeLifeRecords({ posts }: Props) {
   );
 }
 
-type Variant = 'hero' | 'blurCaption' | 'heart';
-
 function FeatureTile({
   cover,
   title,
   excerpt: text,
-  variant,
+  minHeight,
 }: {
   cover: string | null;
   title: string;
   excerpt: string;
-  variant: Variant;
+  minHeight: number;
 }) {
   const base = {
     position: 'relative' as const,
@@ -162,7 +159,7 @@ function FeatureTile({
     overflow: 'hidden',
     background: ARCHIVE.surfaceContainerHigh,
     height: '100%',
-    minHeight: variant === 'hero' ? 360 : 200,
+    minHeight,
     boxShadow: ARCHIVE.cardShadowSoft,
   };
 
@@ -175,28 +172,29 @@ function FeatureTile({
           fit="cover"
           h="100%"
           w="100%"
-          mih={variant === 'hero' ? 360 : 200}
+          mih={minHeight}
           style={{
             transition: 'transform 0.7s ease',
           }}
         />
       ) : (
         <Box
-          p="xl"
           style={{
-            minHeight: variant === 'hero' ? 360 : 200,
+            minHeight,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
           }}
         >
-          <Text ta="center" c="dimmed" size="sm">
-            {title}
-          </Text>
+          <Box p="xl" style={{ width: '100%' }}>
+            <Text ta="center" c="dimmed" size="sm">
+              {title}
+            </Text>
+          </Box>
         </Box>
       )}
 
-      {variant === 'hero' && (
+      {cover && (
         <Box
           pos="absolute"
           inset={0}
@@ -210,7 +208,7 @@ function FeatureTile({
           }}
         >
           <Text tt="uppercase" size="xs" fw={700} c="#ffd9dc" mb={8} style={{ letterSpacing: '0.16em' }}>
-            精选故事
+            最近故事
           </Text>
           <Title order={3} c="white" mb={8} style={{ fontFamily: serif, fontWeight: 400 }}>
             {title}
@@ -221,60 +219,6 @@ function FeatureTile({
         </Box>
       )}
 
-      {variant === 'blurCaption' && (
-        <Box
-          pos="absolute"
-          inset={0}
-          className="home-bento-blur"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(255,255,255,0.2)',
-            backdropFilter: 'blur(2px)',
-          }}
-        >
-          <Box p="lg" bg={ARCHIVE.bg} style={{ borderRadius: 12, boxShadow: '0 12px 40px rgba(0,0,0,0.12)' }}>
-            <Text style={{ fontFamily: serif }} fs="italic" fz="lg" c={ARCHIVE.primary}>
-              {title}
-            </Text>
-          </Box>
-        </Box>
-      )}
-
-      {variant === 'heart' && (
-        <>
-          <Box
-            pos="absolute"
-            bottom={16}
-            right={16}
-            p={8}
-            style={{
-              borderRadius: 999,
-              background: ARCHIVE.primary,
-              color: 'white',
-              boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-            }}
-          >
-            <IconHeartFilled size={20} />
-          </Box>
-          <Box
-            pos="absolute"
-            inset={0}
-            p={24}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'flex-end',
-              background: 'linear-gradient(180deg, transparent 40%, rgba(27,28,26,0.45))',
-            }}
-          >
-            <Text c="white" size="sm" fw={300} style={{ fontFamily: sans }}>
-              {text}
-            </Text>
-          </Box>
-        </>
-      )}
     </Box>
   );
 }
