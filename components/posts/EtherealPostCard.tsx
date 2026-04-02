@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import {
   ActionIcon,
   Alert,
@@ -22,6 +23,7 @@ import {
 import { IconDots, IconHeartFilled, IconLock, IconMessageCircle } from '@tabler/icons-react';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
+import PostImagePreviewModal from '@/posts/PostImagePreviewModal';
 
 function sortImages(post: Post) {
   const imgs = post.post_images ?? [];
@@ -91,6 +93,7 @@ export default function EtherealPostCard({
   onComment,
   onCommentFieldChange,
 }: Props) {
+  const [viewer, setViewer] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
   const commentNickBox = useMatches({
     base: { flex: '1 1 100%', minWidth: 0, width: '100%', order: 1, maxWidth: '100%' },
     sm: { flex: '0 1 120px', minWidth: 88, maxWidth: 160, order: 1, width: 'auto' },
@@ -111,6 +114,10 @@ export default function EtherealPostCard({
   });
 
   const images = sortImages(post);
+  const galleryUrls = useMemo(
+    () => images.slice(0, 9).map((img) => img.image_url),
+    [images],
+  );
   const likes = post.like_count ?? 0;
   const author = post.author?.trim() || '发布者';
   const { avatarSrc, role } = resolveAuthorVisual(post.author, coupleProfile, index);
@@ -202,18 +209,26 @@ export default function EtherealPostCard({
   /** 九宫格：3 列网格，最多展示 9 张 */
   const imageGrid = (
     <SimpleGrid cols={3} spacing={8} className="posts-feed-img-grid">
-      {images.slice(0, 9).map((img) => (
-        <Box
+      {images.slice(0, 9).map((img, idx) => (
+        <UnstyledButton
           key={img.id}
+          type="button"
+          onClick={() => setViewer({ open: true, index: idx })}
+          aria-label={`查看大图：${post.title}`}
           style={{
             aspectRatio: '1',
             borderRadius: 8,
             overflow: 'hidden',
             background: ARCHIVE.surfaceContainerHigh,
+            padding: 0,
+            border: 'none',
+            cursor: 'zoom-in',
+            display: 'block',
+            width: '100%',
           }}
         >
           <Image src={img.image_url} alt="" h="100%" w="100%" fit="cover" />
-        </Box>
+        </UnstyledButton>
       ))}
     </SimpleGrid>
   );
@@ -348,6 +363,13 @@ export default function EtherealPostCard({
           {imageGrid}
         </Box>
       )}
+      <PostImagePreviewModal
+        urls={galleryUrls}
+        initialIndex={viewer.index}
+        opened={viewer.open}
+        onClose={() => setViewer((v) => ({ ...v, open: false }))}
+        alt={post.title}
+      />
       {interactionBar}
       {commentComposer}
     </Paper>
