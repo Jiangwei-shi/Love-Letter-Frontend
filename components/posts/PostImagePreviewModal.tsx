@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { Box } from '@mantine/core';
 
@@ -8,6 +8,7 @@ const SWIPE_PX = 56;
 const SUPPRESS_AFTER_SWIPE_MS = 450;
 const MAX_SCALE = 4;
 const OPEN_ANIM_MS = 340;
+const SLIDE_MS = 320;
 
 export type ImageViewerOriginRect = {
   top: number;
@@ -31,8 +32,10 @@ function touchDistance(a: { clientX: number; clientY: number }, b: { clientX: nu
   return Math.hypot(dx, dy);
 }
 
+const RUBBER_FACTOR = 0.32;
+
 /**
- * 全屏看图：安全区内铺满、滑动切图、双指缩放与平移、单击关闭（缩放为 1 时）、可选缩略图展开动画。
+ * 全屏看图：滑动切图（三相轨道、跟手与微信式过渡）、双指缩放与平移、单击关闭、可选缩略图展开动画。
  */
 export default function PostImagePreviewModal({
   urls,
@@ -50,10 +53,18 @@ export default function PostImagePreviewModal({
   const [enterProgress, setEnterProgress] = useState(0);
   const [openAnimComplete, setOpenAnimComplete] = useState(false);
 
+  const [slideW, setSlideW] = useState(0);
+  const [swipeOffsetX, setSwipeOffsetX] = useState(0);
+  const [slideFingerDown, setSlideFingerDown] = useState(false);
+  /** 动画结束瞬间重置位置时关闭 transition，避免「弹回去」的二次动画 */
+  const [stripTeleport, setStripTeleport] = useState(false);
+
   const scaleRef = useRef(1);
   const txRef = useRef(0);
   const tyRef = useRef(0);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const slideContainerRef = useRef<HTMLDivElement | null>(null);
+  const pendingStripCommitRef = useRef<null | 'prev' | 'next'>(null);
 
   const touchStartX = useRef<number | null>(null);
   const suppressCloseUntil = useRef(0);
@@ -61,6 +72,9 @@ export default function PostImagePreviewModal({
   const gestureRef = useRef<'none' | 'pinch' | 'pan' | 'swipe'>('none');
   const pinchRef = useRef<{ baseDist: number; baseScale: number } | null>(null);
   const panRef = useRef<{ startX: number; startY: number; startTx: number; startTy: number } | null>(null);
+
+  const canCarousel = urls.length > 1;
+  const useCarouselLayout = canCarousel && slideW > 0;
 
   useEffect(() => setMounted(true), []);
   useEffect(() => {
@@ -73,6 +87,23 @@ export default function PostImagePreviewModal({
     tyRef.current = ty;
   }, [ty]);
 
+  useLayoutEffect(() => {
+    if (!opened || !slideContainerRef.current) return;
+    const el = slideContainerRef.current;
+    const read = () => {
+      const w = el.clientWidth;
+      if (w > 0) setSlideW(w);
+    };
+    read();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(read) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', read);
+    return () => {
+      ro?.disconnect();
+      window.removeEventListener('resize', read);
+    };
+  }, [opened]);
+
   useEffect(() => {
     if (!opened || urls.length === 0) return;
     const i = Math.max(0, Math.min(initialIndex, urls.length - 1));
@@ -80,6 +111,10 @@ export default function PostImagePreviewModal({
     setScale(1);
     setTx(0);
     setTy(0);
+    setSwipeOffsetX(0);
+    setSlideFingerDown(false);
+    setStripTeleport(false);
+    pendingStripCommitRef.current = null;
     gestureRef.current = 'none';
     pinchRef.current = null;
     panRef.current = null;
@@ -99,10 +134,18 @@ export default function PostImagePreviewModal({
       if (gestureRef.current === 'pinch' || gestureRef.current === 'pan') {
         e.preventDefault();
       }
+      if (
+        gestureRef.current === 'swipe' &&
+        scaleRef.current <= 1.02 &&
+        canCarousel &&
+        useCarouselLayout
+      ) {
+        e.preventDefault();
+      }
     };
     el.addEventListener('touchmove', prevent, { passive: false });
     return () => el.removeEventListener('touchmove', prevent);
-  }, [opened]);
+  }, [opened, canCarousel, useCarouselLayout]);
 
   useEffect(() => {
     if (!opened) return;
@@ -126,11 +169,17 @@ export default function PostImagePreviewModal({
     };
   }, [opened]);
 
+  /** 缩放回到 1 时横向偏移归零（放大镜模式不沿用切图位移） */
+  useEffect(() => {
+    if (scale <= 1.02) setSwipeOffsetX(0);
+  }, [scale]);
+
   const goPrev = useCallback(() => {
     setIndex((i) => (i > 0 ? i - 1 : i));
     setScale(1);
     setTx(0);
     setTy(0);
+    setSwipeOffsetX(0);
   }, []);
 
   const goNext = useCallback(() => {
@@ -138,6 +187,7 @@ export default function PostImagePreviewModal({
     setScale(1);
     setTx(0);
     setTy(0);
+    setSwipeOffsetX(0);
   }, [urls.length]);
 
   useEffect(() => {
@@ -155,11 +205,75 @@ export default function PostImagePreviewModal({
     suppressCloseUntil.current = Date.now() + SUPPRESS_AFTER_SWIPE_MS;
   };
 
+  const finishSwipeSlide = useCallback(
+    (rawDelta: number, i: number, w: number, len: number) => {
+      if (!canCarousel || w <= 0) return;
+
+      const motionReduce =
+        typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (motionReduce) {
+        setSlideFingerDown(false);
+        if (rawDelta > SWIPE_PX && i > 0) {
+          bumpSwipeSuppress();
+          setIndex((x) => Math.max(0, x - 1));
+        } else if (rawDelta < -SWIPE_PX && i < len - 1) {
+          bumpSwipeSuppress();
+          setIndex((x) => Math.min(len - 1, x + 1));
+        }
+        setSwipeOffsetX(0);
+        pendingStripCommitRef.current = null;
+        return;
+      }
+
+      const runSnap = (target: number, commit: 'prev' | 'next' | null) => {
+        setSlideFingerDown(false);
+        bumpSwipeSuppress();
+        if (commit) pendingStripCommitRef.current = commit;
+        window.requestAnimationFrame(() => {
+          setSwipeOffsetX(target);
+        });
+      };
+
+      if (rawDelta > SWIPE_PX && i > 0) {
+        runSnap(w, 'prev');
+        return;
+      }
+      if (rawDelta < -SWIPE_PX && i < len - 1) {
+        runSnap(-w, 'next');
+        return;
+      }
+      setSlideFingerDown(false);
+      pendingStripCommitRef.current = null;
+      window.requestAnimationFrame(() => {
+        setSwipeOffsetX(0);
+      });
+    },
+    [canCarousel],
+  );
+
+  const onStripTransitionEnd = (e: React.TransitionEvent) => {
+    if (e.propertyName !== 'transform') return;
+    const commit = pendingStripCommitRef.current;
+    if (!commit) return;
+    pendingStripCommitRef.current = null;
+    setStripTeleport(true);
+    if (commit === 'prev') {
+      setIndex((x) => Math.max(0, x - 1));
+    } else {
+      setIndex((x) => Math.min(urls.length - 1, x + 1));
+    }
+    setSwipeOffsetX(0);
+    window.requestAnimationFrame(() => {
+      setStripTeleport(false);
+    });
+  };
+
   const onTouchStartCapture = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
       gestureRef.current = 'pinch';
       panRef.current = null;
       touchStartX.current = null;
+      setSlideFingerDown(false);
       pinchRef.current = {
         baseDist: touchDistance(e.touches[0], e.touches[1]),
         baseScale: scaleRef.current,
@@ -170,6 +284,7 @@ export default function PostImagePreviewModal({
       const t = e.touches[0];
       if (scaleRef.current > 1.02) {
         gestureRef.current = 'pan';
+        setSlideFingerDown(false);
         panRef.current = {
           startX: t.clientX,
           startY: t.clientY,
@@ -181,6 +296,11 @@ export default function PostImagePreviewModal({
       } else {
         gestureRef.current = 'swipe';
         touchStartX.current = t.clientX;
+        if (canCarousel && useCarouselLayout) {
+          pendingStripCommitRef.current = null;
+          setSlideFingerDown(true);
+          setSwipeOffsetX(0);
+        }
         panRef.current = null;
         pinchRef.current = null;
       }
@@ -202,6 +322,21 @@ export default function PostImagePreviewModal({
       const { startX, startY, startTx, startTy } = panRef.current;
       setTx(startTx + (t.clientX - startX));
       setTy(startTy + (t.clientY - startY));
+      return;
+    }
+    if (
+      e.touches.length === 1 &&
+      gestureRef.current === 'swipe' &&
+      scaleRef.current <= 1.02 &&
+      canCarousel &&
+      useCarouselLayout &&
+      touchStartX.current !== null
+    ) {
+      const t = e.touches[0];
+      let o = t.clientX - touchStartX.current;
+      if (index === 0 && o > 0) o *= RUBBER_FACTOR;
+      if (index >= urls.length - 1 && o < 0) o *= RUBBER_FACTOR;
+      setSwipeOffsetX(o);
     }
   };
 
@@ -226,15 +361,21 @@ export default function PostImagePreviewModal({
       const x = e.changedTouches[0]?.clientX ?? touchStartX.current;
       const delta = x - touchStartX.current;
       touchStartX.current = null;
-      if (delta > SWIPE_PX) {
+
+      if (canCarousel && useCarouselLayout && slideW > 0) {
+        finishSwipeSlide(delta, index, slideW, urls.length);
+      } else if (delta > SWIPE_PX) {
         bumpSwipeSuppress();
         goPrev();
       } else if (delta < -SWIPE_PX) {
         bumpSwipeSuppress();
         goNext();
+      } else {
+        setSlideFingerDown(false);
       }
     } else {
       touchStartX.current = null;
+      setSlideFingerDown(false);
     }
     gestureRef.current = 'none';
     panRef.current = null;
@@ -276,6 +417,32 @@ export default function PostImagePreviewModal({
   const stageOpacity = prefersReducedMotion ? 1 : 0.72 + 0.28 * enterProgress;
 
   const originForTransform = openAnimComplete ? '50% 50%' : transformOriginPct;
+
+  const stripTranslateX = -slideW + swipeOffsetX;
+  const slideTransition =
+    prefersReducedMotion || stripTeleport
+      ? 'none'
+      : slideFingerDown
+        ? 'none'
+        : `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.8, 0.25, 1)`;
+
+  const prevSrc = index > 0 ? urls[index - 1] ?? null : null;
+  const nextSrc = index < urls.length - 1 ? urls[index + 1] ?? null : null;
+
+  const imgStyle = {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    width: 'auto',
+    height: 'auto',
+    objectFit: 'contain' as const,
+    userSelect: 'none' as const,
+    WebkitUserSelect: 'none' as const,
+    WebkitTouchCallout: 'none' as const,
+    pointerEvents: 'none' as const,
+    display: 'block' as const,
+  };
+
+  const showCarousel = useCarouselLayout && scale <= 1.02;
 
   const overlay = (
     <Box
@@ -328,24 +495,95 @@ export default function PostImagePreviewModal({
           opacity: stageOpacity,
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={src}
-          alt={alt}
-          draggable={false}
-          style={{
-            maxWidth: '100%',
-            maxHeight: '100%',
-            width: 'auto',
-            height: 'auto',
-            objectFit: 'contain',
-            userSelect: 'none',
-            WebkitUserSelect: 'none',
-            WebkitTouchCallout: 'none',
-            pointerEvents: 'none',
-            display: 'block',
-          }}
-        />
+        {showCarousel ? (
+          <Box
+            ref={slideContainerRef}
+            style={{
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'stretch',
+              justifyContent: 'flex-start',
+            }}
+          >
+            <Box
+              onTransitionEnd={onStripTransitionEnd}
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+                height: '100%',
+                width: slideW * 3,
+                flexShrink: 0,
+                transform: `translateX(${stripTranslateX}px)`,
+                transition: slideTransition,
+                willChange: 'transform',
+              }}
+            >
+              <Box
+                style={{
+                  width: slideW,
+                  flexShrink: 0,
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {prevSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={prevSrc} alt="" style={imgStyle} />
+                ) : (
+                  <Box style={{ width: 1, height: 1, opacity: 0 }} />
+                )}
+              </Box>
+              <Box
+                style={{
+                  width: slideW,
+                  flexShrink: 0,
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt={alt} draggable={false} style={imgStyle} />
+              </Box>
+              <Box
+                style={{
+                  width: slideW,
+                  flexShrink: 0,
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {nextSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={nextSrc} alt="" style={imgStyle} />
+                ) : (
+                  <Box style={{ width: 1, height: 1, opacity: 0 }} />
+                )}
+              </Box>
+            </Box>
+          </Box>
+        ) : (
+          <Box
+            ref={slideContainerRef}
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt={alt} draggable={false} style={imgStyle} />
+          </Box>
+        )}
       </Box>
 
       {urls.length > 1 && (
