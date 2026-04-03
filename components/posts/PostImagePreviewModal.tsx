@@ -60,8 +60,6 @@ export default function PostImagePreviewModal({
   const [slideFingerDown, setSlideFingerDown] = useState(false);
   /** 切页完成后保持关闭 strip 的 transition，避免复位后再次用 CSS 插值产生「回弹」感 */
   const [stripTransitionLocked, setStripTransitionLocked] = useState(false);
-  /** 只要曾经双指按下直到全部手指离开：期间固定单图容器，避免首次捏合时 scale 刚过 1.02 就拆掉三相轨道导致重挂载卡顿 */
-  const [pinchSessionActive, setPinchSessionActive] = useState(false);
 
   const scaleRef = useRef(1);
   const txRef = useRef(0);
@@ -119,7 +117,6 @@ export default function PostImagePreviewModal({
     setSwipeOffsetX(0);
     setSlideFingerDown(false);
     setStripTransitionLocked(false);
-    setPinchSessionActive(false);
     pendingStripCommitRef.current = null;
     wasZoomedRef.current = false;
     gestureRef.current = 'none';
@@ -286,7 +283,6 @@ export default function PostImagePreviewModal({
 
   const onTouchStartCapture = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
-      setPinchSessionActive(true);
       gestureRef.current = 'pinch';
       panRef.current = null;
       touchStartX.current = null;
@@ -364,50 +360,44 @@ export default function PostImagePreviewModal({
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
-    try {
-      if (gestureRef.current === 'pinch') {
-        if (e.touches.length >= 2) return;
+    if (gestureRef.current === 'pinch') {
+      if (e.touches.length >= 2) return;
+      gestureRef.current = 'none';
+      pinchRef.current = null;
+      touchStartX.current = null;
+      return;
+    }
+
+    if (gestureRef.current === 'pan') {
+      if (e.touches.length === 0) {
         gestureRef.current = 'none';
-        pinchRef.current = null;
-        touchStartX.current = null;
-        return;
+        panRef.current = null;
       }
+      return;
+    }
 
-      if (gestureRef.current === 'pan') {
-        if (e.touches.length === 0) {
-          gestureRef.current = 'none';
-          panRef.current = null;
-        }
-        return;
-      }
+    if (gestureRef.current === 'swipe' && touchStartX.current !== null && scaleRef.current <= 1.02) {
+      const x = e.changedTouches[0]?.clientX ?? touchStartX.current;
+      const delta = x - touchStartX.current;
+      touchStartX.current = null;
 
-      if (gestureRef.current === 'swipe' && touchStartX.current !== null && scaleRef.current <= 1.02) {
-        const x = e.changedTouches[0]?.clientX ?? touchStartX.current;
-        const delta = x - touchStartX.current;
-        touchStartX.current = null;
-
-        if (canCarousel && useCarouselLayout && slideW > 0) {
-          finishSwipeSlide(delta, index, slideW, urls.length);
-        } else if (delta > SWIPE_PX) {
-          bumpSwipeSuppress();
-          goPrev();
-        } else if (delta < -SWIPE_PX) {
-          bumpSwipeSuppress();
-          goNext();
-        } else {
-          setSlideFingerDown(false);
-        }
+      if (canCarousel && useCarouselLayout && slideW > 0) {
+        finishSwipeSlide(delta, index, slideW, urls.length);
+      } else if (delta > SWIPE_PX) {
+        bumpSwipeSuppress();
+        goPrev();
+      } else if (delta < -SWIPE_PX) {
+        bumpSwipeSuppress();
+        goNext();
       } else {
-        touchStartX.current = null;
         setSlideFingerDown(false);
       }
-      gestureRef.current = 'none';
-      panRef.current = null;
-    } finally {
-      if (e.touches.length === 0) {
-        setPinchSessionActive(false);
-      }
+    } else {
+      touchStartX.current = null;
+      setSlideFingerDown(false);
     }
+    gestureRef.current = 'none';
+    panRef.current = null;
   };
 
   const handleOverlayClick = () => {
@@ -469,7 +459,8 @@ export default function PostImagePreviewModal({
     display: 'block' as const,
   };
 
-  const showCarousel = useCarouselLayout && scale <= 1.02 && !pinchSessionActive;
+  /** 多图时仅切换叠层显示方式，不把轮播从 DOM 拆掉，避免 iOS 首次捏合因触摸目标卸载而整段手势失效 */
+  const showCarouselLayer = useCarouselLayout && scale <= 1.02;
 
   const overlay = (
     <Box
@@ -523,78 +514,105 @@ export default function PostImagePreviewModal({
           opacity: stageOpacity,
         }}
       >
-        {showCarousel ? (
+        {useCarouselLayout ? (
           <Box
             ref={slideContainerRef}
             style={{
+              position: 'relative',
               width: '100%',
               height: '100%',
               overflow: 'hidden',
-              display: 'flex',
-              alignItems: 'stretch',
-              justifyContent: 'flex-start',
             }}
           >
             <Box
-              onTransitionEnd={onStripTransitionEnd}
               style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: showCarouselLayer ? 2 : 0,
+                visibility: showCarouselLayer ? 'visible' : 'hidden',
+                pointerEvents: showCarouselLayer ? 'auto' : 'none',
+                overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'row',
-                height: '100%',
-                width: slideW * 3,
-                flexShrink: 0,
-                transform: `translateX(${stripTranslateX}px)`,
-                transition: slideTransition,
-                willChange: 'transform',
+                alignItems: 'stretch',
+                justifyContent: 'flex-start',
               }}
             >
               <Box
+                onTransitionEnd={onStripTransitionEnd}
                 style={{
-                  width: slideW,
-                  flexShrink: 0,
-                  height: '100%',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  flexDirection: 'row',
+                  height: '100%',
+                  width: slideW * 3,
+                  flexShrink: 0,
+                  transform: `translateX(${stripTranslateX}px)`,
+                  transition: slideTransition,
+                  willChange: 'transform',
                 }}
               >
-                {prevSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={prevSrc} alt="" style={imgStyle} />
-                ) : (
-                  <Box style={{ width: 1, height: 1, opacity: 0 }} />
-                )}
+                <Box
+                  style={{
+                    width: slideW,
+                    flexShrink: 0,
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {prevSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={prevSrc} alt="" style={imgStyle} />
+                  ) : (
+                    <Box style={{ width: 1, height: 1, opacity: 0 }} />
+                  )}
+                </Box>
+                <Box
+                  style={{
+                    width: slideW,
+                    flexShrink: 0,
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt={alt} draggable={false} style={imgStyle} />
+                </Box>
+                <Box
+                  style={{
+                    width: slideW,
+                    flexShrink: 0,
+                    height: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {nextSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={nextSrc} alt="" style={imgStyle} />
+                  ) : (
+                    <Box style={{ width: 1, height: 1, opacity: 0 }} />
+                  )}
+                </Box>
               </Box>
-              <Box
-                style={{
-                  width: slideW,
-                  flexShrink: 0,
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt={alt} draggable={false} style={imgStyle} />
-              </Box>
-              <Box
-                style={{
-                  width: slideW,
-                  flexShrink: 0,
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {nextSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={nextSrc} alt="" style={imgStyle} />
-                ) : (
-                  <Box style={{ width: 1, height: 1, opacity: 0 }} />
-                )}
-              </Box>
+            </Box>
+            <Box
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: showCarouselLayer ? 0 : 2,
+                visibility: showCarouselLayer ? 'hidden' : 'visible',
+                pointerEvents: showCarouselLayer ? 'none' : 'auto',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={src} alt={alt} draggable={false} style={imgStyle} />
             </Box>
           </Box>
         ) : (
