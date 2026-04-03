@@ -12,6 +12,8 @@ export type CoupleProfile = {
   updated_at: string;
 };
 
+export type PostAuthorRole = 'boy' | 'girl';
+
 export type TimelineEvent = {
   id: string;
   title: string;
@@ -29,7 +31,7 @@ export type Post = {
   content: string;
   locked: boolean;
   record_time: string;
-  author: string;
+  author_role: PostAuthorRole;
   like_count: number;
   created_at: string;
   updated_at: string;

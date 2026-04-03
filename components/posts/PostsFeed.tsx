@@ -152,14 +152,13 @@ export default function PostsFeed({
   return (
     <>
       <Stack gap={48}>
-        {posts.map((post, index) => {
+        {posts.map((post) => {
           const comments = post.post_comments ?? [];
           return (
             <EtherealPostCard
               key={post.id}
               post={post}
               coupleProfile={coupleProfile}
-              index={index}
               comments={comments}
               commentInput={commentInputs[post.id] ?? { visitor_name: '', message: '' }}
               commentError={commentErrors[post.id]}

@@ -22,6 +22,7 @@ import {
 } from '@mantine/core';
 import { IconDots, IconHeartFilled, IconLock, IconMessageCircle } from '@tabler/icons-react';
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
+import { resolvePostAuthorAvatarUrl, resolvePostAuthorDisplayName } from '@/lib/posts/authorFromRole';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
 import PostImagePreviewModal from '@/posts/PostImagePreviewModal';
 
@@ -40,38 +41,9 @@ function formatPostDateUpper(recordTime: string) {
     .toUpperCase();
 }
 
-function resolveAuthorVisual(
-  authorRaw: string,
-  profile: CoupleProfile | null | undefined,
-  index: number,
-) {
-  const author = authorRaw?.trim() || '';
-  const boyName = profile?.boy_name?.trim() ?? '';
-  const girlName = profile?.girl_name?.trim() ?? '';
-
-  if (profile && boyName && author === boyName) {
-    return {
-      avatarSrc: profile.boy_avatar ?? undefined,
-      role: 'boy' as const,
-    };
-  }
-  if (profile && girlName && author === girlName) {
-    return {
-      avatarSrc: profile.girl_avatar ?? undefined,
-      role: 'girl' as const,
-    };
-  }
-
-  return {
-    avatarSrc: undefined as string | undefined,
-    role: index % 2 === 0 ? ('girl' as const) : ('boy' as const),
-  };
-}
-
 type Props = {
   post: Post;
   coupleProfile: CoupleProfile | null;
-  index: number;
   comments: PostComment[];
   commentInput: { visitor_name: string; message: string };
   commentError?: string;
@@ -84,7 +56,6 @@ type Props = {
 export default function EtherealPostCard({
   post,
   coupleProfile,
-  index,
   comments,
   commentInput,
   commentError,
@@ -119,9 +90,9 @@ export default function EtherealPostCard({
     [images],
   );
   const likes = post.like_count ?? 0;
-  const author = post.author?.trim() || '发布者';
-  const { avatarSrc, role } = resolveAuthorVisual(post.author, coupleProfile, index);
-  const isBoy = role === 'boy';
+  const author = resolvePostAuthorDisplayName(post.author_role, coupleProfile);
+  const avatarSrc = resolvePostAuthorAvatarUrl(post.author_role, coupleProfile);
+  const isBoy = post.author_role === 'boy';
   const avatarBorder = isBoy ? 'rgba(142, 202, 255, 0.35)' : 'rgba(255, 142, 158, 0.35)';
 
   const cardBase = {

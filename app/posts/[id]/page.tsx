@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { Box, Button, Card, Group, Stack, Text, Title, Badge } from '@mantine/core';
 import SiteFooter from '@/shell/SiteFooter';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
-import { getPostById } from '@/lib/supabase/queries';
+import { resolvePostAuthorDisplayName } from '@/lib/posts/authorFromRole';
+import { getCoupleProfile, getPostById } from '@/lib/supabase/queries';
 import PostDetailImageGrid from '@/posts/PostDetailImageGrid';
 
 function formatCommentTime(value?: string | null) {
@@ -13,7 +14,7 @@ function formatCommentTime(value?: string | null) {
 }
 
 export default async function PostDetailPage({ params }: { params: { id: string } }) {
-  const post = await getPostById(params.id);
+  const [post, coupleProfile] = await Promise.all([getPostById(params.id), getCoupleProfile()]);
 
   if (!post) {
     return (
@@ -34,6 +35,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
   }
 
   const date = (post.record_time || '').replace('T', ' ').slice(0, 16);
+  const authorLabel = resolvePostAuthorDisplayName(post.author_role, coupleProfile);
   const sortedImages = [...(post.post_images ?? [])].sort((a, b) => a.sort_order - b.sort_order);
   const sortedComments = [...(post.post_comments ?? [])].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
@@ -49,7 +51,7 @@ export default async function PostDetailPage({ params }: { params: { id: string 
         </Group>
         <Group mt="sm">
           <Badge color="pink" variant="light">
-            {post.author || '发布者'}
+            {authorLabel}
           </Badge>
           <Badge color="pink" variant="light">{date}</Badge>
         </Group>

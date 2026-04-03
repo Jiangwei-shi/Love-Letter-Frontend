@@ -5,7 +5,8 @@ import { ActionIcon, Box, Button, Card, CopyButton, Divider, Drawer, FileInput, 
 import { DateInput } from '@mantine/dates';
 import { IconArrowsMove, IconEdit, IconTrash } from '@tabler/icons-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase/client';
-import type { CoupleProfile, Post } from '@/lib/types/mvp';
+import { resolvePostAuthorDisplayName } from '@/lib/posts/authorFromRole';
+import type { CoupleProfile, Post, PostAuthorRole } from '@/lib/types/mvp';
 
 const TARGET_IMAGE_SIZE_BYTES = 300 * 1024;
 const MAX_IMAGE_EDGE = 1920;
@@ -76,9 +77,9 @@ type PostFormProps = {
   title: string;
   content: string;
   recordTime: string | null;
-  author: string;
+  authorRole: PostAuthorRole;
   locked: boolean;
-  authorOptions: { value: string; label: string }[];
+  authorOptions: { value: PostAuthorRole; label: string }[];
   images: File[];
   existingImages: { id: string; image_url: string }[];
   imagePreviewItems: {
@@ -94,7 +95,7 @@ type PostFormProps = {
   onTitleChange: (value: string) => void;
   onContentChange: (value: string) => void;
   onRecordTimeChange: (value: string | null) => void;
-  onAuthorChange: (value: string) => void;
+  onAuthorRoleChange: (value: PostAuthorRole) => void;
   onLockedChange: (value: boolean) => void;
   onAddImages: (files: File[]) => void;
   onRemoveExistingImage: (id: string) => void;
@@ -108,7 +109,7 @@ function PostFormCard({
   title,
   content,
   recordTime,
-  author,
+  authorRole,
   locked,
   authorOptions,
   images,
@@ -119,7 +120,7 @@ function PostFormCard({
   onTitleChange,
   onContentChange,
   onRecordTimeChange,
-  onAuthorChange,
+  onAuthorRoleChange,
   onLockedChange,
   onAddImages,
   onRemoveExistingImage,
@@ -200,8 +201,8 @@ function PostFormCard({
               <Select
                 label="记录者"
                 data={authorOptions}
-                value={author}
-                onChange={(v) => onAuthorChange(v ?? '')}
+                value={authorRole}
+                onChange={(v) => onAuthorRoleChange(v === 'girl' ? 'girl' : 'boy')}
                 required
                 styles={{
                   label: { fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#8f7f80' },
@@ -368,6 +369,7 @@ function PostFormCard({
 
 type PostListProps = {
   posts: Post[];
+  coupleProfile: CoupleProfile | null;
   loading: boolean;
   sortOrder: 'asc' | 'desc';
   onToggleSort: () => void;
@@ -376,7 +378,7 @@ type PostListProps = {
   onDeleteComment: (commentId: string) => Promise<void>;
 };
 
-function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, onDeleteComment }: PostListProps) {
+function PostList({ posts, coupleProfile, loading, sortOrder, onToggleSort, onEdit, onDelete, onDeleteComment }: PostListProps) {
   const [detailOpened, setDetailOpened] = useState(false);
   const [selectedComment, setSelectedComment] = useState<{
     postTitle: string;
@@ -601,7 +603,7 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
                       >
                         <Group gap={10}>
                           <Text size="xs" c="#8f7f80" fs="italic">
-                            记录者：{post.author || '未设置'}
+                            记录者：{resolvePostAuthorDisplayName(post.author_role, coupleProfile)}
                           </Text>
                           <Text size="xs" c={post.locked ? '#9c4050' : 'dimmed'}>
                             {post.locked ? '已上锁' : '未上锁'}
@@ -766,13 +768,14 @@ function PostList({ posts, loading, sortOrder, onToggleSort, onEdit, onDelete, o
 }
 
 export default function AdminPostsPage() {
+  const [coupleProfile, setCoupleProfile] = useState<CoupleProfile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [recordTime, setRecordTime] = useState<string | null>(null);
-  const [author, setAuthor] = useState('');
+  const [authorRole, setAuthorRole] = useState<PostAuthorRole>('boy');
   const [locked, setLocked] = useState(false);
-  const [authorOptions, setAuthorOptions] = useState<{ value: string; label: string }[]>([]);
+  const [authorOptions, setAuthorOptions] = useState<{ value: PostAuthorRole; label: string }[]>([]);
   const [images, setImages] = useState<File[]>([]);
   const [existingImages, setExistingImages] = useState<{ id: string; image_url: string }[]>([]);
   const [loading, setLoading] = useState(false);
@@ -869,12 +872,12 @@ export default function AdminPostsPage() {
       .limit(1)
       .maybeSingle();
     const profile = (profileData ?? null) as CoupleProfile | null;
-    const options = [
-      profile?.boy_name ? { value: profile.boy_name, label: profile.boy_name } : null,
-      profile?.girl_name ? { value: profile.girl_name, label: profile.girl_name } : null,
-    ].filter(Boolean) as { value: string; label: string }[];
+    setCoupleProfile(profile);
+    const options: { value: PostAuthorRole; label: string }[] = [
+      { value: 'boy' as const, label: profile?.boy_name?.trim() || '他（男方）' },
+      { value: 'girl' as const, label: profile?.girl_name?.trim() || '她（女方）' },
+    ];
     setAuthorOptions(options);
-    if (!author && options.length > 0) setAuthor(options[0].value);
 
     const { data } = await supabase
       .from('posts')
@@ -903,7 +906,7 @@ export default function AdminPostsPage() {
           title,
           content,
           record_time: recordTime || new Date().toISOString().slice(0, 10),
-          author,
+          author_role: authorRole,
           locked,
         })
         .eq('id', editingId);
@@ -915,7 +918,7 @@ export default function AdminPostsPage() {
           title,
           content,
           record_time: recordTime || new Date().toISOString().slice(0, 10),
-          author,
+          author_role: authorRole,
           locked,
           created_by: currentUserId,
         })
@@ -951,7 +954,7 @@ export default function AdminPostsPage() {
     setTitle('');
     setContent('');
     setRecordTime(null);
-    setAuthor(authorOptions[0]?.value ?? '');
+    setAuthorRole(authorOptions[0]?.value ?? 'boy');
     setLocked(false);
     setImages([]);
     setExistingImages([]);
@@ -973,7 +976,7 @@ export default function AdminPostsPage() {
     setTitle(post.title);
     setContent(post.content);
     setRecordTime(post.record_time ? post.record_time.slice(0, 10) : null);
-    setAuthor(post.author ?? '');
+    setAuthorRole(post.author_role ?? 'boy');
     setLocked(Boolean(post.locked));
     setExistingImages((post.post_images ?? []).map((img) => ({ id: img.id, image_url: img.image_url })));
     setImages([]);
@@ -996,7 +999,7 @@ export default function AdminPostsPage() {
     setTitle('');
     setContent('');
     setRecordTime(null);
-    setAuthor(authorOptions[0]?.value ?? '');
+    setAuthorRole(authorOptions[0]?.value ?? 'boy');
     setLocked(false);
     setImages([]);
     setExistingImages([]);
@@ -1016,7 +1019,7 @@ export default function AdminPostsPage() {
               title={title}
               content={content}
               recordTime={recordTime}
-              author={author}
+              authorRole={authorRole}
               locked={locked}
               authorOptions={authorOptions}
               images={images}
@@ -1027,7 +1030,7 @@ export default function AdminPostsPage() {
               onTitleChange={setTitle}
               onContentChange={setContent}
               onRecordTimeChange={setRecordTime}
-              onAuthorChange={setAuthor}
+              onAuthorRoleChange={setAuthorRole}
               onLockedChange={setLocked}
               onAddImages={appendPickedImages}
               onRemoveExistingImage={removeExistingImage}
@@ -1040,6 +1043,7 @@ export default function AdminPostsPage() {
           <Box className="admin-col-list" style={{ gridColumn: 'span 7' }}>
             <PostList
               posts={sortedPosts}
+              coupleProfile={coupleProfile}
               loading={loading}
               sortOrder={sortOrder}
               onToggleSort={() => setSortOrder((prev) => (prev === 'desc' ? 'asc' : 'desc'))}
