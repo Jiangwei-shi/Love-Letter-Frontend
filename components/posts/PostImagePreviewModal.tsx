@@ -33,6 +33,8 @@ function touchDistance(a: { clientX: number; clientY: number }, b: { clientX: nu
 }
 
 const RUBBER_FACTOR = 0.32;
+/** 初始两指间距过小时用作分母下限，避免首帧缩放比例爆炸 / 几乎不缩放 */
+const PINCH_MIN_DIST_PX = 28;
 
 /**
  * 全屏看图：滑动切图（三相轨道、跟手与微信式过渡）、双指缩放与平移、单击关闭、可选缩略图展开动画。
@@ -58,6 +60,8 @@ export default function PostImagePreviewModal({
   const [slideFingerDown, setSlideFingerDown] = useState(false);
   /** 切页完成后保持关闭 strip 的 transition，避免复位后再次用 CSS 插值产生「回弹」感 */
   const [stripTransitionLocked, setStripTransitionLocked] = useState(false);
+  /** 只要曾经双指按下直到全部手指离开：期间固定单图容器，避免首次捏合时 scale 刚过 1.02 就拆掉三相轨道导致重挂载卡顿 */
+  const [pinchSessionActive, setPinchSessionActive] = useState(false);
 
   const scaleRef = useRef(1);
   const txRef = useRef(0);
@@ -115,6 +119,7 @@ export default function PostImagePreviewModal({
     setSwipeOffsetX(0);
     setSlideFingerDown(false);
     setStripTransitionLocked(false);
+    setPinchSessionActive(false);
     pendingStripCommitRef.current = null;
     wasZoomedRef.current = false;
     gestureRef.current = 'none';
@@ -133,6 +138,9 @@ export default function PostImagePreviewModal({
     const el = stageRef.current;
     if (!el) return;
     const prevent = (e: TouchEvent) => {
+      if (e.touches.length >= 2) {
+        e.preventDefault();
+      }
       if (gestureRef.current === 'pinch' || gestureRef.current === 'pan') {
         e.preventDefault();
       }
@@ -278,12 +286,14 @@ export default function PostImagePreviewModal({
 
   const onTouchStartCapture = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {
+      setPinchSessionActive(true);
       gestureRef.current = 'pinch';
       panRef.current = null;
       touchStartX.current = null;
       setSlideFingerDown(false);
+      const d0 = touchDistance(e.touches[0], e.touches[1]);
       pinchRef.current = {
-        baseDist: touchDistance(e.touches[0], e.touches[1]),
+        baseDist: Math.max(d0, PINCH_MIN_DIST_PX),
         baseScale: scaleRef.current,
       };
       return;
@@ -317,12 +327,16 @@ export default function PostImagePreviewModal({
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length >= 2) {
+      e.preventDefault();
+    }
     if (e.touches.length === 2 && pinchRef.current) {
-      const d = touchDistance(e.touches[0], e.touches[1]);
+      const d = Math.max(touchDistance(e.touches[0], e.touches[1]), 1);
       const { baseDist, baseScale } = pinchRef.current;
-      if (baseDist > 0) {
+      if (baseDist >= PINCH_MIN_DIST_PX * 0.5) {
         const next = Math.min(MAX_SCALE, Math.max(1, (baseScale * d) / baseDist));
         setScale(next);
+        pinchRef.current = { baseDist: d, baseScale: next };
       }
       return;
     }
@@ -350,44 +364,50 @@ export default function PostImagePreviewModal({
   };
 
   const onTouchEnd = (e: React.TouchEvent) => {
-    if (gestureRef.current === 'pinch') {
-      if (e.touches.length >= 2) return;
-      gestureRef.current = 'none';
-      pinchRef.current = null;
-      touchStartX.current = null;
-      return;
-    }
-
-    if (gestureRef.current === 'pan') {
-      if (e.touches.length === 0) {
+    try {
+      if (gestureRef.current === 'pinch') {
+        if (e.touches.length >= 2) return;
         gestureRef.current = 'none';
-        panRef.current = null;
+        pinchRef.current = null;
+        touchStartX.current = null;
+        return;
       }
-      return;
-    }
 
-    if (gestureRef.current === 'swipe' && touchStartX.current !== null && scaleRef.current <= 1.02) {
-      const x = e.changedTouches[0]?.clientX ?? touchStartX.current;
-      const delta = x - touchStartX.current;
-      touchStartX.current = null;
+      if (gestureRef.current === 'pan') {
+        if (e.touches.length === 0) {
+          gestureRef.current = 'none';
+          panRef.current = null;
+        }
+        return;
+      }
 
-      if (canCarousel && useCarouselLayout && slideW > 0) {
-        finishSwipeSlide(delta, index, slideW, urls.length);
-      } else if (delta > SWIPE_PX) {
-        bumpSwipeSuppress();
-        goPrev();
-      } else if (delta < -SWIPE_PX) {
-        bumpSwipeSuppress();
-        goNext();
+      if (gestureRef.current === 'swipe' && touchStartX.current !== null && scaleRef.current <= 1.02) {
+        const x = e.changedTouches[0]?.clientX ?? touchStartX.current;
+        const delta = x - touchStartX.current;
+        touchStartX.current = null;
+
+        if (canCarousel && useCarouselLayout && slideW > 0) {
+          finishSwipeSlide(delta, index, slideW, urls.length);
+        } else if (delta > SWIPE_PX) {
+          bumpSwipeSuppress();
+          goPrev();
+        } else if (delta < -SWIPE_PX) {
+          bumpSwipeSuppress();
+          goNext();
+        } else {
+          setSlideFingerDown(false);
+        }
       } else {
+        touchStartX.current = null;
         setSlideFingerDown(false);
       }
-    } else {
-      touchStartX.current = null;
-      setSlideFingerDown(false);
+      gestureRef.current = 'none';
+      panRef.current = null;
+    } finally {
+      if (e.touches.length === 0) {
+        setPinchSessionActive(false);
+      }
     }
-    gestureRef.current = 'none';
-    panRef.current = null;
   };
 
   const handleOverlayClick = () => {
@@ -449,7 +469,7 @@ export default function PostImagePreviewModal({
     display: 'block' as const,
   };
 
-  const showCarousel = useCarouselLayout && scale <= 1.02;
+  const showCarousel = useCarouselLayout && scale <= 1.02 && !pinchSessionActive;
 
   const overlay = (
     <Box
@@ -483,6 +503,7 @@ export default function PostImagePreviewModal({
         onTouchStartCapture={onTouchStartCapture}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
+        onTouchCancel={onTouchEnd}
         style={{
           width: '100%',
           height: '100%',
