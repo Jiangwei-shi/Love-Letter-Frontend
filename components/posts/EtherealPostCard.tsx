@@ -24,7 +24,7 @@ import { IconDots, IconHeartFilled, IconLock, IconMessageCircle } from '@tabler/
 import type { CoupleProfile, Post, PostComment } from '@/lib/types/mvp';
 import { resolvePostAuthorAvatarUrl, resolvePostAuthorDisplayName } from '@/lib/posts/authorFromRole';
 import { ARCHIVE, sans, serif } from '@/homepage/constants';
-import PostImagePreviewModal from '@/posts/PostImagePreviewModal';
+import PostImagePreviewModal, { type ImageViewerOriginRect } from '@/posts/PostImagePreviewModal';
 
 function sortImages(post: Post) {
   const imgs = post.post_images ?? [];
@@ -64,7 +64,11 @@ export default function EtherealPostCard({
   onComment,
   onCommentFieldChange,
 }: Props) {
-  const [viewer, setViewer] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
+  const [viewer, setViewer] = useState<{
+    open: boolean;
+    index: number;
+    originRect?: ImageViewerOriginRect;
+  }>({ open: false, index: 0 });
   const commentNickBox = useMatches({
     base: { flex: '1 1 100%', minWidth: 0, width: '100%', order: 1, maxWidth: '100%' },
     sm: { flex: '0 1 120px', minWidth: 88, maxWidth: 160, order: 1, width: 'auto' },
@@ -184,7 +188,14 @@ export default function EtherealPostCard({
         <UnstyledButton
           key={img.id}
           type="button"
-          onClick={() => setViewer({ open: true, index: idx })}
+          onClick={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            setViewer({
+              open: true,
+              index: idx,
+              originRect: { top: r.top, left: r.left, width: r.width, height: r.height },
+            });
+          }}
           aria-label={`查看大图：${post.title}`}
           style={{
             aspectRatio: '1',
@@ -340,6 +351,7 @@ export default function EtherealPostCard({
         opened={viewer.open}
         onClose={() => setViewer((v) => ({ ...v, open: false }))}
         alt={post.title}
+        originRect={viewer.open ? (viewer.originRect ?? null) : null}
       />
       {interactionBar}
       {commentComposer}

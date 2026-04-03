@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { Image, SimpleGrid, UnstyledButton } from '@mantine/core';
 import type { PostImage } from '@/lib/types/mvp';
 import { ARCHIVE } from '@/homepage/constants';
-import PostImagePreviewModal from '@/posts/PostImagePreviewModal';
+import PostImagePreviewModal, { type ImageViewerOriginRect } from '@/posts/PostImagePreviewModal';
 
 type Props = {
   images: PostImage[];
@@ -12,7 +12,11 @@ type Props = {
 };
 
 export default function PostDetailImageGrid({ images, title }: Props) {
-  const [viewer, setViewer] = useState<{ open: boolean; index: number }>({ open: false, index: 0 });
+  const [viewer, setViewer] = useState<{
+    open: boolean;
+    index: number;
+    originRect?: ImageViewerOriginRect;
+  }>({ open: false, index: 0 });
   const urls = useMemo(() => images.map((img) => img.image_url), [images]);
 
   if (images.length === 0) return null;
@@ -24,7 +28,14 @@ export default function PostDetailImageGrid({ images, title }: Props) {
           <UnstyledButton
             key={img.id}
             type="button"
-            onClick={() => setViewer({ open: true, index: idx })}
+            onClick={(e) => {
+              const r = e.currentTarget.getBoundingClientRect();
+              setViewer({
+                open: true,
+                index: idx,
+                originRect: { top: r.top, left: r.left, width: r.width, height: r.height },
+              });
+            }}
             aria-label={`查看大图：${title}`}
             style={{
               padding: 0,
@@ -47,6 +58,7 @@ export default function PostDetailImageGrid({ images, title }: Props) {
         opened={viewer.open}
         onClose={() => setViewer((v) => ({ ...v, open: false }))}
         alt={title}
+        originRect={viewer.open ? (viewer.originRect ?? null) : null}
       />
     </>
   );
