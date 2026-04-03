@@ -11,10 +11,6 @@ import type { CoupleProfile, Post, PostAuthorRole } from '@/lib/types/mvp';
 const TARGET_IMAGE_SIZE_BYTES = 300 * 1024;
 const MAX_IMAGE_EDGE = 1920;
 
-/** 与微信类似：长按后才进入拖动排序 */
-const IMAGE_SORT_LONG_PRESS_MS = 480;
-const IMAGE_SORT_MOVE_CANCEL_PX = 12;
-
 const detectFileExtension = (mimeType: string) => {
   if (mimeType.includes('png')) return 'png';
   if (mimeType.includes('webp')) return 'webp';
@@ -133,104 +129,13 @@ function PostFormCard({
   onSubmit,
   onCancelEdit,
 }: PostFormProps) {
-  type SortGesture =
-    | null
-    | { type: 'pending'; key: string; startX: number; startY: number }
-    | { type: 'drag'; key: string };
-
-  const [sortGesture, setSortGesture] = useState<SortGesture>(null);
+  const [draggingKey, setDraggingKey] = useState<string | null>(null);
   const [dragOverKey, setDragOverKey] = useState<string | null>(null);
-  const dragOverKeyRef = useRef<string | null>(null);
-  /** 从 pointerdown 到 finish/cancel 整段交互占用的互斥，避免重复按下；不在 effect cleanup 里清除（pending→drag 会换 effect） */
-  const sortBusyRef = useRef(false);
+  const touchTargetKeyRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    dragOverKeyRef.current = dragOverKey;
-  }, [dragOverKey]);
-
-  const draggingKey = sortGesture?.type === 'drag' ? sortGesture.key : null;
-
-  useEffect(() => {
-    if (!sortGesture) return undefined;
-
-    let longPressTimer: ReturnType<typeof setTimeout> | undefined;
-    let cancelled = false;
-
-    if (sortGesture.type === 'pending') {
-      longPressTimer = setTimeout(() => {
-        if (cancelled) return;
-        setSortGesture({ type: 'drag', key: sortGesture.key });
-        try {
-          if (typeof navigator !== 'undefined' && navigator.vibrate) {
-            navigator.vibrate(20);
-          }
-        } catch {
-          /* ignore */
-        }
-      }, IMAGE_SORT_LONG_PRESS_MS);
-    }
-
-    const onMove = (e: PointerEvent) => {
-      if (sortGesture.type === 'pending') {
-        const dx = e.clientX - sortGesture.startX;
-        const dy = e.clientY - sortGesture.startY;
-        if (dx * dx + dy * dy > IMAGE_SORT_MOVE_CANCEL_PX * IMAGE_SORT_MOVE_CANCEL_PX) {
-          cancelled = true;
-          if (longPressTimer) clearTimeout(longPressTimer);
-          sortBusyRef.current = false;
-          setSortGesture(null);
-          setDragOverKey(null);
-        }
-        return;
-      }
-      if (sortGesture.type === 'drag') {
-        const el = document.elementFromPoint(e.clientX, e.clientY);
-        const dropZone = el?.closest<HTMLElement>('[data-image-key]');
-        const targetKey = dropZone?.dataset.imageKey ?? null;
-        setDragOverKey(targetKey);
-      }
-    };
-
-    const finish = () => {
-      cancelled = true;
-      if (longPressTimer) clearTimeout(longPressTimer);
-      const g = sortGesture;
-      if (g?.type === 'drag') {
-        const to = dragOverKeyRef.current;
-        if (to && g.key !== to) {
-          onReorderImages(g.key, to);
-        }
-      }
-      sortBusyRef.current = false;
-      setSortGesture(null);
-      setDragOverKey(null);
-    };
-
-    document.addEventListener('pointermove', onMove);
-    document.addEventListener('pointerup', finish);
-    document.addEventListener('pointercancel', finish);
-    return () => {
-      cancelled = true;
-      if (longPressTimer) clearTimeout(longPressTimer);
-      document.removeEventListener('pointermove', onMove);
-      document.removeEventListener('pointerup', finish);
-      document.removeEventListener('pointercancel', finish);
-    };
-  }, [sortGesture, onReorderImages]);
-
-  useEffect(
-    () => () => {
-      sortBusyRef.current = false;
-    },
-    [],
-  );
-
-  const onImageSortPointerDown = (e: React.PointerEvent, key: string) => {
-    if (e.button !== 0) return;
-    if (sortBusyRef.current) return;
-    sortBusyRef.current = true;
-    setDragOverKey(null);
-    setSortGesture({ type: 'pending', key, startX: e.clientX, startY: e.clientY });
+  const handleDropReorder = (targetKey: string) => {
+    if (!draggingKey || draggingKey === targetKey) return;
+    onReorderImages(draggingKey, targetKey);
   };
 
   const normalizePickedFiles = (files: File[] | File | null) => {
@@ -339,7 +244,7 @@ function PostFormCard({
               }}
             />
             <Text size="xs" c="dimmed">
-              当前已选 {existingImages.length + images.length}/9 张，可点击图片右上角删除；长按缩略图松手前拖到目标位置可调换顺序（与微信类似）。
+              当前已选 {existingImages.length + images.length}/9 张，可点击图片右上角删除；拖动缩略图可调整顺序（手机端拖拽到目标格后松手）。
             </Text>
             <Text size="xs" c="dimmed">
               新上传图片会在上传前自动压缩到约 300KB，以节省云存储空间。
@@ -350,18 +255,54 @@ function PostFormCard({
                   key={item.key}
                   p={0}
                   radius="sm"
-                  onPointerDown={(e) => onImageSortPointerDown(e, item.key)}
+                  draggable
+                  onDragStart={() => setDraggingKey(item.key)}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDragOverKey(item.key);
+                  }}
+                  onDrop={() => {
+                    handleDropReorder(item.key);
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
+                  onDragEnd={() => {
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
+                  onTouchStart={() => {
+                    setDraggingKey(item.key);
+                    touchTargetKeyRef.current = item.key;
+                    setDragOverKey(item.key);
+                  }}
+                  onTouchMove={(event) => {
+                    const touch = event.touches[0];
+                    if (!touch) return;
+                    const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+                    const dropZone = targetElement?.closest<HTMLElement>('[data-image-key]');
+                    if (!dropZone) return;
+                    const targetKey = dropZone.dataset.imageKey;
+                    if (!targetKey) return;
+                    touchTargetKeyRef.current = targetKey;
+                    setDragOverKey(targetKey);
+                  }}
+                  onTouchEnd={() => {
+                    const targetKey = touchTargetKeyRef.current;
+                    if (targetKey) handleDropReorder(targetKey);
+                    touchTargetKeyRef.current = null;
+                    setDraggingKey(null);
+                    setDragOverKey(null);
+                  }}
                   data-image-key={item.key}
                   style={{
                     position: 'relative',
                     overflow: 'hidden',
-                    cursor: draggingKey ? (draggingKey === item.key ? 'grabbing' : 'default') : 'default',
-                    opacity: draggingKey === item.key ? 0.82 : 1,
-                    touchAction: draggingKey ? 'none' : 'manipulation',
-                    border: dragOverKey === item.key && draggingKey ? '2px solid #9c4050' : '2px solid transparent',
+                    cursor: 'grab',
+                    opacity: draggingKey === item.key ? 0.75 : 1,
+                    touchAction: 'none',
+                    border: dragOverKey === item.key ? '2px solid #9c4050' : '2px solid transparent',
                     boxSizing: 'border-box',
-                    userSelect: 'none',
-                    WebkitUserSelect: 'none',
+                    WebkitTouchCallout: 'none',
                   }}
                 >
                   <Image src={item.imageUrl} alt={item.alt} h={92} radius="sm" fit="cover" />

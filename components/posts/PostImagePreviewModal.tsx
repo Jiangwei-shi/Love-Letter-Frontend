@@ -56,8 +56,8 @@ export default function PostImagePreviewModal({
   const [slideW, setSlideW] = useState(0);
   const [swipeOffsetX, setSwipeOffsetX] = useState(0);
   const [slideFingerDown, setSlideFingerDown] = useState(false);
-  /** 动画结束瞬间重置位置时关闭 transition，避免「弹回去」的二次动画 */
-  const [stripTeleport, setStripTeleport] = useState(false);
+  /** 切页完成后保持关闭 strip 的 transition，避免复位后再次用 CSS 插值产生「回弹」感 */
+  const [stripTransitionLocked, setStripTransitionLocked] = useState(false);
 
   const scaleRef = useRef(1);
   const txRef = useRef(0);
@@ -65,6 +65,7 @@ export default function PostImagePreviewModal({
   const stageRef = useRef<HTMLDivElement | null>(null);
   const slideContainerRef = useRef<HTMLDivElement | null>(null);
   const pendingStripCommitRef = useRef<null | 'prev' | 'next'>(null);
+  const wasZoomedRef = useRef(false);
 
   const touchStartX = useRef<number | null>(null);
   const suppressCloseUntil = useRef(0);
@@ -113,8 +114,9 @@ export default function PostImagePreviewModal({
     setTy(0);
     setSwipeOffsetX(0);
     setSlideFingerDown(false);
-    setStripTeleport(false);
+    setStripTransitionLocked(false);
     pendingStripCommitRef.current = null;
+    wasZoomedRef.current = false;
     gestureRef.current = 'none';
     pinchRef.current = null;
     panRef.current = null;
@@ -169,12 +171,20 @@ export default function PostImagePreviewModal({
     };
   }, [opened]);
 
-  /** 缩放回到 1 时横向偏移归零（放大镜模式不沿用切图位移） */
+  /** 仅从放大态缩回 1 时归零横向偏移，避免每次 scale=1 渲染都触发扰动 */
   useEffect(() => {
-    if (scale <= 1.02) setSwipeOffsetX(0);
+    if (scale > 1.02) {
+      wasZoomedRef.current = true;
+      return;
+    }
+    if (wasZoomedRef.current) {
+      wasZoomedRef.current = false;
+      setSwipeOffsetX(0);
+    }
   }, [scale]);
 
   const goPrev = useCallback(() => {
+    setStripTransitionLocked(false);
     setIndex((i) => (i > 0 ? i - 1 : i));
     setScale(1);
     setTx(0);
@@ -183,6 +193,7 @@ export default function PostImagePreviewModal({
   }, []);
 
   const goNext = useCallback(() => {
+    setStripTransitionLocked(false);
     setIndex((i) => (i < urls.length - 1 ? i + 1 : i));
     setScale(1);
     setTx(0);
@@ -256,16 +267,13 @@ export default function PostImagePreviewModal({
     const commit = pendingStripCommitRef.current;
     if (!commit) return;
     pendingStripCommitRef.current = null;
-    setStripTeleport(true);
     if (commit === 'prev') {
       setIndex((x) => Math.max(0, x - 1));
     } else {
       setIndex((x) => Math.min(urls.length - 1, x + 1));
     }
     setSwipeOffsetX(0);
-    window.requestAnimationFrame(() => {
-      setStripTeleport(false);
-    });
+    setStripTransitionLocked(true);
   };
 
   const onTouchStartCapture = (e: React.TouchEvent) => {
@@ -298,6 +306,7 @@ export default function PostImagePreviewModal({
         touchStartX.current = t.clientX;
         if (canCarousel && useCarouselLayout) {
           pendingStripCommitRef.current = null;
+          setStripTransitionLocked(false);
           setSlideFingerDown(true);
           setSwipeOffsetX(0);
         }
@@ -420,11 +429,9 @@ export default function PostImagePreviewModal({
 
   const stripTranslateX = -slideW + swipeOffsetX;
   const slideTransition =
-    prefersReducedMotion || stripTeleport
+    prefersReducedMotion || stripTransitionLocked || slideFingerDown
       ? 'none'
-      : slideFingerDown
-        ? 'none'
-        : `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.8, 0.25, 1)`;
+      : `transform ${SLIDE_MS}ms cubic-bezier(0.25, 0.8, 0.25, 1)`;
 
   const prevSrc = index > 0 ? urls[index - 1] ?? null : null;
   const nextSrc = index < urls.length - 1 ? urls[index + 1] ?? null : null;
