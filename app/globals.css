@@ -77,9 +77,110 @@ a { color: inherit; text-decoration: none; }
   }
 }
 
-.home-bento-tile:hover img {
+.home-bento-tile__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.home-bento-tile:hover .home-bento-tile__image {
   transform: scale(1.08);
 }
+
+.home-bento-tile--text {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: clamp(28px, 4vw, 48px);
+  border: 1px solid rgba(156, 64, 80, 0.12);
+  background:
+    radial-gradient(circle at 92% 10%, rgba(255, 142, 158, 0.2), transparent 38%),
+    linear-gradient(145deg, #fffaf8, #f5eeee);
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+
+.home-bento-tile--text::before {
+  content: '“';
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: rgba(156, 64, 80, 0.11);
+  font-family: Georgia, serif;
+  font-size: clamp(120px, 12vw, 180px);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.home-bento-tile--text:hover {
+  box-shadow: 0 18px 42px rgba(156, 64, 80, 0.12);
+  transform: translateY(-3px);
+}
+
+.home-bento-tile__eyebrow,
+.home-bento-tile__text-body,
+.home-bento-tile__read-more {
+  position: relative;
+  z-index: 1;
+}
+
+.home-bento-tile__eyebrow {
+  color: #9c4050;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+}
+
+.home-bento-tile__text-body {
+  margin-block: auto;
+}
+
+.home-bento-tile__text-title {
+  color: #554244;
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 400;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.home-life-bento__main .home-bento-tile__text-title {
+  font-size: clamp(28px, 3vw, 42px);
+}
+
+.home-bento-tile__text-excerpt {
+  display: -webkit-box;
+  margin-top: 12px;
+  overflow: hidden;
+  color: #786769;
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-line;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.home-life-bento__sec1 .home-bento-tile--text,
+.home-life-bento__sec2 .home-bento-tile--text {
+  gap: 16px;
+  padding: 32px;
+}
+
+.home-life-bento__main .home-bento-tile__text-excerpt {
+  -webkit-line-clamp: 4;
+}
+
+.home-bento-tile__read-more {
+  align-self: flex-start;
+  padding-bottom: 4px;
+  border-bottom: 1px solid currentColor;
+  color: #9c4050;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .home-bento-overlay {
   opacity: 0;
   transition: opacity 0.45s ease;
@@ -113,6 +214,15 @@ a { color: inherit; text-decoration: none; }
     grid-column: 8 / span 5;
     grid-row: 2 / span 1;
     min-height: 0;
+  }
+  .home-life-bento--text-only {
+    min-height: 440px;
+  }
+  .home-life-bento--single .home-life-bento__main {
+    grid-column: 1 / -1;
+  }
+  .home-life-bento--pair .home-life-bento__sec1 {
+    grid-row: 1 / span 2;
   }
 }
 .timeline { margin-top: 18px; position: relative; }

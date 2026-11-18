@@ -20,11 +20,18 @@ type Props = {
 
 export default function HomeLifeRecords({ posts }: Props) {
   const [main, second, third] = posts;
+  const covers = posts.slice(0, 3).map(getCoverUrl);
+  const [mainCover, secondCover, thirdCover] = covers;
+  const textOnly = covers.every((cover) => !cover);
 
   return (
     <Box component="section" py={96} px={{ base: 24, sm: 32 }} maw={1280} mx="auto">
       <Stack gap={48} align="center" mb={56}>
-        <Title order={2} ta="center" style={{ fontFamily: serif, color: ARCHIVE.primary, fontWeight: 400 }}>
+        <Title
+          order={2}
+          ta="center"
+          style={{ fontFamily: serif, color: ARCHIVE.primary, fontWeight: 400 }}
+        >
           生活记录
         </Title>
         <Box
@@ -62,7 +69,16 @@ export default function HomeLifeRecords({ posts }: Props) {
         </Stack>
       ) : (
         <>
-          <Box className="home-life-bento">
+          <Box
+            className={[
+              'home-life-bento',
+              textOnly && 'home-life-bento--text-only',
+              posts.length === 1 && 'home-life-bento--single',
+              posts.length === 2 && 'home-life-bento--pair',
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          >
             {main && (
               <Box
                 className="home-life-bento__main"
@@ -77,7 +93,7 @@ export default function HomeLifeRecords({ posts }: Props) {
                 }}
               >
                 <FeatureTile
-                  cover={getCoverUrl(main)}
+                  cover={mainCover}
                   title={main.title}
                   excerpt={excerpt(main.content)}
                   minHeight={360}
@@ -89,10 +105,15 @@ export default function HomeLifeRecords({ posts }: Props) {
                 className="home-life-bento__sec1"
                 component={Link}
                 href={`/posts/${second.id}`}
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block', minHeight: 200 }}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  minHeight: 200,
+                }}
               >
                 <FeatureTile
-                  cover={getCoverUrl(second)}
+                  cover={secondCover}
                   title={second.title}
                   excerpt={excerpt(second.content)}
                   minHeight={200}
@@ -104,10 +125,15 @@ export default function HomeLifeRecords({ posts }: Props) {
                 className="home-life-bento__sec2"
                 component={Link}
                 href={`/posts/${third.id}`}
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block', minHeight: 200 }}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  minHeight: 200,
+                }}
               >
                 <FeatureTile
-                  cover={getCoverUrl(third)}
+                  cover={thirdCover}
                   title={third.title}
                   excerpt={excerpt(third.content)}
                   minHeight={200}
@@ -157,41 +183,35 @@ function FeatureTile({
     position: 'relative' as const,
     borderRadius: 12,
     overflow: 'hidden',
-    background: ARCHIVE.surfaceContainerHigh,
+    background: cover ? ARCHIVE.surfaceContainerHigh : undefined,
     height: '100%',
     minHeight,
     boxShadow: ARCHIVE.cardShadowSoft,
   };
 
   return (
-    <Box className="home-bento-tile" style={base}>
+    <Box className={`home-bento-tile${cover ? '' : ' home-bento-tile--text'}`} style={base}>
       {cover ? (
-        <Image
-          src={cover}
-          alt=""
-          fit="cover"
-          h="100%"
-          w="100%"
-          mih={minHeight}
-          style={{
-            transition: 'transform 0.7s ease',
-          }}
-        />
+        <Image className="home-bento-tile__image" src={cover} alt="" fit="cover" />
       ) : (
-        <Box
-          style={{
-            minHeight,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Box p="xl" style={{ width: '100%' }}>
-            <Text ta="center" c="dimmed" size="sm">
+        <>
+          <Text className="home-bento-tile__eyebrow" style={{ fontFamily: sans }}>
+            生活手记
+          </Text>
+          <Box className="home-bento-tile__text-body">
+            <Title order={3} className="home-bento-tile__text-title" style={{ fontFamily: serif }}>
               {title}
-            </Text>
+            </Title>
+            {text && (
+              <Text className="home-bento-tile__text-excerpt" style={{ fontFamily: sans }}>
+                {text}
+              </Text>
+            )}
           </Box>
-        </Box>
+          <Text className="home-bento-tile__read-more" style={{ fontFamily: sans }}>
+            阅读记录 <span aria-hidden="true">↗</span>
+          </Text>
+        </>
       )}
 
       {cover && (
@@ -207,7 +227,14 @@ function FeatureTile({
             background: 'linear-gradient(180deg, transparent 35%, rgba(0,0,0,0.62))',
           }}
         >
-          <Text tt="uppercase" size="xs" fw={700} c="#ffd9dc" mb={8} style={{ letterSpacing: '0.16em' }}>
+          <Text
+            tt="uppercase"
+            size="xs"
+            fw={700}
+            c="#ffd9dc"
+            mb={8}
+            style={{ letterSpacing: '0.16em' }}
+          >
             最近故事
           </Text>
           <Title order={3} c="white" mb={8} style={{ fontFamily: serif, fontWeight: 400 }}>
@@ -218,7 +245,6 @@ function FeatureTile({
           </Text>
         </Box>
       )}
-
     </Box>
   );
 }
