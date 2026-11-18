@@ -80,7 +80,7 @@ export default function SiteHeader() {
         size="xs"
         title="导航"
         styles={{
-          header: { fontFamily: serif },
+          header: { fontFamily: serif, position: 'static' },
           body: { paddingTop: 8 },
         }}
       >
