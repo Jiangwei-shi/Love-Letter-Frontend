@@ -25,8 +25,10 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
   const subtitle =
     profile?.about_text ??
     '从相遇到现在，每一个普通的日子，都因为有你而变得值得被记住。';
-  const mainPhoto = profile?.boy_avatar;
-  const insetPhoto = profile?.girl_avatar;
+  const boyPhoto = profile?.boy_avatar || null;
+  const girlPhoto = profile?.girl_avatar || null;
+  const mainPhoto = boyPhoto || girlPhoto;
+  const insetPhoto = boyPhoto && girlPhoto ? girlPhoto : null;
 
   return (
     <Box
@@ -187,6 +189,8 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
           hiddenFrom="md"
           mt="lg"
           mx="auto"
+          pos="relative"
+          style={{ paddingBottom: insetPhoto ? 32 : 0 }}
         >
           <Box
             pos="relative"
@@ -221,6 +225,26 @@ export default function HomeHero({ profile, anniversaryDays }: Props) {
               </Box>
             )}
           </Box>
+
+          {insetPhoto && (
+            <Box
+              pos="absolute"
+              bottom={0}
+              left={0}
+              w="clamp(112px, 36vw, 152px)"
+              style={{
+                aspectRatio: '1 / 1',
+                borderRadius: 12,
+                overflow: 'hidden',
+                boxShadow: '0 16px 32px rgba(0,0,0,0.18)',
+                transform: 'rotate(-6deg)',
+                border: `6px solid ${ARCHIVE.bg}`,
+                background: ARCHIVE.secondaryContainer,
+              }}
+            >
+              <Image src={insetPhoto} alt={`${girl}的照片`} fit="cover" h="100%" w="100%" />
+            </Box>
+          )}
         </Box>
 
         <Box
